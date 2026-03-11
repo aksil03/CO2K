@@ -1,12 +1,7 @@
-@import "tw-animate-css";
-@import "shadcn/tailwind.css";
-@import "@fontsource-variable/geist";
+@import "tailwindcss";
 
-@tailwind base;
 
 @custom-variant dark (&:is(.dark *));
-@tailwind components;
-@tailwind utilities;
 
 :root {
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
