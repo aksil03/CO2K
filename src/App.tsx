@@ -7,7 +7,7 @@ import Dash from "./pages/Dashboard";
 function App() {
   return (
     <Router>
-      <div className="min-h-screen w-full [background:radial-gradient(125%_125%_at_50%_10%,#fff_20%,#10b981_100%)] bg-fixed">
+      <div className="min-h-screen w-full  [background:radial-gradient(125%_125%_at_50%_10%,#fff_20%,#10b981_100%)] bg-fixed">
         <Navbar />
         
         <Routes>
