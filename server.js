@@ -16,11 +16,7 @@ async function startServer() {
     console.log("Connexion SQLite réussie !");
 
 
-    //creation des tables 
-    await db.exec(`
-        CREATE TABLE IF NOT EXISTS utilisateur (id INTEGER PRIMARY KEY AUTOINCREMENT, email TEXT UNIQUE, mdp TEXT, poids REAL, taille REAL, age INTEGER, genre TEXT CHECK(genre IN('homme', 'femme')), nom TEXT, prenom TEXT, objectif TEXT, regime TEXT IN ('vegetarien', 'sans porc', 'sandard'));
-        
-        `)
+    
 
     app.listen(3000, () => {
       console.log("Serveur démarré sur le port 3000");
@@ -31,3 +27,4 @@ async function startServer() {
 }
 
 startServer();
+
