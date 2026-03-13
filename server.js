@@ -10,12 +10,33 @@ app.use(express.json());
 async function startServer() {
   try {
     const db = await open({
-      filename: './database.sqlite',
+      filename: './bdd/database.sqlite',
       driver: sqlite3.Database
     });
     console.log("Connexion SQLite réussie !");
 
+    await db.run(`
+      INSERT OR IGNORE INTO utilisateurs (nom, prenom, email, password) 
+      VALUES ('Bounif', 'Aksil', 'Aksil', 'Aksil')
+    `);
 
+     app.post('/api/connexion', async (req, res) => {
+      const { email, password } = req.body;
+
+      const user = await db.get(
+        'SELECT * FROM utilisateurs WHERE email = ? AND password = ?',
+        [email, password]
+      );
+
+      if (user) {
+          res.send(user);
+      } 
+      else {
+       res.status(401).send(); 
+      }
+    });
+
+    
     
 
     app.listen(3000, () => {
