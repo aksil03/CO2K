@@ -19,7 +19,7 @@ const Accueil = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 2.0 }} 
-          className="text-8xl font-black text-black"
+          className="text-8xl font-black text-black dark:text-white"
         >
           CO2<span className="text-green-600">K</span>
         </motion.h1>
@@ -36,7 +36,7 @@ const Accueil = () => {
       </main>
 
       <div id="contenu">
-        {Accueil_assets.map((item) => (
+        {Accueil_assets.map((item: any) => (
           <section 
             key={item.id} 
             className={`min-h-screen flex flex-col relative px-10 md:px-20 overflow-hidden py-20 ${item.estCentre ? 'items-center justify-center' : 'md:flex-row items-center'} ${!item.estCentre && item.inverserPosition ? 'md:flex-row-reverse' : ''}`}
@@ -62,11 +62,12 @@ const Accueil = () => {
                 <Badge className={`${item.badgeCouleur} text-white mb-5 px-5 py-2 text-lg`}>
                   {item.badge}
                 </Badge>
-                <h2 className="text-5xl md:text-7xl font-black italic text-black mb-5 ">
+
+                <h2 className={`text-5xl md:text-7xl font-black italic mb-5 ${item.titreCouleur}`}>
                   {item.titre}
                 </h2>
-                <Separator className={`my-5 bg-black h-1 ${item.id === '03' ? 'w-40 mx-auto' : 'w-32'} ${item.estCentre ? 'mx-auto' : item.inverserPosition ? 'ml-auto' : 'mx-auto md:ml-0'}`} />
-                <p className={`text-gray-700 text-2xl md:text-3xl font-medium ${item.id === '03' ? 'italic' : ''}`}>
+                <Separator className={`my-5 bg-current h-1 ${item.id === '03' ? 'w-40 mx-auto' : 'w-32'} ${item.estCentre ? 'mx-auto' : item.inverserPosition ? 'ml-auto' : 'mx-auto md:ml-0'}`} />
+                <p className={`text-2xl md:text-3xl font-medium ${item.descCouleur} ${item.id === '03' ? 'italic' : ''}`}>
                   {item.description}
                 </p>
               </div>
