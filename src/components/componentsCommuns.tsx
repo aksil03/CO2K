@@ -3,7 +3,7 @@ import { motion } from 'framer-motion'
 import { Button } from './ui/button'
 import Co2KLogo from '../assets/Co2K.svg'
 import { CHEMIN_ACCUEIL } from '../App'
-
+import { Form } from "@/components/ui/form"
 
 export function BoutonVert({ children, onClick, type = "button", disabled = false }: any) {
   return (
@@ -48,37 +48,29 @@ export function NavBoutonGhost({ children, onClick }: any) {
   )
 }
 
-export function FormTemplate({ title, children, footerText, linkText, linkTo }: any) {
+export function FormTemplate({ title, form, children, footerText, linkText, linkTo }: any) {
   return (
-    <div className="pt-24 w-full flex justify-center px-4"> 
-      {/* Conteneur principal avec animation d'entrée et effet de verre renforcé */}
+    <div className="py-24 w-full flex justify-center px-4 relative">
       <motion.div 
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="w-full max-w-md p-8 md:p-10 space-y-8 bg-white/40 backdrop-blur-xl rounded-[2rem] shadow-[0_20px_50px_rgba(0,0,0,0.1)] border border-white/40 relative overflow-hidden"
+        layout
+        className="w-full max-w-md p-10 bg-white dark:bg-zinc-900 rounded-[2.5rem] border border-slate-200 dark:border-zinc-800 shadow-2xl transition-colors duration-300"
       >
-        {/* Effet de brillance subtil en arrière-plan du formulaire */}
-        <div className="absolute -top-24 -right-24 w-48 h-48 bg-emerald-200/30 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute -bottom-24 -left-24 w-48 h-48 bg-white/50 rounded-full blur-3xl pointer-events-none" />
-
-        <div className="relative z-10">
-          <h1 className="text-3xl font-black italic text-center bg-gradient-to-br from-emerald-900 to-emerald-600 bg-clip-text text-transparent uppercase tracking-tighter mb-2">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight mb-8">
             {title}
           </h1>
-          <div className="h-1 w-12 bg-emerald-500 mx-auto rounded-full mb-8" />
-          
-          <div className="space-y-5">
-            {children}
-          </div>
 
-          <div className="mt-8 pt-6 border-t border-emerald-900/5">
-            <p className="text-sm text-center text-slate-600 font-medium">
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(form.onSubmit)} className="space-y-6 text-left">
+              {children}
+            </form>
+          </Form>
+
+          <div className="mt-10 pt-6 border-t border-slate-100 dark:border-zinc-800">
+            <p className="text-slate-500 dark:text-slate-400 text-sm">
               {footerText}{" "}
-              <Link 
-                to={linkTo} 
-                className="text-emerald-700 font-extrabold hover:text-emerald-500 transition-colors duration-300 underline-offset-4 hover:underline"
-              >
+
+              <Link to={linkTo} className="text-emerald-600 dark:text-white font-bold hover:text-emerald-700 transition-colors">
                 {linkText}
               </Link>
             </p>
@@ -86,5 +78,5 @@ export function FormTemplate({ title, children, footerText, linkText, linkTo }: 
         </div>
       </motion.div>
     </div>
-  );
+  )
 }

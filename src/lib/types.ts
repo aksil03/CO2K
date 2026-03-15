@@ -15,3 +15,12 @@ export const InscriptionFormSchema = z.object({
 
 
 export type InscriptionData = z.infer<typeof InscriptionFormSchema>;
+
+
+// schema de structure d'une identification
+export const LoginFormSchema = z.object({
+  email: z.string().email("L'email doit être au format standard"),
+  password: z.string().min(1, "Le mot de passe est requis"), 
+});
+
+export type LoginData = z.infer<typeof LoginFormSchema>;
