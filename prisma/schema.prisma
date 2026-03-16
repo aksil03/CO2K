@@ -1,19 +1,90 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "sqlite"
-  url      = "file:./dev.db"
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 model Utilisateur {
-  id       Int     @id @default(autoincrement())
-  nom      String?
-  prenom   String?
-  email    String  @unique
-  password String
+  id        Int      @id @default(autoincrement())
+  nom       String?
+  prenom    String?
+  email     String   @unique
+  password  String
+  createdAt DateTime @default(now())
+  Repas     Repas[]
+}
+
+model Aliment {
+  id       Int         @id @default(autoincrement())
+  nom      String
+  co2      Float
+  cal      Int
+  prot     Float?
+  lip      Float?
+  glu      Float?
+  sucre    Float?
+  gras_sat Float?
+  bac      BacAliment?
+  Portion  Portion[]
+}
+
+model Portion {
+  id        Int     @id @default(autoincrement())
+  quantite  Float
+  repasId   Int
+  alimentId Int
+  Aliment   Aliment @relation(fields: [alimentId], references: [id])
+  Repas     Repas   @relation(fields: [repasId], references: [id])
+}
+
+model Repas {
+  id            Int            @id @default(autoincrement())
+  date          DateTime       @default(now())
+  type          String
+  utilisateurId Int
+  nomTemplate   TemplateRepas?
+  Portion       Portion[]
+  Utilisateur   Utilisateur    @relation(fields: [utilisateurId], references: [id])
+}
+
+enum BacAliment {
+  PROT_PORC
+  PROT_VIANDE_ROUGE
+  PROT_VOLAILLE
+  PROT_BLANCHE_AUTRE
+  PROT_P
+  PROT_VEG
+  PATE
+  NOUILLE_VERMICELLE
+  RIZ
+  SEMOU
+  POTATO
+  PAIN
+  WRAP
+  LEG
+  LAITUE
+  FROMAGE
+  FRUIT_ENTIER
+  FRUIT_PULPE
+  CERE
+  LAIT
+  S_HOT
+  S_COLD
+  VINAIGRETTE
+  PB
+  GAL_RIZ
+}
+
+enum TemplateRepas {
+  PETIT_DEJ
+  HOT
+  SANDWICH
+  WRAP
+  SALADE
+  BOWL_ASIAT
+  COLLATION
 }
