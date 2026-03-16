@@ -1,0 +1,132 @@
+.container {
+  padding: 20px;
+
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr); 
+  gap: 20px;
+  padding: 10px;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  
+  /* Style Nature */
+  background: #ffffff;
+  border-top: 5px solid #2d6a4f; /* Bande verte en haut pour le style */
+  border-radius: 20px;
+  
+  box-shadow: 0 10px 25px rgba(45, 106, 79, 0.15); 
+  
+  padding: 20px;
+  height: 320px;
+  transition: all 0.3s ease-in-out;
+  cursor: pointer;
+}
+
+.card:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 20px 35px rgba(45, 106, 79, 0.25);
+}
+
+.card h3 {
+  color: #1b4332;
+  font-family: 'Segoe UI', sans-serif;
+  margin-bottom: 15px;
+  text-align: center;
+}
+
+.card p {
+  color: #555;
+  margin: 4px 0;
+  font-size: 0.95rem;
+}
+
+.card strong {
+  color: #2d6a4f; 
+}
+
+
+
+
+.card-category {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  
+  /* Palette de vert nature */
+  background: linear-gradient(145deg, #e9f5e9, #d8f3dc);
+  border: 2px solid #b7e4c7;
+  border-radius: 25px;
+  
+  /* Ombre douce */
+  box-shadow: 0 8px 16px rgba(40, 167, 69, 0.1);
+  
+  /* Interaction */
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  padding: 20px;
+  height: 180px;
+  text-align: center;
+}
+
+/* Effet au survol : la carte "s'illumine" et s'agrandit */
+.card-category:hover {
+  transform: translateY(-8px);
+  background: #b7e4c7;
+  border-color: #2d6a4f;
+  box-shadow: 0 12px 24px rgba(40, 167, 69, 0.2);
+}
+
+.card-category h3 {
+  color: #1b4332;
+  font-size: 1.4rem;
+  margin-bottom: 10px;
+  text-transform: capitalize;
+}
+
+.card-category p {
+  color: #40916c;
+  font-weight: 600;
+  background: rgba(255, 255, 255, 0.5);
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-size: 0.9rem;
+}
+
+
+
+
+.back-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 24px;
+  background-color: #ffffff;
+  border: 2px solid #2d6a4f;
+  color: #2d6a4f;
+  border-radius: 50px;
+  font-weight: 700;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-bottom: 20px;
+  gap: 8px;
+}
+
+.back-button:hover {
+  background-color: #2d6a4f;
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(45, 106, 79, 0.3);
+  transform: translateY(-2px);
+}
+
+.back-button:active {
+  transform: translateY(0);
+}
