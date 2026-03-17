@@ -1,8 +1,8 @@
 import express, { Request, Response } from 'express';
 import cors from 'cors';
 import { db } from './src/lib/db.ts';
-import { getMail } from './src/lib/queries.ts';
-import { ajouterUtilisateur } from './src/lib/queries.ts';
+import { getMail, getUtilisateurComplet } from './src/lib/queries.ts';
+import { ajouterUtilisateur, majProfil } from './src/lib/queries.ts';
 
 const app = express();
 
@@ -37,6 +37,35 @@ app.post('/api/inscription', async (req, res) => {
 });
 
 
-    app.listen(3000, () => {
-      console.log("Serveur démarré sur le port 3000");
-    });
+// get l'utilisateur avec ses relations
+app.get('/api/utilisateur', async (req, res) => {
+  const email = req.query.email as string;
+
+  try {
+    const resultat = await getUtilisateurComplet(email);
+    if (resultat !== null) {
+      res.send(resultat);
+    } 
+    else {
+      res.status(404).send("Utilisateur non trouvé");
+    }
+  } catch (erreur) {
+    res.status(500).send("Erreur du serveur");
+  }
+});
+
+// maj profil
+app.put('/api/utilisateur/update/:email', async (req, res) => {
+  const email = req.params.email;
+  const nouvellesDonnees = req.body;
+  try {
+    const misAjour = await majProfil(email, nouvellesDonnees);
+    res.send(misAjour);
+  } catch (erreur) {
+    res.status(500).send("Erreur pendant la mise à jour");
+  }
+});
+
+app.listen(3000, () => {
+  console.log("Serveur démarré sur le port 3000");
+});

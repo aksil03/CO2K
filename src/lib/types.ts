@@ -1,9 +1,9 @@
 import { Prisma } from "@prisma/client";
 import { z } from "zod";
-import { getMail } from "./queries";
+import { getUtilisateurComplet } from "./queries";
 
 // type de recuperation d'attributs associée a un utilisateur via sont mail
-export type UserWithRelations = Awaited<ReturnType<typeof getMail>>;
+export type UserWithRelations = Awaited<ReturnType<typeof getUtilisateurComplet>>;
 
 
 // schema d'inscription pour respecter la structure d'utilisateur voulu avant insertion en bdd
@@ -28,3 +28,15 @@ export const LoginFormSchema = z.object({
 });
 
 export type LoginData = z.infer<typeof LoginFormSchema>;
+
+
+// schema d'un profil utilisateur
+export const ProfilFormSchema = z.object({
+  poids: z.preprocess((val) => Number(val), z.number().min(20)),
+  taille: z.preprocess((val) => Number(val), z.number().min(50)),
+  objectif: z.enum(["PRISE_DE_MASSE", "PERTE_DE_GRAS", "MAINTIEN"]),
+  activite: z.enum(["SEDENTAIRE", "LEGER", "MODERE", "INTENSE", "EXTREME"]),
+  genre: z.enum(["HOMME", "FEMME"]),
+});
+
+export type ProfilData = z.infer<typeof ProfilFormSchema>;
