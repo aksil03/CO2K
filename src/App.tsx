@@ -10,7 +10,7 @@ import { ThemeProvider } from "./providers/theme-provider"
 
 export const CHEMIN_ACCUEIL = "/";
 export const CHEMIN_LOGIN = "/login";
-export const CHEMIN_DASHBOARD = "/dashboard";
+export const CHEMIN_DASHBOARD = (email = ":email") => `/dashboard/${email}`;
 export const CHEMIN_INSCRIPTION = "/Inscription";
 
 function App() {
@@ -34,7 +34,7 @@ function App() {
               <Routes>
                 <Route path={CHEMIN_ACCUEIL} element={<Acc />} />
                 <Route path={CHEMIN_LOGIN} element={<Conn />}/>
-                <Route path={CHEMIN_DASHBOARD} element={<ProtectedRoute><Dash /></ProtectedRoute>} />
+                <Route path={CHEMIN_DASHBOARD()} element={<ProtectedRoute><Dash /></ProtectedRoute>} />
                 <Route path={CHEMIN_INSCRIPTION} element={<Insc />} />
               </Routes>
             </main>
