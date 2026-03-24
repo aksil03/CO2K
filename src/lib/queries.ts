@@ -1,6 +1,7 @@
 import { db } from './db.ts';
 import type { InscriptionData } from './types.ts'; 
 import type { ProfilData } from './types';
+import type { Aliment } from './types.ts';
 
 // recupere l'utilisateur via sont mail
 export const getMail = async (email: string) => {
@@ -40,5 +41,20 @@ export const majProfil = async (email: string, data: ProfilData) => {
   return await db.utilisateur.update({
     where: { email },
     data: data
+  });
+};
+
+// Recupere tout les aliments par bacs
+export const getAlimentsParBac = async (bac: string) => {
+  return await db.aliment.findMany({
+    where: { bac: bac as any },
+    orderBy: { nom: 'asc' }
+  });
+};
+
+// Recupere un aliment par ID
+export const getAlimentById = async (id: number) => {
+  return await db.aliment.findUnique({
+    where: { id }
   });
 };

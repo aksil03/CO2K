@@ -3,6 +3,7 @@ import cors from 'cors';
 import { db } from './src/lib/db.ts';
 import { getMail, getUtilisateurComplet } from './src/lib/queries.ts';
 import { ajouterUtilisateur, majProfil } from './src/lib/queries.ts';
+import { getAlimentsParBac } from './src/lib/queries.ts';
 
 const app = express();
 
@@ -63,6 +64,19 @@ app.put('/api/utilisateur/update/:email', async (req, res) => {
     res.send(misAjour);
   } catch (erreur) {
     res.status(500).send("Erreur pendant la mise à jour");
+  }
+});
+
+// Route pour recuperer les aliments par bac
+app.get('/api/aliments', async (req, res) => {
+  const nomDuBac = req.query.bac as string;
+
+  try {
+    const resultats = await getAlimentsParBac(nomDuBac);
+ 
+    res.json(resultats); 
+  } catch (error) {
+    res.status(500).send("Erreur lors de la récupération des aliments");
   }
 });
 

@@ -1,10 +1,11 @@
 import React, { useState } from 'react'
-import { LayoutDashboard, Utensils, Dumbbell, Leaf, Settings, LogOut, User } from 'lucide-react'
+import { LayoutDashboard, Utensils, Dumbbell, Leaf, Settings, LogOut, User, CalendarDays } from 'lucide-react'
 import { Button } from "@/components/ui/button"
 import Repas from "./Dashboard/Repas"
 import Sport from "./Dashboard/Sport"
 import Profil from "./Dashboard/Profil"
 import { useParams } from 'react-router-dom'
+import Plannings from './Dashboard/Plannings'
 
 interface SidebarProps {
   icon: React.ReactNode;
@@ -38,6 +39,7 @@ function Dashboard() {
           <Sidebar icon={<Utensils />} label="Alimentation" active={page === "alimentation"} onClick={() => setPage("alimentation")} />
           <Sidebar icon={<Dumbbell />} label="Sport" active={page === "sport"} onClick={() => setPage("sport")} />
           <Sidebar icon={<User />} label="Profil" active={page === "profil"} onClick={() => setPage("profil")} />
+          <Sidebar icon={<CalendarDays />} label="Plannings" active={page === "plannings"} onClick={() => setPage("plannings")} />
         </nav>
         <Button variant="ghost" className="justify-start text-red-600 font-bold py-6">
           <LogOut /> <span>Quitter</span>
@@ -48,6 +50,7 @@ function Dashboard() {
         {page === "alimentation" && <Repas />}
         {page === "sport" && <Sport />}
         {page === "profil" && <Profil email={email || ""}/>}
+        {page === "plannings" && <Plannings />}
       </main>
     </div>
   )
