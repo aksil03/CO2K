@@ -40,7 +40,7 @@ enum BacAliment {
   PAIN
   WRAP
   LEG
-  LAUITE
+  LAITUE
   FROMAGE
   FRUIT_ENTIER
   FRUIT_PULPE
@@ -49,7 +49,7 @@ enum BacAliment {
   S_HOT
   S_COLD
   VINAIGRETTE
-  PB
+  BC
   GAL_RIZ
 }
 

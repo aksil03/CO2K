@@ -121,86 +121,6 @@
             "sucre": "N/A"
         },
         {
-            "nom": "Jambon cuit, choix",
-            "co2": 0.77,
-            "cal": 125,
-            "prot": 19.5,
-            "lip": 4.5,
-            "gras_sat": 1.78,
-            "glu": 1.7,
-            "sucre": 1.7
-        },
-        {
-            "nom": "Jambon cuit, choix, découenné dégraissé",
-            "co2": 0.77,
-            "cal": 114,
-            "prot": 19.6,
-            "lip": 3.24,
-            "gras_sat": 1.18,
-            "glu": 1.61,
-            "sucre": 1.32
-        },
-        {
-            "nom": "Jambon cuit, de paris, découenné dégraissé",
-            "co2": 0.77,
-            "cal": 115,
-            "prot": 20.0,
-            "lip": 3.42,
-            "gras_sat": "N/A",
-            "glu": 1.08,
-            "sucre": "N/A"
-        },
-        {
-            "nom": "Jambon cuit, fumé",
-            "co2": 0.77,
-            "cal": 135,
-            "prot": 20.0,
-            "lip": 5.8,
-            "gras_sat": 2.36,
-            "glu": 0.79,
-            "sucre": 0.62
-        },
-        {
-            "nom": "Jambon cuit, supérieur",
-            "co2": 0.77,
-            "cal": 125,
-            "prot": 20.8,
-            "lip": 4.28,
-            "gras_sat": 1.58,
-            "glu": 0.81,
-            "sucre": 0.77
-        },
-        {
-            "nom": "Jambon cuit, supérieur, découenné",
-            "co2": 0.77,
-            "cal": 117,
-            "prot": 20.5,
-            "lip": 3.52,
-            "gras_sat": 1.36,
-            "glu": 0.77,
-            "sucre": 0.76
-        },
-        {
-            "nom": "Jambon cuit, supérieur, découenné dégraissé",
-            "co2": 0.77,
-            "cal": 119,
-            "prot": 20.3,
-            "lip": 3.66,
-            "gras_sat": 1.24,
-            "glu": 1.03,
-            "sucre": 0.82
-        },
-        {
-            "nom": "Jambon cuit, supérieur, à teneur réduite en sel",
-            "co2": 0.77,
-            "cal": 121,
-            "prot": 20.8,
-            "lip": 3.83,
-            "gras_sat": 1.5,
-            "glu": 0.74,
-            "sucre": 0.74
-        },
-        {
             "nom": "Jambon de bayonne",
             "co2": 1.36,
             "cal": 228,
@@ -301,16 +221,6 @@
             "sucre": "N/A"
         },
         {
-            "nom": "Jambonneau, cuit",
-            "co2": 0.77,
-            "cal": 162,
-            "prot": 23.2,
-            "lip": 7.52,
-            "gras_sat": 2.93,
-            "glu": 0.4,
-            "sucre": 0.4
-        },
-        {
             "nom": "Lardon fumé, cru",
             "co2": 0.71,
             "cal": 275,
@@ -318,16 +228,6 @@
             "lip": 22.6,
             "gras_sat": 8.0,
             "glu": 0.96,
-            "sucre": 0.8
-        },
-        {
-            "nom": "Lardon fumé, cuit",
-            "co2": 0.91,
-            "cal": 261,
-            "prot": 14.7,
-            "lip": 22.1,
-            "gras_sat": 8.25,
-            "glu": 0.8,
             "sucre": 0.8
         },
         {
@@ -339,16 +239,6 @@
             "gras_sat": 7.91,
             "glu": 1.01,
             "sucre": 0.78
-        },
-        {
-            "nom": "Lardon nature, cuit",
-            "co2": 0.91,
-            "cal": 324,
-            "prot": 23.8,
-            "lip": 24.5,
-            "gras_sat": 12.6,
-            "glu": 2.0,
-            "sucre": "N/A"
         },
         {
             "nom": "Merguez, boeuf, mouton et porc, crue",
@@ -451,16 +341,6 @@
             "sucre": "N/A"
         },
         {
-            "nom": "Porc, carré, cuit",
-            "co2": 0.86,
-            "cal": 206,
-            "prot": 34.1,
-            "lip": 7.45,
-            "gras_sat": 3.03,
-            "glu": 0.6,
-            "sucre": "N/A"
-        },
-        {
             "nom": "Porc, côte, crue",
             "co2": 0.68,
             "cal": 164,
@@ -491,16 +371,6 @@
             "sucre": "N/A"
         },
         {
-            "nom": "Porc, escalope de jambon, cuite",
-            "co2": 0.84,
-            "cal": 200,
-            "prot": 36.0,
-            "lip": 6.2,
-            "gras_sat": 1.85,
-            "glu": "N/A",
-            "sucre": "N/A"
-        },
-        {
             "nom": "Porc, filet mignon, cru",
             "co2": 0.66,
             "cal": 123,
@@ -511,32 +381,12 @@
             "sucre": "N/A"
         },
         {
-            "nom": "Porc, filet mignon, cuit",
-            "co2": 0.84,
-            "cal": 168,
-            "prot": 26.1,
-            "lip": 7.1,
-            "gras_sat": 2.58,
-            "glu": "N/A",
-            "sucre": "N/A"
-        },
-        {
             "nom": "Porc, filet, maigre, cru",
             "co2": 0.66,
             "cal": 117,
             "prot": 21.2,
             "lip": 3.6,
             "gras_sat": 1.43,
-            "glu": "N/A",
-            "sucre": "N/A"
-        },
-        {
-            "nom": "Porc, filet, maigre, en rôti, cuit",
-            "co2": 0.84,
-            "cal": 198,
-            "prot": 28.3,
-            "lip": 9.39,
-            "gras_sat": "N/A",
             "glu": "N/A",
             "sucre": "N/A"
         },
@@ -588,16 +438,6 @@
             "lip": 9.89,
             "gras_sat": 3.51,
             "glu": 0.75,
-            "sucre": "N/A"
-        },
-        {
-            "nom": "Porc, longe, cuite",
-            "co2": 0.84,
-            "cal": 240,
-            "prot": 27.1,
-            "lip": 14.7,
-            "gras_sat": 5.37,
-            "glu": "N/A",
             "sucre": "N/A"
         },
         {
@@ -671,16 +511,6 @@
             "sucre": "N/A"
         },
         {
-            "nom": "Porc, rouelle de jambon, cuite",
-            "co2": 0.84,
-            "cal": 266,
-            "prot": 36.9,
-            "lip": 13.1,
-            "gras_sat": "N/A",
-            "glu": "N/A",
-            "sucre": "N/A"
-        },
-        {
             "nom": "Porc, rôti, cru",
             "co2": 0.66,
             "cal": 153,
@@ -688,16 +518,6 @@
             "lip": 6.86,
             "gras_sat": 2.84,
             "glu": 0.5,
-            "sucre": "N/A"
-        },
-        {
-            "nom": "Porc, rôti, cuit",
-            "co2": 0.84,
-            "cal": 163,
-            "prot": 30.5,
-            "lip": 4.31,
-            "gras_sat": 1.32,
-            "glu": 0.65,
             "sucre": "N/A"
         },
         {
@@ -721,16 +541,6 @@
             "sucre": "N/A"
         },
         {
-            "nom": "Porc, viande, cuite",
-            "co2": 2.57,
-            "cal": 205,
-            "prot": 29.1,
-            "lip": 9.78,
-            "gras_sat": 3.52,
-            "glu": 0.24,
-            "sucre": "N/A"
-        },
-        {
             "nom": "Porc, échine, crue",
             "co2": 0.66,
             "cal": 198,
@@ -748,26 +558,6 @@
             "lip": 11.2,
             "gras_sat": 4.41,
             "glu": 0.38,
-            "sucre": "N/A"
-        },
-        {
-            "nom": "Porc, épaule, cuite",
-            "co2": 0.86,
-            "cal": 253,
-            "prot": 30.0,
-            "lip": 14.8,
-            "gras_sat": 5.56,
-            "glu": "N/A",
-            "sucre": "N/A"
-        },
-        {
-            "nom": "Rond de jambon cuit",
-            "co2": 0.77,
-            "cal": 182,
-            "prot": 20.3,
-            "lip": 10.6,
-            "gras_sat": "N/A",
-            "glu": 1.4,
             "sucre": "N/A"
         },
         {
@@ -831,16 +621,6 @@
             "sucre": 0.7
         },
         {
-            "nom": "Saucisson brioché, cuit",
-            "co2": 0.49,
-            "cal": 309,
-            "prot": 14.7,
-            "lip": 17.4,
-            "gras_sat": 8.6,
-            "glu": 22.6,
-            "sucre": 3.8
-        },
-        {
             "nom": "Saucisson sec",
             "co2": 0.73,
             "cal": 418,
@@ -879,16 +659,6 @@
             "gras_sat": 9.92,
             "glu": 1.63,
             "sucre": 0.86
-        },
-        {
-            "nom": "Épaule de porc, cuite, choix, découennée dégraissée",
-            "co2": 0.77,
-            "cal": 121,
-            "prot": 18.0,
-            "lip": 4.5,
-            "gras_sat": 1.4,
-            "glu": 1.93,
-            "sucre": 1.35
         }
     ],
     "PROT_VIANDE_ROUGE": [
@@ -951,16 +721,6 @@
             "gras_sat": 10.1,
             "glu": 0.92,
             "sucre": 0.06
-        },
-        {
-            "nom": "Agneau, côte ou côtelette, cuite",
-            "co2": 2.57,
-            "cal": 157,
-            "prot": 26.3,
-            "lip": 5.78,
-            "gras_sat": 2.21,
-            "glu": "N/A",
-            "sucre": "N/A"
         },
         {
             "nom": "Agneau, côte ou côtelette, grillée/poêlée",
@@ -1063,16 +823,6 @@
             "sucre": "N/A"
         },
         {
-            "nom": "Agneau, viande, cuite",
-            "co2": 2.57,
-            "cal": 208,
-            "prot": 28.1,
-            "lip": 10.6,
-            "gras_sat": 3.66,
-            "glu": 0.01,
-            "sucre": "N/A"
-        },
-        {
             "nom": "Agneau, épaule, crue",
             "co2": 3.3,
             "cal": 170,
@@ -1098,16 +848,6 @@
             "cal": 159,
             "prot": 20.2,
             "lip": 8.7,
-            "gras_sat": "N/A",
-            "glu": "N/A",
-            "sucre": "N/A"
-        },
-        {
-            "nom": "Autruche, viande cuite",
-            "co2": 2.57,
-            "cal": 168,
-            "prot": 26.2,
-            "lip": 7.07,
             "gras_sat": "N/A",
             "glu": "N/A",
             "sucre": "N/A"
@@ -1273,16 +1013,6 @@
             "sucre": "N/A"
         },
         {
-            "nom": "Boeuf, jarret, bouilli/cuit à l'eau",
-            "co2": 3.7,
-            "cal": 161,
-            "prot": 31.0,
-            "lip": 4.1,
-            "gras_sat": 1.13,
-            "glu": "N/A",
-            "sucre": "N/A"
-        },
-        {
             "nom": "Boeuf, jarret, cru",
             "co2": 2.91,
             "cal": 122,
@@ -1373,16 +1103,6 @@
             "sucre": "N/A"
         },
         {
-            "nom": "Boeuf, queue, bouillie/cuite à l'eau",
-            "co2": 3.7,
-            "cal": 196,
-            "prot": 28.0,
-            "lip": 9.3,
-            "gras_sat": 3.72,
-            "glu": "N/A",
-            "sucre": "N/A"
-        },
-        {
             "nom": "Boeuf, queue, crue",
             "co2": 1.68,
             "cal": 203,
@@ -1433,16 +1153,6 @@
             "sucre": "N/A"
         },
         {
-            "nom": "Boeuf, steak haché 10% mg, cuit",
-            "co2": 4.52,
-            "cal": 210,
-            "prot": 26.1,
-            "lip": 11.8,
-            "gras_sat": 4.63,
-            "glu": "N/A",
-            "sucre": "N/A"
-        },
-        {
             "nom": "Boeuf, steak haché 15% mg, cru",
             "co2": 3.57,
             "cal": 209,
@@ -1450,16 +1160,6 @@
             "lip": 14.1,
             "gras_sat": 5.71,
             "glu": 0.47,
-            "sucre": "N/A"
-        },
-        {
-            "nom": "Boeuf, steak haché 15% mg, cuit",
-            "co2": 4.52,
-            "cal": 239,
-            "prot": 23.6,
-            "lip": 16.1,
-            "gras_sat": 7.08,
-            "glu": "N/A",
             "sucre": "N/A"
         },
         {
@@ -1473,16 +1173,6 @@
             "sucre": "N/A"
         },
         {
-            "nom": "Boeuf, steak haché 20% mg, cuit",
-            "co2": 4.52,
-            "cal": 265,
-            "prot": 23.0,
-            "lip": 19.2,
-            "gras_sat": 8.14,
-            "glu": 0.14,
-            "sucre": "N/A"
-        },
-        {
             "nom": "Boeuf, steak haché 5% mg, cru",
             "co2": 3.57,
             "cal": 130,
@@ -1490,26 +1180,6 @@
             "lip": 4.59,
             "gras_sat": 1.64,
             "glu": 0.3,
-            "sucre": "N/A"
-        },
-        {
-            "nom": "Boeuf, steak haché 5% mg, cuit",
-            "co2": 4.52,
-            "cal": 155,
-            "prot": 25.5,
-            "lip": 5.85,
-            "gras_sat": 2.67,
-            "glu": "N/A",
-            "sucre": "N/A"
-        },
-        {
-            "nom": "Boeuf, steak haché, cuit",
-            "co2": 2.57,
-            "cal": 231,
-            "prot": 23.8,
-            "lip": 15.1,
-            "gras_sat": 6.65,
-            "glu": "N/A",
             "sucre": "N/A"
         },
         {
@@ -1559,16 +1229,6 @@
             "prot": 24.0,
             "lip": 7.5,
             "gras_sat": 2.7,
-            "glu": "N/A",
-            "sucre": "N/A"
-        },
-        {
-            "nom": "Boeuf, à bourguignon ou pot-au-feu, cuit",
-            "co2": 3.66,
-            "cal": 172,
-            "prot": 34.0,
-            "lip": 4.05,
-            "gras_sat": 2.77,
             "glu": "N/A",
             "sucre": "N/A"
         },
@@ -1743,16 +1403,6 @@
             "sucre": 0.4
         },
         {
-            "nom": "Coeur, agneau, cuit",
-            "co2": 2.97,
-            "cal": 179,
-            "prot": 25.0,
-            "lip": 7.91,
-            "gras_sat": 3.14,
-            "glu": 1.93,
-            "sucre": "N/A"
-        },
-        {
             "nom": "Coeur, boeuf, cru",
             "co2": 2.29,
             "cal": 103,
@@ -1760,16 +1410,6 @@
             "lip": 2.95,
             "gras_sat": 0.74,
             "glu": 0.7,
-            "sucre": "N/A"
-        },
-        {
-            "nom": "Coeur, boeuf, cuit",
-            "co2": 3.15,
-            "cal": 133,
-            "prot": 23.0,
-            "lip": 4.5,
-            "gras_sat": 1.81,
-            "glu": 0.15,
             "sucre": "N/A"
         },
         {
@@ -1781,16 +1421,6 @@
             "gras_sat": "N/A",
             "glu": 2.8,
             "sucre": "N/A"
-        },
-        {
-            "nom": "Merguez, boeuf et mouton, cuite",
-            "co2": 4.05,
-            "cal": 283,
-            "prot": 19.8,
-            "lip": 21.8,
-            "gras_sat": 12.0,
-            "glu": 1.8,
-            "sucre": 1.6
         },
         {
             "nom": "Mouton, gigot, cru",
@@ -1831,16 +1461,6 @@
             "gras_sat": 3.12,
             "glu": "N/A",
             "sucre": "N/A"
-        },
-        {
-            "nom": "Ris, agneau, cuit",
-            "co2": 3.72,
-            "cal": 227,
-            "prot": 22.8,
-            "lip": 15.1,
-            "gras_sat": 6.84,
-            "glu": "N/A",
-            "sucre": "N/A"
         }
     ],
     "PROT_VOLAILLE": [
@@ -1851,16 +1471,6 @@
             "prot": 21.5,
             "lip": 5.55,
             "gras_sat": 0.6,
-            "glu": "N/A",
-            "sucre": "N/A"
-        },
-        {
-            "nom": "Caille, viande et peau, cuite",
-            "co2": 0.78,
-            "cal": 206,
-            "prot": 26.8,
-            "lip": 10.9,
-            "gras_sat": 3.06,
             "glu": "N/A",
             "sucre": "N/A"
         },
@@ -1895,16 +1505,6 @@
             "sucre": "N/A"
         },
         {
-            "nom": "Coeur, dinde, cuit",
-            "co2": 0.21,
-            "cal": 167,
-            "prot": 24.9,
-            "lip": 7.52,
-            "gras_sat": 1.9,
-            "glu": "N/A",
-            "sucre": "N/A"
-        },
-        {
             "nom": "Coeur, poulet, cru",
             "co2": 0.15,
             "cal": 149,
@@ -1912,16 +1512,6 @@
             "lip": 9.32,
             "gras_sat": 2.66,
             "glu": 0.7,
-            "sucre": "N/A"
-        },
-        {
-            "nom": "Coeur, poulet, cuit",
-            "co2": 0.21,
-            "cal": 177,
-            "prot": 26.4,
-            "lip": 7.92,
-            "gras_sat": 2.26,
-            "glu": 0.1,
             "sucre": "N/A"
         },
         {
@@ -2175,16 +1765,6 @@
             "sucre": "N/A"
         },
         {
-            "nom": "Poulet, cuisse, viande et peau, bouilli/cuit à l'eau",
-            "co2": 0.78,
-            "cal": 188,
-            "prot": 26.1,
-            "lip": 9.1,
-            "gras_sat": 2.64,
-            "glu": 0.55,
-            "sucre": 0.2
-        },
-        {
             "nom": "Poulet, cuisse, viande et peau, cru",
             "co2": 0.58,
             "cal": 192,
@@ -2212,16 +1792,6 @@
             "lip": 10.6,
             "gras_sat": 3.03,
             "glu": "N/A",
-            "sucre": "N/A"
-        },
-        {
-            "nom": "Poulet, cuisse, viande, bouilli/cuit à l'eau",
-            "co2": 0.78,
-            "cal": 188,
-            "prot": 24.8,
-            "lip": 9.52,
-            "gras_sat": "N/A",
-            "glu": 0.7,
             "sucre": "N/A"
         },
         {
@@ -2335,16 +1905,6 @@
             "sucre": "N/A"
         },
         {
-            "nom": "Rôti de volaille en salaison, cuit",
-            "co2": 0.79,
-            "cal": 110,
-            "prot": 22.0,
-            "lip": 1.73,
-            "gras_sat": 0.55,
-            "glu": 1.28,
-            "sucre": 0.97
-        },
-        {
             "nom": "Saucisse de volaille, façon charcutière",
             "co2": 1.25,
             "cal": 231,
@@ -2363,16 +1923,6 @@
             "gras_sat": 5.34,
             "glu": 1.82,
             "sucre": 1.01
-        },
-        {
-            "nom": "Volaille, cuite",
-            "co2": 2.57,
-            "cal": 166,
-            "prot": 27.6,
-            "lip": 5.96,
-            "gras_sat": 1.77,
-            "glu": 0.28,
-            "sucre": "N/A"
         }
     ],
     "PROT_BLANCHE_AUTRE": [
@@ -2383,16 +1933,6 @@
             "prot": 20.6,
             "lip": 2.31,
             "gras_sat": 0.71,
-            "glu": "N/A",
-            "sucre": "N/A"
-        },
-        {
-            "nom": "Chevreau, cuit",
-            "co2": 5.24,
-            "cal": 136,
-            "prot": 27.1,
-            "lip": 3.03,
-            "gras_sat": 0.93,
             "glu": "N/A",
             "sucre": "N/A"
         },
@@ -2497,16 +2037,6 @@
             "sucre": "N/A"
         },
         {
-            "nom": "Veau, escalope, cuite",
-            "co2": 2.94,
-            "cal": 147,
-            "prot": 31.0,
-            "lip": 2.5,
-            "gras_sat": 0.82,
-            "glu": "N/A",
-            "sucre": "N/A"
-        },
-        {
             "nom": "Veau, filet, cru",
             "co2": 2.32,
             "cal": 95,
@@ -2587,16 +2117,6 @@
             "sucre": "N/A"
         },
         {
-            "nom": "Veau, rôti, cuit",
-            "co2": 3.68,
-            "cal": 143,
-            "prot": 28.1,
-            "lip": 3.39,
-            "gras_sat": 1.22,
-            "glu": "N/A",
-            "sucre": "N/A"
-        },
-        {
             "nom": "Veau, steak haché 15% mg, cru",
             "co2": 2.86,
             "cal": 208,
@@ -2614,16 +2134,6 @@
             "lip": 19.5,
             "gras_sat": 8.5,
             "glu": 0.4,
-            "sucre": "N/A"
-        },
-        {
-            "nom": "Veau, viande, cuite",
-            "co2": 2.57,
-            "cal": 169,
-            "prot": 29.0,
-            "lip": 5.55,
-            "gras_sat": 1.79,
-            "glu": 0.74,
             "sucre": "N/A"
         },
         {
@@ -2679,42 +2189,12 @@
             "sucre": "N/A"
         },
         {
-            "nom": "Anguille, bouillie/cuite à l'eau",
-            "co2": 0.98,
-            "cal": 197,
-            "prot": 20.5,
-            "lip": 12.7,
-            "gras_sat": 3.28,
-            "glu": "N/A",
-            "sucre": "N/A"
-        },
-        {
             "nom": "Anguille, crue",
             "co2": 0.83,
             "cal": 232,
             "prot": 16.1,
             "lip": 18.6,
             "gras_sat": 3.89,
-            "glu": "N/A",
-            "sucre": "N/A"
-        },
-        {
-            "nom": "Anguille, cuite",
-            "co2": 0.98,
-            "cal": 213,
-            "prot": 22.1,
-            "lip": 13.8,
-            "gras_sat": 3.15,
-            "glu": "N/A",
-            "sucre": "N/A"
-        },
-        {
-            "nom": "Araignée de mer, cuite",
-            "co2": 1.88,
-            "cal": 107,
-            "prot": 18.3,
-            "lip": 3.8,
-            "gras_sat": 1.14,
             "glu": "N/A",
             "sucre": "N/A"
         },
@@ -2779,16 +2259,6 @@
             "sucre": "N/A"
         },
         {
-            "nom": "Bigorneau, cuit",
-            "co2": 1.88,
-            "cal": 96,
-            "prot": 16.3,
-            "lip": 3.5,
-            "gras_sat": 0.26,
-            "glu": "N/A",
-            "sucre": "N/A"
-        },
-        {
             "nom": "Bogue, crue",
             "co2": 0.18,
             "cal": 90,
@@ -2839,16 +2309,6 @@
             "sucre": "N/A"
         },
         {
-            "nom": "Bulot ou buccin, cuit",
-            "co2": 1.88,
-            "cal": 97,
-            "prot": 20.7,
-            "lip": 0.47,
-            "gras_sat": 0.07,
-            "glu": 2.69,
-            "sucre": "N/A"
-        },
-        {
             "nom": "Cabillaud, cru",
             "co2": 1.2,
             "cal": 77,
@@ -2856,26 +2316,6 @@
             "lip": 0.57,
             "gras_sat": 0.1,
             "glu": "N/A",
-            "sucre": "N/A"
-        },
-        {
-            "nom": "Cabillaud, cuit, sans précision",
-            "co2": 0.98,
-            "cal": 98,
-            "prot": 23.1,
-            "lip": 0.73,
-            "gras_sat": 0.14,
-            "glu": "N/A",
-            "sucre": "N/A"
-        },
-        {
-            "nom": "Calmar ou calamar ou encornet, bouilli/cuit à l'eau",
-            "co2": 0.69,
-            "cal": 149,
-            "prot": 32.5,
-            "lip": 1.4,
-            "gras_sat": 0.24,
-            "glu": 1.64,
             "sucre": "N/A"
         },
         {
@@ -2979,16 +2419,6 @@
             "sucre": "N/A"
         },
         {
-            "nom": "Clam, praire ou palourde, bouilli/cuit à l'eau",
-            "co2": 1.88,
-            "cal": 99,
-            "prot": 16.2,
-            "lip": 1.48,
-            "gras_sat": 0.14,
-            "glu": 5.33,
-            "sucre": "N/A"
-        },
-        {
             "nom": "Congre, cru",
             "co2": 1.2,
             "cal": 115,
@@ -3007,16 +2437,6 @@
             "gras_sat": 0.19,
             "glu": 0.78,
             "sucre": 0.5
-        },
-        {
-            "nom": "Coquille saint-jacques, noix et corail, cuite",
-            "co2": 1.18,
-            "cal": 110,
-            "prot": 20.2,
-            "lip": 1.77,
-            "gras_sat": 0.32,
-            "glu": 3.22,
-            "sucre": 0.3
         },
         {
             "nom": "Coquille saint-jacques, noix, crue",
@@ -3059,16 +2479,6 @@
             "sucre": "N/A"
         },
         {
-            "nom": "Crabe ou tourteau, bouilli/cuit à l'eau",
-            "co2": 3.3,
-            "cal": 124,
-            "prot": 19.5,
-            "lip": 4.29,
-            "gras_sat": 0.55,
-            "glu": 1.79,
-            "sucre": "N/A"
-        },
-        {
             "nom": "Crabe, cru",
             "co2": 1.23,
             "cal": 104,
@@ -3089,62 +2499,12 @@
             "sucre": 0.6
         },
         {
-            "nom": "Crevette grise, cuite",
-            "co2": 1.88,
-            "cal": 89,
-            "prot": 18.3,
-            "lip": 1.2,
-            "gras_sat": 0.31,
-            "glu": 1.47,
-            "sucre": "N/A"
-        },
-        {
-            "nom": "Crevette géante tigrée, cuite",
-            "co2": 1.88,
-            "cal": 102,
-            "prot": 23.4,
-            "lip": 0.98,
-            "gras_sat": 0.19,
-            "glu": "N/A",
-            "sucre": "N/A"
-        },
-        {
-            "nom": "Crevette pattes blanches, cuite",
-            "co2": 1.88,
-            "cal": 99,
-            "prot": 22.6,
-            "lip": 0.96,
-            "gras_sat": 0.23,
-            "glu": "N/A",
-            "sucre": "N/A"
-        },
-        {
-            "nom": "Crevette rose bouquet, cuite",
-            "co2": 1.88,
-            "cal": 102,
-            "prot": 22.8,
-            "lip": 1.27,
-            "gras_sat": 0.22,
-            "glu": "N/A",
-            "sucre": "N/A"
-        },
-        {
             "nom": "Crevette rose, crue",
             "co2": 2.04,
             "cal": 92,
             "prot": 21.9,
             "lip": 0.53,
             "gras_sat": 0.11,
-            "glu": "N/A",
-            "sucre": "N/A"
-        },
-        {
-            "nom": "Crevette royale rose, cuite",
-            "co2": 1.88,
-            "cal": 117,
-            "prot": 26.6,
-            "lip": 1.18,
-            "gras_sat": 0.25,
             "glu": "N/A",
             "sucre": "N/A"
         },
@@ -3157,16 +2517,6 @@
             "gras_sat": 0.19,
             "glu": 3.21,
             "sucre": "N/A"
-        },
-        {
-            "nom": "Crevette, cuite",
-            "co2": 2.57,
-            "cal": 93,
-            "prot": 19.0,
-            "lip": 1.16,
-            "gras_sat": 0.31,
-            "glu": 1.87,
-            "sucre": 0.25
         },
         {
             "nom": "Crevette, surgelée, crue",
@@ -3247,16 +2597,6 @@
             "gras_sat": 0.19,
             "glu": 1.29,
             "sucre": "N/A"
-        },
-        {
-            "nom": "Escargot, sans matière grasse ajoutée, cuit",
-            "co2": 1.88,
-            "cal": 80,
-            "prot": 16.6,
-            "lip": 1.4,
-            "gras_sat": 0.31,
-            "glu": 0.23,
-            "sucre": 0.3
         },
         {
             "nom": "Espadon, cru",
@@ -3439,16 +2779,6 @@
             "sucre": "N/A"
         },
         {
-            "nom": "Homard, bouilli/cuit à l'eau",
-            "co2": 4.16,
-            "cal": 90,
-            "prot": 19.6,
-            "lip": 1.32,
-            "gras_sat": 0.21,
-            "glu": 0.11,
-            "sucre": "N/A"
-        },
-        {
             "nom": "Homard, cru",
             "co2": 1.23,
             "cal": 85,
@@ -3469,26 +2799,6 @@
             "sucre": "N/A"
         },
         {
-            "nom": "Julienne ou lingue, cuite",
-            "co2": 1.48,
-            "cal": 105,
-            "prot": 24.5,
-            "lip": 0.82,
-            "gras_sat": "N/A",
-            "glu": "N/A",
-            "sucre": "N/A"
-        },
-        {
-            "nom": "Langouste, bouillie/cuite à l'eau",
-            "co2": 1.88,
-            "cal": 106,
-            "prot": 21.8,
-            "lip": 1.52,
-            "gras_sat": 0.26,
-            "glu": 1.3,
-            "sucre": "N/A"
-        },
-        {
             "nom": "Langouste, crue",
             "co2": 1.23,
             "cal": 86,
@@ -3496,16 +2806,6 @@
             "lip": 1.34,
             "gras_sat": 0.25,
             "glu": 1.07,
-            "sucre": "N/A"
-        },
-        {
-            "nom": "Langoustine, bouillie/cuite à l'eau",
-            "co2": 1.88,
-            "cal": 92,
-            "prot": 20.9,
-            "lip": 0.98,
-            "gras_sat": 0.14,
-            "glu": "N/A",
             "sucre": "N/A"
         },
         {
@@ -3529,32 +2829,12 @@
             "sucre": "N/A"
         },
         {
-            "nom": "Lieu jaune ou colin, cuit",
-            "co2": 0.98,
-            "cal": 100,
-            "prot": 24.4,
-            "lip": 0.5,
-            "gras_sat": 0.01,
-            "glu": "N/A",
-            "sucre": "N/A"
-        },
-        {
             "nom": "Lieu noir, cru",
             "co2": 0.83,
             "cal": 82,
             "prot": 18.8,
             "lip": 0.8,
             "gras_sat": 0.15,
-            "glu": "N/A",
-            "sucre": "N/A"
-        },
-        {
-            "nom": "Lieu noir, cuit",
-            "co2": 1.02,
-            "cal": 99,
-            "prot": 23.1,
-            "lip": 0.81,
-            "gras_sat": 0.29,
             "glu": "N/A",
             "sucre": "N/A"
         },
@@ -3759,32 +3039,12 @@
             "sucre": "N/A"
         },
         {
-            "nom": "Merlu, cuit à l'étouffée",
-            "co2": 0.94,
-            "cal": 112,
-            "prot": 21.2,
-            "lip": 3.0,
-            "gras_sat": 0.92,
-            "glu": "N/A",
-            "sucre": "N/A"
-        },
-        {
             "nom": "Merlu, filet, surgelé, cru",
             "co2": 0.78,
             "cal": 82,
             "prot": 15.1,
             "lip": 2.4,
             "gras_sat": 0.6,
-            "glu": "N/A",
-            "sucre": "N/A"
-        },
-        {
-            "nom": "Morue, salée, bouillie/cuite à l'eau",
-            "co2": 1.48,
-            "cal": 113,
-            "prot": 26.0,
-            "lip": 1.01,
-            "gras_sat": 0.13,
             "glu": "N/A",
             "sucre": "N/A"
         },
@@ -3807,16 +3067,6 @@
             "gras_sat": 0.54,
             "glu": 5.93,
             "sucre": 0.5
-        },
-        {
-            "nom": "Moule, bouillie/cuite à l'eau",
-            "co2": 0.59,
-            "cal": 108,
-            "prot": 17.2,
-            "lip": 2.09,
-            "gras_sat": 0.37,
-            "glu": 5.12,
-            "sucre": "N/A"
         },
         {
             "nom": "Mulet, cru",
@@ -3889,16 +3139,6 @@
             "sucre": "N/A"
         },
         {
-            "nom": "Panga, pangasius, ou poisson-chat du mékong, filet, cuit",
-            "co2": 1.81,
-            "cal": 79,
-            "prot": 17.5,
-            "lip": 1.0,
-            "gras_sat": 0.51,
-            "glu": "N/A",
-            "sucre": "N/A"
-        },
-        {
             "nom": "Pecten d'amérique ou peigne du canada, noix, crue",
             "co2": 0.99,
             "cal": 81,
@@ -3926,16 +3166,6 @@
             "lip": 1.19,
             "gras_sat": 0.28,
             "glu": "N/A",
-            "sucre": "N/A"
-        },
-        {
-            "nom": "Poulpe, cuit",
-            "co2": 1.88,
-            "cal": 156,
-            "prot": 29.8,
-            "lip": 2.08,
-            "gras_sat": 0.45,
-            "glu": 4.4,
             "sucre": "N/A"
         },
         {
@@ -4005,16 +3235,6 @@
             "prot": 23.3,
             "lip": 0.5,
             "gras_sat": 0.11,
-            "glu": "N/A",
-            "sucre": "N/A"
-        },
-        {
-            "nom": "Roussette ou petite roussette ou saumonette, cuite",
-            "co2": 1.48,
-            "cal": 256,
-            "prot": 25.4,
-            "lip": 17.2,
-            "gras_sat": 4.11,
             "glu": "N/A",
             "sucre": "N/A"
         },
@@ -4129,16 +3349,6 @@
             "sucre": "N/A"
         },
         {
-            "nom": "Saumon, bouilli/cuit à l'eau, élevage",
-            "co2": 0.7,
-            "cal": 193,
-            "prot": 25.0,
-            "lip": 10.3,
-            "gras_sat": "N/A",
-            "glu": "N/A",
-            "sucre": "N/A"
-        },
-        {
             "nom": "Saumon, cru, sauvage",
             "co2": 0.83,
             "cal": 166,
@@ -4155,16 +3365,6 @@
             "prot": 20.5,
             "lip": 12.4,
             "gras_sat": 2.15,
-            "glu": "N/A",
-            "sucre": "N/A"
-        },
-        {
-            "nom": "Saumon, cuit, sans précision",
-            "co2": 0.98,
-            "cal": 205,
-            "prot": 23.0,
-            "lip": 12.5,
-            "gras_sat": 2.5,
             "glu": "N/A",
             "sucre": "N/A"
         },
@@ -4196,16 +3396,6 @@
             "lip": 1.05,
             "gras_sat": 0.35,
             "glu": 0.51,
-            "sucre": "N/A"
-        },
-        {
-            "nom": "Sole, bouillie/cuite à l'eau",
-            "co2": 0.92,
-            "cal": 69,
-            "prot": 15.0,
-            "lip": 1.0,
-            "gras_sat": 0.2,
-            "glu": "N/A",
             "sucre": "N/A"
         },
         {
@@ -4439,16 +3629,6 @@
             "sucre": "N/A"
         },
         {
-            "nom": "Vivaneau, cuit",
-            "co2": 0.58,
-            "cal": 121,
-            "prot": 26.3,
-            "lip": 1.72,
-            "gras_sat": 0.37,
-            "glu": "N/A",
-            "sucre": "N/A"
-        },
-        {
             "nom": "Écrevisse, crue",
             "co2": 1.23,
             "cal": 68,
@@ -4457,16 +3637,6 @@
             "gras_sat": 0.11,
             "glu": 0.81,
             "sucre": "N/A"
-        },
-        {
-            "nom": "Écrevisse, cuite",
-            "co2": 1.88,
-            "cal": 73,
-            "prot": 16.3,
-            "lip": 0.7,
-            "gras_sat": 0.17,
-            "glu": 0.56,
-            "sucre": 0.25
         },
         {
             "nom": "Églefin, cru",
@@ -4639,16 +3809,6 @@
             "gras_sat": 2.72,
             "glu": 20.8,
             "sucre": 7.33
-        },
-        {
-            "nom": "Vermicelle de soja, cuite, non salée",
-            "co2": 0.14,
-            "cal": 61,
-            "prot": 0.63,
-            "lip": 0.1,
-            "gras_sat": "N/A",
-            "glu": 14.4,
-            "sucre": "N/A"
         },
         {
             "nom": "Vermicelle de soja, sèche",
@@ -4949,16 +4109,6 @@
             "sucre": 0.73
         },
         {
-            "nom": "Lentille blonde, bouillie/cuite à l'eau",
-            "co2": 0.05,
-            "cal": 110,
-            "prot": 9.7,
-            "lip": 0.7,
-            "gras_sat": 0.13,
-            "glu": 16.3,
-            "sucre": 0.4
-        },
-        {
             "nom": "Lentille blonde, sèche",
             "co2": 0.06,
             "cal": 314,
@@ -4967,16 +4117,6 @@
             "gras_sat": 0.32,
             "glu": 48.3,
             "sucre": 1.4
-        },
-        {
-            "nom": "Lentille corail, bouillie/cuite à l'eau",
-            "co2": 0.05,
-            "cal": 106,
-            "prot": 10.6,
-            "lip": 0.5,
-            "gras_sat": 0.09,
-            "glu": 15.0,
-            "sucre": 0.26
         },
         {
             "nom": "Lentille corail, sèche",
@@ -4989,16 +4129,6 @@
             "sucre": 1.29
         },
         {
-            "nom": "Lentille verte, bouillie/cuite à l'eau",
-            "co2": 0.05,
-            "cal": 127,
-            "prot": 10.1,
-            "lip": 0.58,
-            "gras_sat": 0.09,
-            "glu": 16.2,
-            "sucre": 0.2
-        },
-        {
             "nom": "Lentille verte, sèche",
             "co2": 0.06,
             "cal": 294,
@@ -5007,16 +4137,6 @@
             "gras_sat": 0.24,
             "glu": 44.5,
             "sucre": 1.1
-        },
-        {
-            "nom": "Lentille, bouillie/cuite à l'eau",
-            "co2": 0.05,
-            "cal": 88,
-            "prot": 9.02,
-            "lip": 0.38,
-            "gras_sat": 0.05,
-            "glu": 12.2,
-            "sucre": 1.8
         },
         {
             "nom": "Lentille, cuisinée, appertisée, égouttée",
@@ -5049,26 +4169,6 @@
             "sucre": 1.25
         },
         {
-            "nom": "Pâtes, sans gluten, à base de riz et maïs, cuites à l'eau, non salées",
-            "co2": 0.14,
-            "cal": 170,
-            "prot": 3.38,
-            "lip": 0.8,
-            "gras_sat": 0.35,
-            "glu": 36.6,
-            "sucre": "N/A"
-        },
-        {
-            "nom": "Quinoa, bouilli/cuit à l'eau, non salé",
-            "co2": 0.33,
-            "cal": 149,
-            "prot": 5.0,
-            "lip": 1.1,
-            "gras_sat": 0.14,
-            "glu": 27.9,
-            "sucre": 0.87
-        },
-        {
             "nom": "Quinoa, cru",
             "co2": 0.71,
             "cal": 358,
@@ -5076,16 +4176,6 @@
             "lip": 6.07,
             "gras_sat": 0.71,
             "glu": 58.1,
-            "sucre": "N/A"
-        },
-        {
-            "nom": "Riz basmati, cuit, non salé",
-            "co2": 0.14,
-            "cal": 117,
-            "prot": 2.88,
-            "lip": 0.6,
-            "gras_sat": 0.3,
-            "glu": 24.4,
             "sucre": "N/A"
         },
         {
@@ -5099,16 +4189,6 @@
             "sucre": 0.4
         },
         {
-            "nom": "Riz blanc étuvé, cuit, non salé",
-            "co2": 0.12,
-            "cal": 146,
-            "prot": 3.1,
-            "lip": 0.56,
-            "gras_sat": 0.33,
-            "glu": 31.7,
-            "sucre": 0.11
-        },
-        {
             "nom": "Riz blanc, cru",
             "co2": 0.2,
             "cal": 352,
@@ -5117,16 +4197,6 @@
             "gras_sat": 0.2,
             "glu": 78.0,
             "sucre": 0.16
-        },
-        {
-            "nom": "Riz blanc, cuit, non salé",
-            "co2": 0.12,
-            "cal": 145,
-            "prot": 3.06,
-            "lip": 0.41,
-            "gras_sat": 0.08,
-            "glu": 31.8,
-            "sucre": 0.2
         },
         {
             "nom": "Riz complet, cru",
@@ -5139,16 +4209,6 @@
             "sucre": 0.66
         },
         {
-            "nom": "Riz complet, cuit, non salé",
-            "co2": 0.12,
-            "cal": 158,
-            "prot": 3.38,
-            "lip": 1.0,
-            "gras_sat": 0.17,
-            "glu": 32.6,
-            "sucre": 0.2
-        },
-        {
             "nom": "Riz rouge, cru",
             "co2": 0.2,
             "cal": 352,
@@ -5156,16 +4216,6 @@
             "lip": 3.0,
             "gras_sat": "N/A",
             "glu": 70.6,
-            "sucre": "N/A"
-        },
-        {
-            "nom": "Riz rouge, cuit, non salé",
-            "co2": 0.12,
-            "cal": 141,
-            "prot": 3.63,
-            "lip": 0.69,
-            "gras_sat": "N/A",
-            "glu": 28.2,
             "sucre": "N/A"
         },
         {
@@ -5177,16 +4227,6 @@
             "gras_sat": 0.14,
             "glu": 69.2,
             "sucre": 2.5
-        },
-        {
-            "nom": "Riz sauvage, cuit, non salé",
-            "co2": 0.12,
-            "cal": 102,
-            "prot": 3.99,
-            "lip": 0.34,
-            "gras_sat": 0.05,
-            "glu": 19.7,
-            "sucre": 0.73
         },
         {
             "nom": "Riz soufflé nature, enrichi en vitamines et minéraux",
@@ -5209,26 +4249,6 @@
             "sucre": 0.17
         },
         {
-            "nom": "Riz thaï ou basmati, cuit, non salé",
-            "co2": 0.14,
-            "cal": 125,
-            "prot": 3.0,
-            "lip": "N/A",
-            "gras_sat": "N/A",
-            "glu": 28.3,
-            "sucre": 0.2
-        },
-        {
-            "nom": "Riz thaï, cuit, non salé",
-            "co2": 0.14,
-            "cal": 143,
-            "prot": 3.06,
-            "lip": 0.7,
-            "gras_sat": 0.3,
-            "glu": 30.5,
-            "sucre": "N/A"
-        },
-        {
             "nom": "Riz, mélange de variétés , cru",
             "co2": 0.2,
             "cal": 355,
@@ -5237,16 +4257,6 @@
             "gras_sat": 0.2,
             "glu": 78.1,
             "sucre": 0.5
-        },
-        {
-            "nom": "Vermicelle de riz, cuite, non salée",
-            "co2": 0.15,
-            "cal": 89,
-            "prot": 1.5,
-            "lip": 0.5,
-            "gras_sat": 0.01,
-            "glu": 20.1,
-            "sucre": 0.2
         },
         {
             "nom": "Vermicelle de riz, sèche",
@@ -5261,46 +4271,6 @@
     ],
     "SEMOU": [
         {
-            "nom": "Graine de couscous , crue",
-            "co2": 0.15,
-            "cal": 365,
-            "prot": 13.2,
-            "lip": 1.45,
-            "gras_sat": 0.28,
-            "glu": 72.7,
-            "sucre": 2.95
-        },
-        {
-            "nom": "Graine de couscous , cuite, non salée",
-            "co2": 0.08,
-            "cal": 157,
-            "prot": 5.0,
-            "lip": 1.0,
-            "gras_sat": 0.25,
-            "glu": 31.0,
-            "sucre": 1.6
-        },
-        {
-            "nom": "Polenta ou semoule de maïs, cuite, non salée",
-            "co2": 0.07,
-            "cal": 77,
-            "prot": 1.38,
-            "lip": 0.3,
-            "gras_sat": 0.01,
-            "glu": 16.9,
-            "sucre": 0.1
-        },
-        {
-            "nom": "Polenta ou semoule de maïs, précuite, sèche",
-            "co2": 0.15,
-            "cal": 350,
-            "prot": 7.88,
-            "lip": 1.8,
-            "gras_sat": "N/A",
-            "glu": 74.0,
-            "sucre": "N/A"
-        },
-        {
             "nom": "Semoule de blé dur, crue",
             "co2": 0.17,
             "cal": 352,
@@ -5309,29 +4279,9 @@
             "gras_sat": 0.21,
             "glu": 71.6,
             "sucre": 1.0
-        },
-        {
-            "nom": "Semoule de blé dur, cuite, non salée",
-            "co2": 0.14,
-            "cal": 122,
-            "prot": 3.75,
-            "lip": 0.8,
-            "gras_sat": 0.25,
-            "glu": 24.0,
-            "sucre": 3.0
         }
     ],
     "POTATO": [
-        {
-            "nom": "Igname, épluchée, bouillie/cuite à l'eau",
-            "co2": 0.08,
-            "cal": 109,
-            "prot": 1.49,
-            "lip": 0.14,
-            "gras_sat": 0.03,
-            "glu": 23.6,
-            "sucre": 0.49
-        },
         {
             "nom": "Igname, épluchée, crue",
             "co2": 0.05,
@@ -5353,16 +4303,6 @@
             "sucre": 1.7
         },
         {
-            "nom": "Manioc, racine cuite",
-            "co2": 0.09,
-            "cal": 132,
-            "prot": 0.69,
-            "lip": 0.04,
-            "gras_sat": "N/A",
-            "glu": 32.0,
-            "sucre": "N/A"
-        },
-        {
             "nom": "Patate douce, crue",
             "co2": 0.03,
             "cal": 86,
@@ -5371,16 +4311,6 @@
             "gras_sat": 0.06,
             "glu": 18.3,
             "sucre": 5.64
-        },
-        {
-            "nom": "Patate douce, cuite",
-            "co2": 0.09,
-            "cal": 62,
-            "prot": 1.69,
-            "lip": 0.15,
-            "gras_sat": 0.04,
-            "glu": 12.2,
-            "sucre": 6.11
         },
         {
             "nom": "Pomme de terre dauphine, surgelée, crue",
@@ -5393,26 +4323,6 @@
             "sucre": 1.96
         },
         {
-            "nom": "Pomme de terre dauphine, surgelée, cuite",
-            "co2": 0.27,
-            "cal": 302,
-            "prot": 4.5,
-            "lip": 17.7,
-            "gras_sat": 3.39,
-            "glu": 30.2,
-            "sucre": 3.5
-        },
-        {
-            "nom": "Pomme de terre de conservation, sans peau, bouillie/cuite à l'eau",
-            "co2": 0.11,
-            "cal": 76,
-            "prot": 1.81,
-            "lip": 0.5,
-            "gras_sat": "N/A",
-            "glu": 15.7,
-            "sucre": 0.2
-        },
-        {
             "nom": "Pomme de terre duchesse, surgelée, crue",
             "co2": 0.16,
             "cal": 178,
@@ -5421,16 +4331,6 @@
             "gras_sat": 1.33,
             "glu": 23.2,
             "sucre": 0.73
-        },
-        {
-            "nom": "Pomme de terre duchesse, surgelée, cuite",
-            "co2": 0.23,
-            "cal": 218,
-            "prot": 3.44,
-            "lip": 8.5,
-            "gras_sat": 0.96,
-            "glu": 29.5,
-            "sucre": 0.4
         },
         {
             "nom": "Pomme de terre noisette, surgelée, crue",
@@ -5443,26 +4343,6 @@
             "sucre": 0.74
         },
         {
-            "nom": "Pomme de terre noisette, surgelée, cuite",
-            "co2": 0.49,
-            "cal": 191,
-            "prot": 2.81,
-            "lip": 6.6,
-            "gras_sat": 0.94,
-            "glu": 28.5,
-            "sucre": 0.2
-        },
-        {
-            "nom": "Pomme de terre nouvelle, bouillie/cuite à l'eau",
-            "co2": 0.13,
-            "cal": 8,
-            "prot": 1.44,
-            "lip": 0.3,
-            "gras_sat": "N/A",
-            "glu": "N/A",
-            "sucre": "N/A"
-        },
-        {
             "nom": "Pomme de terre nouvelle, crue",
             "co2": 0.07,
             "cal": 76,
@@ -5471,16 +4351,6 @@
             "gras_sat": 0.06,
             "glu": 15.9,
             "sucre": 0.2
-        },
-        {
-            "nom": "Pomme de terre primeur, sans peau, bouillie/cuite à l'eau",
-            "co2": 0.11,
-            "cal": 71,
-            "prot": 1.84,
-            "lip": 0.1,
-            "gras_sat": "N/A",
-            "glu": 14.9,
-            "sucre": "N/A"
         },
         {
             "nom": "Pomme de terre vapeur, sous vide",
@@ -5501,26 +4371,6 @@
             "gras_sat": 0.06,
             "glu": 11.7,
             "sucre": 0.65
-        },
-        {
-            "nom": "Pomme de terre, bouillie/cuite à l'eau",
-            "co2": 0.12,
-            "cal": 80,
-            "prot": 1.8,
-            "lip": 0.34,
-            "gras_sat": 0.09,
-            "glu": 16.7,
-            "sucre": 0.86
-        },
-        {
-            "nom": "Pomme de terre, cuite",
-            "co2": 0.13,
-            "cal": 93,
-            "prot": 2.01,
-            "lip": 1.37,
-            "gras_sat": 0.4,
-            "glu": 17.2,
-            "sucre": 1.05
         },
         {
             "nom": "Pomme de terre, flocons déshydratés, nature",
@@ -5709,16 +4559,6 @@
             "sucre": 0.99
         },
         {
-            "nom": "Artichaut, cuit",
-            "co2": 0.21,
-            "cal": 16,
-            "prot": 2.53,
-            "lip": 0.28,
-            "gras_sat": 0.07,
-            "glu": 0.99,
-            "sucre": 0.99
-        },
-        {
             "nom": "Artichaut, fond, appertisé, égoutté",
             "co2": 0.22,
             "cal": 25,
@@ -5739,26 +4579,6 @@
             "sucre": 1.89
         },
         {
-            "nom": "Asperge blanche, bouillie/cuite à l'eau",
-            "co2": 0.13,
-            "cal": 18,
-            "prot": 1.44,
-            "lip": 0.3,
-            "gras_sat": 0.1,
-            "glu": 1.63,
-            "sucre": 1.2
-        },
-        {
-            "nom": "Asperge verte, bouillie/cuite à l'eau",
-            "co2": 0.13,
-            "cal": 26,
-            "prot": 2.69,
-            "lip": 0.3,
-            "gras_sat": 0.07,
-            "glu": 1.73,
-            "sucre": 1.3
-        },
-        {
             "nom": "Asperge, appertisée, égouttée",
             "co2": 0.21,
             "cal": 14,
@@ -5777,16 +4597,6 @@
             "gras_sat": 0.07,
             "glu": 2.5,
             "sucre": "N/A"
-        },
-        {
-            "nom": "Asperge, bouillie/cuite à l'eau",
-            "co2": 0.29,
-            "cal": 16,
-            "prot": 2.68,
-            "lip": 0.32,
-            "gras_sat": 0.07,
-            "glu": 0.81,
-            "sucre": 0.81
         },
         {
             "nom": "Asperge, pelée, crue",
@@ -5817,16 +4627,6 @@
             "gras_sat": 0.03,
             "glu": 2.39,
             "sucre": 2.39
-        },
-        {
-            "nom": "Aubergine, cuite",
-            "co2": 0.12,
-            "cal": 24,
-            "prot": 1.33,
-            "lip": 0.28,
-            "gras_sat": 0.05,
-            "glu": 4.17,
-            "sucre": 3.41
         },
         {
             "nom": "Avocat, pulpe, cru",
@@ -5889,26 +4689,6 @@
             "sucre": 1.2
         },
         {
-            "nom": "Bette ou blette, cuite",
-            "co2": 0.14,
-            "cal": 14,
-            "prot": 0.7,
-            "lip": 0.5,
-            "gras_sat": 0.01,
-            "glu": 1.23,
-            "sucre": 0.8
-        },
-        {
-            "nom": "Bette ou blette, côte et feuille, bouillie/cuite à l'eau",
-            "co2": 0.13,
-            "cal": 16,
-            "prot": 0.88,
-            "lip": 0.3,
-            "gras_sat": 0.1,
-            "glu": 1.43,
-            "sucre": 1.0
-        },
-        {
             "nom": "Betterave rouge, crue",
             "co2": 0.04,
             "cal": 45,
@@ -5919,36 +4699,6 @@
             "sucre": 6.76
         },
         {
-            "nom": "Betterave rouge, cuite",
-            "co2": 0.12,
-            "cal": 42,
-            "prot": 1.44,
-            "lip": 0.4,
-            "gras_sat": 0.15,
-            "glu": 7.13,
-            "sucre": 6.7
-        },
-        {
-            "nom": "Brocoli, bouilli/cuit à l'eau, croquant",
-            "co2": 0.13,
-            "cal": 23,
-            "prot": 2.5,
-            "lip": 0.4,
-            "gras_sat": 0.1,
-            "glu": 1.23,
-            "sucre": 0.8
-        },
-        {
-            "nom": "Brocoli, bouilli/cuit à l'eau, fondant",
-            "co2": 0.13,
-            "cal": 23,
-            "prot": 2.19,
-            "lip": 0.5,
-            "gras_sat": 0.14,
-            "glu": 1.03,
-            "sucre": 0.6
-        },
-        {
             "nom": "Brocoli, cru",
             "co2": 0.1,
             "cal": 26,
@@ -5957,16 +4707,6 @@
             "gras_sat": 0.06,
             "glu": 1.7,
             "sucre": 1.7
-        },
-        {
-            "nom": "Brocoli, cuit",
-            "co2": 0.17,
-            "cal": 19,
-            "prot": 2.1,
-            "lip": 0.78,
-            "gras_sat": 0.2,
-            "glu": 1.1,
-            "sucre": 1.1
         },
         {
             "nom": "Brocoli, purée",
@@ -5989,16 +4729,6 @@
             "sucre": 1.24
         },
         {
-            "nom": "Brocoli, surgelé, cuit",
-            "co2": 0.14,
-            "cal": 22,
-            "prot": 3.1,
-            "lip": 0.11,
-            "gras_sat": 0.02,
-            "glu": 2.36,
-            "sucre": 1.47
-        },
-        {
             "nom": "Cardon, cru",
             "co2": 0.07,
             "cal": 10,
@@ -6007,16 +4737,6 @@
             "gras_sat": 0.01,
             "glu": 1.7,
             "sucre": 1.5
-        },
-        {
-            "nom": "Cardon, cuit",
-            "co2": 0.16,
-            "cal": 18,
-            "prot": 0.76,
-            "lip": 0.11,
-            "gras_sat": 0.01,
-            "glu": 3.63,
-            "sucre": "N/A"
         },
         {
             "nom": "Carotte, appertisée, égouttée",
@@ -6029,26 +4749,6 @@
             "sucre": 2.49
         },
         {
-            "nom": "Carotte, bouillie/cuite à l'eau, croquante",
-            "co2": 0.13,
-            "cal": 35,
-            "prot": 0.75,
-            "lip": 0.3,
-            "gras_sat": 0.01,
-            "glu": 6.33,
-            "sucre": 5.9
-        },
-        {
-            "nom": "Carotte, bouillie/cuite à l'eau, fondante",
-            "co2": 0.13,
-            "cal": 31,
-            "prot": 0.5,
-            "lip": 0.3,
-            "gras_sat": 0.01,
-            "glu": 5.73,
-            "sucre": 5.1
-        },
-        {
             "nom": "Carotte, crue",
             "co2": 0.04,
             "cal": 40,
@@ -6057,16 +4757,6 @@
             "gras_sat": 0.01,
             "glu": 7.59,
             "sucre": 6.0
-        },
-        {
-            "nom": "Carotte, cuite",
-            "co2": 0.13,
-            "cal": 18,
-            "prot": 0.55,
-            "lip": 0.1,
-            "gras_sat": 0.02,
-            "glu": 2.6,
-            "sucre": 1.3
         },
         {
             "nom": "Carotte, déshydratée",
@@ -6099,16 +4789,6 @@
             "sucre": 4.73
         },
         {
-            "nom": "Carotte, surgelée, cuite",
-            "co2": 0.09,
-            "cal": 32,
-            "prot": 0.58,
-            "lip": 0.68,
-            "gras_sat": 0.12,
-            "glu": 4.52,
-            "sucre": 4.08
-        },
-        {
             "nom": "Champignon de paris ou champignon de couche, appertisé, égoutté",
             "co2": 0.13,
             "cal": 19,
@@ -6117,16 +4797,6 @@
             "gras_sat": 0.07,
             "glu": 0.7,
             "sucre": "N/A"
-        },
-        {
-            "nom": "Champignon de paris ou champignon de couche, bouilli/cuit à l'eau",
-            "co2": 0.13,
-            "cal": 28,
-            "prot": 2.17,
-            "lip": 0.47,
-            "gras_sat": 0.06,
-            "glu": 3.0,
-            "sucre": 2.34
         },
         {
             "nom": "Champignon de paris ou champignon de couche, cru",
@@ -6187,16 +4857,6 @@
             "gras_sat": 0.07,
             "glu": 3.03,
             "sucre": 1.7
-        },
-        {
-            "nom": "Champignon, lentin comestible ou shiitaké, cuit",
-            "co2": 0.13,
-            "cal": 60,
-            "prot": 1.56,
-            "lip": 0.22,
-            "gras_sat": 0.05,
-            "glu": 12.3,
-            "sucre": 3.84
         },
         {
             "nom": "Champignon, lentin comestible ou shiitaké, séché",
@@ -6279,16 +4939,6 @@
             "sucre": 0.7
         },
         {
-            "nom": "Chayote ou christophine ou chouchou, bouillie/cuite à l'eau",
-            "co2": 0.13,
-            "cal": 15,
-            "prot": 0.62,
-            "lip": 0.48,
-            "gras_sat": 0.09,
-            "glu": 2.29,
-            "sucre": "N/A"
-        },
-        {
             "nom": "Chicorée rouge, crue",
             "co2": 0.06,
             "cal": 12,
@@ -6309,16 +4959,6 @@
             "sucre": 0.5
         },
         {
-            "nom": "Chou blanc, bouilli/cuit à l'eau",
-            "co2": 0.13,
-            "cal": 23,
-            "prot": 1.0,
-            "lip": 0.3,
-            "gras_sat": 0.01,
-            "glu": 3.23,
-            "sucre": 2.8
-        },
-        {
             "nom": "Chou blanc, cru",
             "co2": 0.08,
             "cal": 36,
@@ -6327,16 +4967,6 @@
             "gras_sat": 0.27,
             "glu": 4.63,
             "sucre": 4.2
-        },
-        {
-            "nom": "Chou chinois , cuit",
-            "co2": 0.16,
-            "cal": 10,
-            "prot": 1.53,
-            "lip": 0.17,
-            "gras_sat": 0.03,
-            "glu": 0.75,
-            "sucre": 0.75
         },
         {
             "nom": "Chou chinois ou pak-choi ou pé-tsai, cru",
@@ -6359,16 +4989,6 @@
             "sucre": 2.5
         },
         {
-            "nom": "Chou de bruxelles, bouilli/cuit à l'eau",
-            "co2": 0.13,
-            "cal": 45,
-            "prot": 3.19,
-            "lip": 0.3,
-            "gras_sat": 0.01,
-            "glu": 5.4,
-            "sucre": 4.1
-        },
-        {
             "nom": "Chou de bruxelles, cru",
             "co2": 0.06,
             "cal": 42,
@@ -6377,16 +4997,6 @@
             "gras_sat": 0.07,
             "glu": 5.67,
             "sucre": 2.2
-        },
-        {
-            "nom": "Chou de bruxelles, cuit",
-            "co2": 0.14,
-            "cal": 28,
-            "prot": 2.6,
-            "lip": 0.11,
-            "gras_sat": 0.02,
-            "glu": 4.2,
-            "sucre": 1.7
         },
         {
             "nom": "Chou de bruxelles, surgelé, cru",
@@ -6399,16 +5009,6 @@
             "sucre": 2.35
         },
         {
-            "nom": "Chou de bruxelles, surgelé, cuit",
-            "co2": 0.11,
-            "cal": 34,
-            "prot": 3.64,
-            "lip": 0.39,
-            "gras_sat": 0.08,
-            "glu": 4.22,
-            "sucre": 2.08
-        },
-        {
             "nom": "Chou frisé, cru",
             "co2": 0.07,
             "cal": 43,
@@ -6417,16 +5017,6 @@
             "gras_sat": 0.12,
             "glu": 4.2,
             "sucre": 2.26
-        },
-        {
-            "nom": "Chou frisé, cuit",
-            "co2": 0.16,
-            "cal": 25,
-            "prot": 1.9,
-            "lip": 0.4,
-            "gras_sat": 0.05,
-            "glu": 3.63,
-            "sucre": 1.25
         },
         {
             "nom": "Chou romanesco ou brocoli à pomme, cru",
@@ -6439,26 +5029,6 @@
             "sucre": 2.2
         },
         {
-            "nom": "Chou romanesco ou brocoli à pomme, cuit",
-            "co2": 0.13,
-            "cal": 35,
-            "prot": 3.0,
-            "lip": 0.8,
-            "gras_sat": 0.27,
-            "glu": 2.03,
-            "sucre": 1.6
-        },
-        {
-            "nom": "Chou rouge, bouilli/cuit à l'eau",
-            "co2": 0.17,
-            "cal": 20,
-            "prot": 1.51,
-            "lip": 0.09,
-            "gras_sat": 0.01,
-            "glu": 3.32,
-            "sucre": 3.32
-        },
-        {
             "nom": "Chou rouge, cru",
             "co2": 0.09,
             "cal": 30,
@@ -6467,26 +5037,6 @@
             "gras_sat": 0.01,
             "glu": 4.33,
             "sucre": 3.9
-        },
-        {
-            "nom": "Chou rouge, cuit à l'étouffée",
-            "co2": 0.13,
-            "cal": 34,
-            "prot": 1.19,
-            "lip": 0.3,
-            "gras_sat": 0.01,
-            "glu": 5.7,
-            "sucre": 4.5
-        },
-        {
-            "nom": "Chou vert, bouilli/cuit à l'eau",
-            "co2": 0.13,
-            "cal": 21,
-            "prot": 1.63,
-            "lip": 0.3,
-            "gras_sat": 0.01,
-            "glu": 1.83,
-            "sucre": 1.4
         },
         {
             "nom": "Chou vert, cru",
@@ -6499,16 +5049,6 @@
             "sucre": 1.92
         },
         {
-            "nom": "Chou vert, cuit",
-            "co2": 0.16,
-            "cal": 20,
-            "prot": 1.03,
-            "lip": 0.45,
-            "gras_sat": 0.14,
-            "glu": 3.04,
-            "sucre": 2.79
-        },
-        {
             "nom": "Chou-fleur, cru",
             "co2": 0.07,
             "cal": 26,
@@ -6519,16 +5059,6 @@
             "sucre": 1.7
         },
         {
-            "nom": "Chou-fleur, cuit",
-            "co2": 0.14,
-            "cal": 20,
-            "prot": 1.6,
-            "lip": 0.46,
-            "gras_sat": 0.1,
-            "glu": 1.6,
-            "sucre": 1.59
-        },
-        {
             "nom": "Chou-fleur, surgelé, cru",
             "co2": 0.08,
             "cal": 22,
@@ -6537,26 +5067,6 @@
             "gras_sat": 0.1,
             "glu": 2.64,
             "sucre": 1.91
-        },
-        {
-            "nom": "Chou-fleur, surgelé, cuit",
-            "co2": 0.11,
-            "cal": 18,
-            "prot": 1.61,
-            "lip": 0.22,
-            "gras_sat": 0.03,
-            "glu": 1.05,
-            "sucre": 1.03
-        },
-        {
-            "nom": "Chou-rave, bouilli/cuit à l'eau",
-            "co2": 0.16,
-            "cal": 25,
-            "prot": 1.8,
-            "lip": 0.11,
-            "gras_sat": 0.01,
-            "glu": 4.4,
-            "sucre": 2.8
         },
         {
             "nom": "Chou-rave, cru",
@@ -6619,16 +5129,6 @@
             "sucre": 2.2
         },
         {
-            "nom": "Courge doubeurre , pulpe, cuite",
-            "co2": 0.13,
-            "cal": 5,
-            "prot": 1.23,
-            "lip": 0.07,
-            "gras_sat": 0.01,
-            "glu": "N/A",
-            "sucre": "N/A"
-        },
-        {
             "nom": "Courge hokkaïdo, pulpe, crue",
             "co2": 0.06,
             "cal": 50,
@@ -6659,16 +5159,6 @@
             "sucre": "N/A"
         },
         {
-            "nom": "Courge musquée, pulpe, cuite",
-            "co2": 0.13,
-            "cal": 30,
-            "prot": 1.06,
-            "lip": 0.5,
-            "gras_sat": 0.01,
-            "glu": 5.24,
-            "sucre": 4.0
-        },
-        {
             "nom": "Courge spaghetti, pulpe, crue",
             "co2": 0.06,
             "cal": 29,
@@ -6677,16 +5167,6 @@
             "gras_sat": 0.12,
             "glu": 5.41,
             "sucre": 2.76
-        },
-        {
-            "nom": "Courge spaghetti, pulpe, cuite",
-            "co2": 0.15,
-            "cal": 25,
-            "prot": 0.66,
-            "lip": 0.26,
-            "gras_sat": 0.06,
-            "glu": 5.06,
-            "sucre": 2.53
         },
         {
             "nom": "Courge, crue",
@@ -6707,16 +5187,6 @@
             "gras_sat": 0.06,
             "glu": 1.8,
             "sucre": 1.79
-        },
-        {
-            "nom": "Courgette, pulpe et peau, cuite",
-            "co2": 0.13,
-            "cal": 15,
-            "prot": 0.93,
-            "lip": 0.36,
-            "gras_sat": 0.1,
-            "glu": 1.4,
-            "sucre": 1.39
         },
         {
             "nom": "Courgette, pulpe et peau, surgelée, crue",
@@ -6749,16 +5219,6 @@
             "sucre": 2.2
         },
         {
-            "nom": "Crosne, cuit",
-            "co2": 0.13,
-            "cal": 50,
-            "prot": 2.13,
-            "lip": 0.5,
-            "gras_sat": 0.01,
-            "glu": 9.11,
-            "sucre": 0.2
-        },
-        {
             "nom": "Crosne, surgelé, cru",
             "co2": 0.05,
             "cal": 40,
@@ -6789,36 +5249,6 @@
             "sucre": 1.3
         },
         {
-            "nom": "Céleri branche, cuit",
-            "co2": 0.15,
-            "cal": 9,
-            "prot": 0.83,
-            "lip": 0.16,
-            "gras_sat": 0.04,
-            "glu": 1.2,
-            "sucre": 1.2
-        },
-        {
-            "nom": "Céleri branche, cuit à l'étouffée",
-            "co2": 0.13,
-            "cal": 16,
-            "prot": 0.75,
-            "lip": 0.3,
-            "gras_sat": 0.01,
-            "glu": 2.48,
-            "sucre": 1.7
-        },
-        {
-            "nom": "Céleri rave, bouilli/cuit à l'eau",
-            "co2": 0.13,
-            "cal": 26,
-            "prot": 0.94,
-            "lip": 0.3,
-            "gras_sat": 0.09,
-            "glu": 4.32,
-            "sucre": 1.2
-        },
-        {
             "nom": "Céleri-rave, cru",
             "co2": 0.05,
             "cal": 29,
@@ -6827,16 +5257,6 @@
             "gras_sat": 0.01,
             "glu": 3.98,
             "sucre": 1.6
-        },
-        {
-            "nom": "Céleri-rave, cuit",
-            "co2": 0.13,
-            "cal": 31,
-            "prot": 1.3,
-            "lip": 0.86,
-            "gras_sat": "N/A",
-            "glu": 4.6,
-            "sucre": 2.8
         },
         {
             "nom": "Céleri-rave, purée",
@@ -6859,16 +5279,6 @@
             "sucre": 2.4
         },
         {
-            "nom": "Fenouil, bouilli/cuit à l'eau",
-            "co2": 0.2,
-            "cal": 8,
-            "prot": 1.13,
-            "lip": 0.1,
-            "gras_sat": 0.04,
-            "glu": 0.8,
-            "sucre": 0.5
-        },
-        {
             "nom": "Fenouil, cru",
             "co2": 0.1,
             "cal": 21,
@@ -6877,16 +5287,6 @@
             "gras_sat": 0.01,
             "glu": 2.63,
             "sucre": 2.2
-        },
-        {
-            "nom": "Fenouil, cuit à l'étouffée",
-            "co2": 0.13,
-            "cal": 13,
-            "prot": 0.5,
-            "lip": 0.3,
-            "gras_sat": 0.01,
-            "glu": 1.94,
-            "sucre": 1.3
         },
         {
             "nom": "Fondue de poireau",
@@ -6899,16 +5299,6 @@
             "sucre": "N/A"
         },
         {
-            "nom": "Gombo, fruit, cuit",
-            "co2": 0.2,
-            "cal": 17,
-            "prot": 1.87,
-            "lip": 0.21,
-            "gras_sat": 0.04,
-            "glu": 2.01,
-            "sucre": 2.01
-        },
-        {
             "nom": "Haricot beurre, appertisé, égoutté",
             "co2": 0.14,
             "cal": 20,
@@ -6917,16 +5307,6 @@
             "gras_sat": 0.02,
             "glu": 3.48,
             "sucre": 0.86
-        },
-        {
-            "nom": "Haricot beurre, bouilli/cuit à l'eau",
-            "co2": 0.13,
-            "cal": 34,
-            "prot": 2.19,
-            "lip": 0.3,
-            "gras_sat": 0.09,
-            "glu": 4.45,
-            "sucre": 2.2
         },
         {
             "nom": "Haricot beurre, cru",
@@ -6999,16 +5379,6 @@
             "sucre": 0.77
         },
         {
-            "nom": "Haricot vert, bouilli/cuit à l'eau",
-            "co2": 0.13,
-            "cal": 28,
-            "prot": 1.75,
-            "lip": 0.3,
-            "gras_sat": 0.01,
-            "glu": 3.39,
-            "sucre": 2.5
-        },
-        {
             "nom": "Haricot vert, cru",
             "co2": 0.71,
             "cal": 25,
@@ -7019,16 +5389,6 @@
             "sucre": 3.26
         },
         {
-            "nom": "Haricot vert, cuit",
-            "co2": 0.12,
-            "cal": 29,
-            "prot": 2.0,
-            "lip": 0.17,
-            "gras_sat": 0.04,
-            "glu": 3.0,
-            "sucre": 1.0
-        },
-        {
             "nom": "Haricot vert, surgelé, cru",
             "co2": 0.08,
             "cal": 34,
@@ -7037,16 +5397,6 @@
             "gras_sat": 0.05,
             "glu": 4.35,
             "sucre": 1.96
-        },
-        {
-            "nom": "Haricot vert, surgelé, cuit",
-            "co2": 0.1,
-            "cal": 36,
-            "prot": 1.95,
-            "lip": 0.19,
-            "gras_sat": 0.04,
-            "glu": 5.1,
-            "sucre": 1.23
         },
         {
             "nom": "Haricots verts, purée",
@@ -7099,16 +5449,6 @@
             "sucre": 0.73
         },
         {
-            "nom": "Légume cuit",
-            "co2": 0.13,
-            "cal": 43,
-            "prot": 2.11,
-            "lip": 0.3,
-            "gras_sat": 0.08,
-            "glu": 5.81,
-            "sucre": 2.48
-        },
-        {
             "nom": "Légumes , purée",
             "co2": 0.12,
             "cal": 61,
@@ -7117,16 +5457,6 @@
             "gras_sat": 2.17,
             "glu": 4.25,
             "sucre": 2.4
-        },
-        {
-            "nom": "Légumes pour couscous, cuits",
-            "co2": 0.11,
-            "cal": 20,
-            "prot": 1.53,
-            "lip": 0.43,
-            "gras_sat": 0.05,
-            "glu": 2.55,
-            "sucre": 1.1
         },
         {
             "nom": "Légumes pour couscous, surgelés, crus",
@@ -7179,16 +5509,6 @@
             "sucre": 1.73
         },
         {
-            "nom": "Macédoine de légumes, surgelée, pré-cuite",
-            "co2": 0.07,
-            "cal": 54,
-            "prot": 3.48,
-            "lip": 0.28,
-            "gras_sat": "N/A",
-            "glu": 6.8,
-            "sucre": 3.35
-        },
-        {
             "nom": "Maïs doux, appertisé, égoutté",
             "co2": 0.14,
             "cal": 106,
@@ -7197,16 +5517,6 @@
             "gras_sat": 0.26,
             "glu": 18.4,
             "sucre": 5.16
-        },
-        {
-            "nom": "Maïs doux, en épis, cuit",
-            "co2": 0.18,
-            "cal": 101,
-            "prot": 3.41,
-            "lip": 1.5,
-            "gras_sat": 0.2,
-            "glu": 18.6,
-            "sucre": 4.54
         },
         {
             "nom": "Maïs doux, en épis, surgelé, cru",
@@ -7237,26 +5547,6 @@
             "gras_sat": 0.01,
             "glu": 0.5,
             "sucre": "N/A"
-        },
-        {
-            "nom": "Navet, bouilli/cuit à l'eau",
-            "co2": 0.13,
-            "cal": 21,
-            "prot": 0.75,
-            "lip": 0.3,
-            "gras_sat": 0.01,
-            "glu": 3.23,
-            "sucre": 2.8
-        },
-        {
-            "nom": "Navet, cuit",
-            "co2": 0.11,
-            "cal": 20,
-            "prot": 0.9,
-            "lip": 0.2,
-            "gras_sat": 0.01,
-            "glu": 3.8,
-            "sucre": 2.9
         },
         {
             "nom": "Navet, pelé, cru",
@@ -7339,16 +5629,6 @@
             "sucre": 4.8
         },
         {
-            "nom": "Oignon, cuit",
-            "co2": 0.12,
-            "cal": 31,
-            "prot": 1.3,
-            "lip": 0.2,
-            "gras_sat": 0.02,
-            "glu": 6.2,
-            "sucre": 4.0
-        },
-        {
             "nom": "Oignon, surgelé, cru",
             "co2": 0.08,
             "cal": 26,
@@ -7389,26 +5669,6 @@
             "sucre": 4.8
         },
         {
-            "nom": "Panais, cuit",
-            "co2": 0.13,
-            "cal": 67,
-            "prot": 1.32,
-            "lip": 0.3,
-            "gras_sat": 0.05,
-            "glu": 13.4,
-            "sucre": 4.8
-        },
-        {
-            "nom": "Panais, cuit à l'étouffée",
-            "co2": 0.13,
-            "cal": 90,
-            "prot": 1.94,
-            "lip": 0.5,
-            "gras_sat": 0.13,
-            "glu": 16.6,
-            "sucre": 6.2
-        },
-        {
             "nom": "Petits pois et carottes, appertisés, égouttés",
             "co2": 0.12,
             "cal": 49,
@@ -7429,16 +5689,6 @@
             "sucre": 3.43
         },
         {
-            "nom": "Petits pois et carottes, surgelés, cuits",
-            "co2": 0.09,
-            "cal": 44,
-            "prot": 3.09,
-            "lip": 0.42,
-            "gras_sat": 0.08,
-            "glu": 7.02,
-            "sucre": 4.36
-        },
-        {
             "nom": "Petits pois, appertisés, égouttés",
             "co2": 0.14,
             "cal": 81,
@@ -7449,16 +5699,6 @@
             "sucre": 3.59
         },
         {
-            "nom": "Petits pois, bouillis/cuits à l'eau",
-            "co2": 0.13,
-            "cal": 80,
-            "prot": 6.38,
-            "lip": 0.6,
-            "gras_sat": 0.15,
-            "glu": 9.93,
-            "sucre": 1.6
-        },
-        {
             "nom": "Petits pois, crus",
             "co2": 0.07,
             "cal": 56,
@@ -7467,16 +5707,6 @@
             "gras_sat": 0.1,
             "glu": 7.0,
             "sucre": 5.67
-        },
-        {
-            "nom": "Petits pois, cuits",
-            "co2": 0.14,
-            "cal": 49,
-            "prot": 5.8,
-            "lip": 0.87,
-            "gras_sat": 0.21,
-            "glu": 4.7,
-            "sucre": 1.8
         },
         {
             "nom": "Petits pois, purée",
@@ -7499,16 +5729,6 @@
             "sucre": 3.87
         },
         {
-            "nom": "Petits pois, surgelés, cuits",
-            "co2": 0.11,
-            "cal": 54,
-            "prot": 5.15,
-            "lip": 0.27,
-            "gras_sat": 0.05,
-            "glu": 7.95,
-            "sucre": 4.65
-        },
-        {
             "nom": "Piment, cru",
             "co2": 0.07,
             "cal": 41,
@@ -7529,16 +5749,6 @@
             "sucre": 0.71
         },
         {
-            "nom": "Poireau, bouilli/cuit à l'eau",
-            "co2": 0.13,
-            "cal": 27,
-            "prot": 2.56,
-            "lip": 0.3,
-            "gras_sat": 0.01,
-            "glu": 2.23,
-            "sucre": 1.8
-        },
-        {
             "nom": "Poireau, cru",
             "co2": 0.06,
             "cal": 32,
@@ -7547,16 +5757,6 @@
             "gras_sat": 0.05,
             "glu": 4.9,
             "sucre": 3.15
-        },
-        {
-            "nom": "Poireau, cuit",
-            "co2": 0.15,
-            "cal": 18,
-            "prot": 1.1,
-            "lip": 0.2,
-            "gras_sat": 0.03,
-            "glu": 3.0,
-            "sucre": 2.11
         },
         {
             "nom": "Poireau, surgelé, cru",
@@ -7569,16 +5769,6 @@
             "sucre": 2.95
         },
         {
-            "nom": "Pois mange-tout ou pois gourmand, bouilli/cuit à l'eau",
-            "co2": 0.19,
-            "cal": 30,
-            "prot": 2.25,
-            "lip": 0.3,
-            "gras_sat": 0.08,
-            "glu": 3.39,
-            "sucre": 2.3
-        },
-        {
             "nom": "Pois mange-tout ou pois gourmand, cru",
             "co2": 0.1,
             "cal": 39,
@@ -7587,16 +5777,6 @@
             "gras_sat": 0.04,
             "glu": 6.2,
             "sucre": 4.0
-        },
-        {
-            "nom": "Pois mange-tout ou pois gourmands, cuits",
-            "co2": 0.19,
-            "cal": 41,
-            "prot": 3.5,
-            "lip": 0.38,
-            "gras_sat": 0.07,
-            "glu": 5.92,
-            "sucre": 4.82
         },
         {
             "nom": "Poivron jaune, cru",
@@ -7639,16 +5819,6 @@
             "sucre": 4.8
         },
         {
-            "nom": "Poivron rouge, cuit",
-            "co2": 0.16,
-            "cal": 36,
-            "prot": 1.4,
-            "lip": 0.3,
-            "gras_sat": 0.1,
-            "glu": 7.0,
-            "sucre": 6.0
-        },
-        {
             "nom": "Poivron rouge, sauté/poêlé sans matière grasse",
             "co2": 0.13,
             "cal": 35,
@@ -7667,16 +5837,6 @@
             "gras_sat": 0.01,
             "glu": 3.43,
             "sucre": 3.0
-        },
-        {
-            "nom": "Poivron vert, cuit",
-            "co2": 0.16,
-            "cal": 14,
-            "prot": 0.92,
-            "lip": 0.2,
-            "gras_sat": 0.03,
-            "glu": 2.36,
-            "sucre": 2.36
         },
         {
             "nom": "Poivron vert, sauté/poêlé sans matière grasse",
@@ -7699,16 +5859,6 @@
             "sucre": 2.7
         },
         {
-            "nom": "Potimarron, pulpe, bouilli/cuit à l'eau",
-            "co2": 0.13,
-            "cal": 38,
-            "prot": 1.06,
-            "lip": 0.3,
-            "gras_sat": 0.08,
-            "glu": 6.88,
-            "sucre": 3.5
-        },
-        {
             "nom": "Potimarron, pulpe, cru",
             "co2": 0.06,
             "cal": 15,
@@ -7717,16 +5867,6 @@
             "gras_sat": 0.03,
             "glu": 3.1,
             "sucre": "N/A"
-        },
-        {
-            "nom": "Potimarron, pulpe, cuit à l'étouffée",
-            "co2": 0.13,
-            "cal": 44,
-            "prot": 1.31,
-            "lip": 0.5,
-            "gras_sat": 0.14,
-            "glu": 7.05,
-            "sucre": 4.5
         },
         {
             "nom": "Potiron, appertisé, égoutté",
@@ -7747,16 +5887,6 @@
             "gras_sat": 0.05,
             "glu": 3.5,
             "sucre": 1.36
-        },
-        {
-            "nom": "Potiron, cuit",
-            "co2": 0.15,
-            "cal": 21,
-            "prot": 0.81,
-            "lip": 0.07,
-            "gras_sat": 0.04,
-            "glu": 4.5,
-            "sucre": 3.1
         },
         {
             "nom": "Printanière de légumes, surgelée, crue",
@@ -7809,16 +5939,6 @@
             "sucre": 4.46
         },
         {
-            "nom": "Rutabaga, cuit",
-            "co2": 0.14,
-            "cal": 22,
-            "prot": 0.93,
-            "lip": 0.18,
-            "gras_sat": 0.03,
-            "glu": 4.26,
-            "sucre": 3.95
-        },
-        {
             "nom": "Salicorne , fraîche",
             "co2": 0.12,
             "cal": 9,
@@ -7847,26 +5967,6 @@
             "gras_sat": 0.07,
             "glu": 4.25,
             "sucre": 1.0
-        },
-        {
-            "nom": "Salsifis, bouilli/cuit à l'eau",
-            "co2": 0.13,
-            "cal": 57,
-            "prot": 2.63,
-            "lip": 0.3,
-            "gras_sat": 0.01,
-            "glu": 9.29,
-            "sucre": 2.3
-        },
-        {
-            "nom": "Salsifis, cuit",
-            "co2": 0.13,
-            "cal": 61,
-            "prot": 2.73,
-            "lip": 0.17,
-            "gras_sat": 0.04,
-            "glu": 12.3,
-            "sucre": 2.9
         },
         {
             "nom": "Salsifis, surgelé, cru",
@@ -7989,16 +6089,6 @@
             "sucre": 1.88
         },
         {
-            "nom": "Tomate, pulpe et peau, bouillie/cuite à l'eau",
-            "co2": 0.15,
-            "cal": 15,
-            "prot": 0.95,
-            "lip": 0.11,
-            "gras_sat": 0.01,
-            "glu": 2.8,
-            "sucre": 2.49
-        },
-        {
             "nom": "Tomate, pulpe, appertisée",
             "co2": 0.11,
             "cal": 26,
@@ -8039,16 +6129,6 @@
             "sucre": 6.5
         },
         {
-            "nom": "Tétragone cornue, cuite",
-            "co2": 0.11,
-            "cal": 10,
-            "prot": 1.3,
-            "lip": 0.17,
-            "gras_sat": 0.03,
-            "glu": 1.0,
-            "sucre": 0.25
-        },
-        {
             "nom": "Échalote, crue",
             "co2": 0.04,
             "cal": 63,
@@ -8057,16 +6137,6 @@
             "gras_sat": 0.01,
             "glu": 12.2,
             "sucre": 3.3
-        },
-        {
-            "nom": "Échalote, cuite",
-            "co2": 0.11,
-            "cal": 67,
-            "prot": 2.13,
-            "lip": 0.5,
-            "gras_sat": "N/A",
-            "glu": 13.5,
-            "sucre": 6.3
         },
         {
             "nom": "Échalote, sautée/poêlée sans matière grasse",
@@ -8089,16 +6159,6 @@
             "sucre": 0.4
         },
         {
-            "nom": "Épinard, bouilli/cuit à l'eau",
-            "co2": 0.13,
-            "cal": 28,
-            "prot": 3.38,
-            "lip": 0.7,
-            "gras_sat": 0.13,
-            "glu": 0.85,
-            "sucre": "N/A"
-        },
-        {
             "nom": "Épinard, cru",
             "co2": 0.04,
             "cal": 23,
@@ -8107,16 +6167,6 @@
             "gras_sat": 0.06,
             "glu": 2.25,
             "sucre": 0.32
-        },
-        {
-            "nom": "Épinard, cuit",
-            "co2": 0.11,
-            "cal": 16,
-            "prot": 3.2,
-            "lip": 0.14,
-            "gras_sat": 0.04,
-            "glu": 0.5,
-            "sucre": 0.47
         },
         {
             "nom": "Épinard, purée",
@@ -8137,16 +6187,6 @@
             "gras_sat": 0.07,
             "glu": 0.89,
             "sucre": 0.6
-        },
-        {
-            "nom": "Épinard, surgelé, cuit",
-            "co2": 0.09,
-            "cal": 25,
-            "prot": 4.01,
-            "lip": 0.87,
-            "gras_sat": 0.16,
-            "glu": 0.51,
-            "sucre": 0.51
         }
     ],
     "LAITUE": [
@@ -8843,26 +6883,6 @@
             "sucre": "N/A"
         },
         {
-            "nom": "Fromage à pâte pressée cuite",
-            "co2": 0.6,
-            "cal": 390,
-            "prot": 27.4,
-            "lip": 30.8,
-            "gras_sat": 20.1,
-            "glu": "N/A",
-            "sucre": 0.01
-        },
-        {
-            "nom": "Fromage à pâte pressée cuite type emmental ou emmenthal, allégé en matière grasse",
-            "co2": 0.63,
-            "cal": 282,
-            "prot": 30.0,
-            "lip": 18.0,
-            "gras_sat": 8.5,
-            "glu": "N/A",
-            "sucre": "N/A"
-        },
-        {
             "nom": "Gorgonzola",
             "co2": 0.57,
             "cal": 312,
@@ -9241,16 +7261,6 @@
             "gras_sat": 18.8,
             "glu": "N/A",
             "sucre": 0.5
-        },
-        {
-            "nom": "Saint-paulin",
-            "co2": 0.58,
-            "cal": 327,
-            "prot": 21.8,
-            "lip": 26.4,
-            "gras_sat": 17.9,
-            "glu": "N/A",
-            "sucre": "N/A"
         },
         {
             "nom": "Sainte-maure",
@@ -10247,16 +8257,6 @@
             "sucre": 9.35
         },
         {
-            "nom": "Pomme, pulpe, bouillie/cuite à l'eau",
-            "co2": 0.14,
-            "cal": 49,
-            "prot": 0.26,
-            "lip": 0.36,
-            "gras_sat": 0.06,
-            "glu": 11.2,
-            "sucre": 11.0
-        },
-        {
             "nom": "Pomme, pulpe, crue",
             "co2": 0.04,
             "cal": 45,
@@ -10347,26 +8347,6 @@
             "gras_sat": 1.13,
             "glu": 57.9,
             "sucre": 0.97
-        },
-        {
-            "nom": "Flocon d'avoine précuit",
-            "co2": 0.16,
-            "cal": 370,
-            "prot": 11.7,
-            "lip": 7.7,
-            "gras_sat": 1.36,
-            "glu": 58.0,
-            "sucre": 1.84
-        },
-        {
-            "nom": "Flocons d'avoine, bouillis/cuits à l'eau",
-            "co2": 0.1,
-            "cal": 75,
-            "prot": 2.72,
-            "lip": 1.52,
-            "gras_sat": 0.31,
-            "glu": 11.9,
-            "sucre": 0.27
         },
         {
             "nom": "Muesli",

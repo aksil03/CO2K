@@ -2,6 +2,19 @@ import pandas as pd
 import numpy as np
 import re
 import json
+import os
+import psycopg2
+from dotenv import load_dotenv
+
+load_dotenv()
+
+class DB:
+    _conn = None
+
+    def get():
+        if not DB._conn or DB._conn.closed:
+            DB._conn = psycopg2.connect(os.getenv("DATABASE_URL"))
+        return DB._conn
 
 #fonction de nettoyage des numériques des dataset
 def nettoyer_chiffre(x):
@@ -132,12 +145,35 @@ def extraire_donnees():
         print("Erreur etape d'extraction ")
         return None
 
+def generer_sql(donnees):
+    try:
+        conn = DB.get()
+        cur = conn.cursor()
+        cur.execute('DELETE FROM "Aliment"')
+
+        lignes = []
+        for bac, aliments in donnees.items():
+            for a in aliments:
+                def v(k): return None if a[k] == "N/A" else a[k]
+                
+                lignes.append((
+                    a['nom'], bac, a['co2'], a['cal'],
+                    v('prot'), v('lip'), v('glu'), v('sucre'), v('gras_sat')
+                ))
+        sql = 'INSERT INTO "Aliment" (nom, bac, co2, cal, prot, lip, glu, sucre, gras_sat) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s)'
+        cur.executemany(sql, lignes)
+        
+        conn.commit()
+
+    except Exception as e:
+        conn.rollback() 
+
 def lancer_nettoyage():
     df_global = extraire_donnees()
     if df_global is None:
         return "Problème d'extraction"
 
-    junk = r'aromatisé|sucré|aux fruits|chocolat|vanille|caramel|crème dessert|flan|brisée|feuilletée|sablée|phyllo|filo|pizza| aux | à la | au | avec | farci|gratin|riz au lait|riz cantonais|salade|poudre|farine|sirop|confit|biscuit|cake|bonbon|alcool|amidon|fécule|tapioca|préemballé|nugget|croquette|préparation|gâteau|dessert|glace|sorbet|soupe|saké|boisson|jus de|nectar|smoothie|bière|vin|cola|saké|liquide|son de|rillette|rognon|foie|abat|sang|langue|tripes|tête|museau|pied|andouille'
+    junk = r'cuit|cuite|aromatisé|sucré|aux fruits|chocolat|vanille|caramel|crème dessert|flan|brisée|feuilletée|sablée|phyllo|filo|pizza| aux | à la | au | avec | farci|gratin|riz au lait|riz cantonais|salade|poudre|farine|sirop|confit|biscuit|cake|bonbon|alcool|amidon|fécule|tapioca|préemballé|nugget|croquette|préparation|gâteau|dessert|glace|sorbet|soupe|saké|boisson|jus de|nectar|smoothie|bière|vin|cola|saké|liquide|son de|rillette|rognon|foie|abat|sang|langue|tripes|tête|museau|pied|andouille'
     sport_exclude = r'jaune d\'oeuf|oeuf, jaune|oeuf, blanc|oeufs de lompe|oeufs de cabillaud|sandwich|burger|kebab|pané[e]?|frit[e]?|chips|fajita|brick|son d\'avoine'
     interdits = junk + "|" + sport_exclude
     
@@ -247,6 +283,8 @@ def lancer_nettoyage():
     f = open('database_co2k.json', 'w', encoding='utf-8')
     
     json.dump(mon_dictionnaire_final, f, ensure_ascii=False, indent=4)
+    generer_sql(mon_dictionnaire_final)
     f.close()
 
 lancer_nettoyage()
+

@@ -1,10 +1,13 @@
 import { Prisma } from "@prisma/client";
 import { z } from "zod";
 import { getUtilisateurComplet } from "./queries";
+import type { Aliment as PrismaAliment } from "@prisma/client";
 
 // type de recuperation d'attributs associée a un utilisateur via sont mail
 export type UserWithRelations = Awaited<ReturnType<typeof getUtilisateurComplet>>;
 
+// type de recuperation d'aliments
+export type Aliment = PrismaAliment;
 
 // schema d'inscription pour respecter la structure d'utilisateur voulu avant insertion en bdd
 export const InscriptionFormSchema = z.object({
