@@ -2,12 +2,28 @@ import { Prisma } from "@prisma/client";
 import { z } from "zod";
 import { getUtilisateurComplet } from "./queries";
 import type { Aliment as PrismaAliment } from "@prisma/client";
+import { Genre, ObjectifPhysique, NiveauActivite, BacAliment } from "@prisma/client";
+
+export { Genre, ObjectifPhysique, NiveauActivite };
+
+// normalise les mots
+export const formatEnum = (text: string) => {
+  const mots = text.toLowerCase().split("_");
+  const motsFormates = mots.map((mot) => {
+    return mot.charAt(0).toUpperCase() + mot.slice(1);
+  });
+  return motsFormates.join(" ");
+};
 
 // type de recuperation d'attributs associée a un utilisateur via sont mail
 export type UserWithRelations = Awaited<ReturnType<typeof getUtilisateurComplet>>;
 
 // type de recuperation d'aliments
 export type Aliment = PrismaAliment;
+
+export type AlimentsGroupes = Partial<Record<BacAliment, Aliment[]>>;
+
+export type Periode = 'JOUR' | 'SEMAINE' | 'MOIS';
 
 // schema d'inscription pour respecter la structure d'utilisateur voulu avant insertion en bdd
 export const InscriptionFormSchema = z.object({
@@ -37,9 +53,10 @@ export type LoginData = z.infer<typeof LoginFormSchema>;
 export const ProfilFormSchema = z.object({
   poids: z.preprocess((val) => Number(val), z.number().min(20)),
   taille: z.preprocess((val) => Number(val), z.number().min(50)),
-  objectif: z.enum(["PRISE_DE_MASSE", "PERTE_DE_GRAS", "MAINTIEN"]),
-  activite: z.enum(["SEDENTAIRE", "LEGER", "MODERE", "INTENSE", "EXTREME"]),
-  genre: z.enum(["HOMME", "FEMME"]),
+  age: z.preprocess((val) => Number(val), z.number().int().min(15)),
+  objectif: z.nativeEnum(ObjectifPhysique),
+  activite: z.nativeEnum(NiveauActivite),
+  genre: z.nativeEnum(Genre),
 });
 
 export type ProfilData = z.infer<typeof ProfilFormSchema>;

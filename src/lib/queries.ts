@@ -37,10 +37,17 @@ export const ajouterUtilisateur = async (userData: InscriptionData) => {
 
 
 // Maj profil
-export const majProfil = async (email: string, data: ProfilData) => {
+export const majProfil = async (email: string, data: any) => {
   return await db.utilisateur.update({
     where: { email },
-    data: data
+    data: {
+      poids: data.poids,
+      taille: data.taille,
+      age: data.age,
+      genre: data.genre,
+      objectif: data.objectif,
+      activite: data.activite,
+    }
   });
 };
 
@@ -56,5 +63,12 @@ export const getAlimentsParBac = async (bac: string) => {
 export const getAlimentById = async (id: number) => {
   return await db.aliment.findUnique({
     where: { id }
+  });
+};
+
+// recupere tout les aliments
+export const getAllAliments = async (): Promise<Aliment[]> => {
+  return await db.aliment.findMany({
+    orderBy: { nom: 'asc' }
   });
 };
