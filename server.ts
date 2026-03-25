@@ -3,7 +3,8 @@ import cors from 'cors';
 import { db } from './src/lib/db.ts';
 import { getMail, getUtilisateurComplet } from './src/lib/queries.ts';
 import { ajouterUtilisateur, majProfil } from './src/lib/queries.ts';
-import { getAlimentsParBac } from './src/lib/queries.ts';
+import { getAlimentsParBac, getAllAliments } from './src/lib/queries.ts';
+import { AlimentsGroupes } from './src/lib/types';
 
 const app = express();
 
@@ -77,6 +78,28 @@ app.get('/api/aliments', async (req, res) => {
     res.json(resultats); 
   } catch (error) {
     res.status(500).send("Erreur lors de la récupération des aliments");
+  }
+});
+
+// recupere le catalogue grouper par BAC
+app.get('/api/aliments/all', async (req, res) => {
+  try {
+    const data = await getAllAliments(); 
+    
+    const catalogue: AlimentsGroupes = {};
+
+    data.forEach((aliment) => {
+      const nomBac = aliment.bac; 
+      
+      if (!catalogue[nomBac]) {
+        catalogue[nomBac] = [];
+      }
+      catalogue[nomBac]?.push(aliment);
+    });
+
+    res.json(catalogue);
+  } catch (err) {
+    res.status(500).json({ error: "Erreur serveur" });
   }
 });
 
