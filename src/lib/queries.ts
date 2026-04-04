@@ -37,17 +37,10 @@ export const ajouterUtilisateur = async (userData: InscriptionData) => {
 
 
 // Maj profil
-export const majProfil = async (email: string, data: any) => {
+export const majProfil = async (email: string, data: ProfilData) => {
   return await db.utilisateur.update({
     where: { email },
-    data: {
-      poids: data.poids,
-      taille: data.taille,
-      age: data.age,
-      genre: data.genre,
-      objectif: data.objectif,
-      activite: data.activite,
-    }
+    data: data 
   });
 };
 

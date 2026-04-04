@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Save, User, Target, Activity, Loader2 } from "lucide-react";
-import { Genre, ObjectifPhysique, NiveauActivite, formatEnum, ProfilFormSchema } from '@/lib/types';
+import { Genre, ObjectifPhysique, NiveauActivite, RegimeAlimentaire, formatEnum, ProfilFormSchema } from '@/lib/types';
 import type { UserWithRelations } from '@/lib/types';
 
 function Profil({ email }: { email: string }) {
@@ -93,7 +93,7 @@ function Profil({ email }: { email: string }) {
                   <SelectValue>{user.genre && formatEnum(user.genre)}</SelectValue>
                 </SelectTrigger>
                 <SelectContent className="bg-white border border-slate-200 shadow-lg rounded-xl z-50">
-                  {Object.values(Genre).map((g) => (
+                  {Genre && Object.values(Genre).map((g) => (
                     <SelectItem key={g} value={g} className="text-sm py-3">
                       {formatEnum(g)}
                     </SelectItem>
@@ -119,7 +119,7 @@ function Profil({ email }: { email: string }) {
                   <SelectValue>{user.objectif && formatEnum(user.objectif)}</SelectValue>
                 </SelectTrigger>
                 <SelectContent className="bg-white border border-slate-200 shadow-lg rounded-xl z-50">
-                  {Object.values(ObjectifPhysique).map((obj) => (
+                  {ObjectifPhysique && Object.values(ObjectifPhysique).map((obj) => (
                     <SelectItem key={obj} value={obj} className="text-sm py-3">
                       {formatEnum(obj)}
                     </SelectItem>
@@ -135,9 +135,25 @@ function Profil({ email }: { email: string }) {
                   <SelectValue>{user.activite && formatEnum(user.activite)}</SelectValue>
                 </SelectTrigger>
                 <SelectContent className="bg-white border border-slate-200 shadow-lg rounded-xl z-50">
-                  {Object.values(NiveauActivite).map((act) => (
+                  {NiveauActivite && Object.values(NiveauActivite).map((act) => (
                     <SelectItem key={act} value={act} className="text-sm py-3">
                       {formatEnum(act)}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-[10px] font-black uppercase text-slate-400 italic">Régime Alimentaire</label>
+              <Select value={user.regime} onValueChange={(v) => setUser({...user, regime: v as RegimeAlimentaire})}>
+                <SelectTrigger className="h-14 text-base font-medium border-slate-200 rounded-2xl w-full">
+                  <SelectValue>{user.regime && formatEnum(user.regime)}</SelectValue>
+                </SelectTrigger>
+                <SelectContent className="bg-white border border-slate-200 shadow-lg rounded-xl z-50">
+                  {RegimeAlimentaire && Object.values(RegimeAlimentaire).map((reg) => (
+                    <SelectItem key={reg} value={reg} className="text-sm py-3">
+                      {formatEnum(reg)}
                     </SelectItem>
                   ))}
                 </SelectContent>

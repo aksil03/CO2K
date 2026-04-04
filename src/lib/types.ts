@@ -2,12 +2,12 @@ import { Prisma } from "@prisma/client";
 import { z } from "zod";
 import { getUtilisateurComplet } from "./queries";
 import type { Aliment as PrismaAliment } from "@prisma/client";
-import { Genre, ObjectifPhysique, NiveauActivite, BacAliment } from "@prisma/client";
+import { Genre, ObjectifPhysique, NiveauActivite, BacAliment, RegimeAlimentaire } from "@prisma/client";
 
-export { Genre, ObjectifPhysique, NiveauActivite };
+export { Genre, ObjectifPhysique, NiveauActivite, RegimeAlimentaire};
 
 // normalise les mots
-export const formatEnum = (text: string) => {
+export const formatEnum = (text: string ) => {
   const mots = text.toLowerCase().split("_");
   const motsFormates = mots.map((mot) => {
     return mot.charAt(0).toUpperCase() + mot.slice(1);
@@ -57,6 +57,7 @@ export const ProfilFormSchema = z.object({
   objectif: z.nativeEnum(ObjectifPhysique),
   activite: z.nativeEnum(NiveauActivite),
   genre: z.nativeEnum(Genre),
+  regime: z.nativeEnum(RegimeAlimentaire),
 });
 
 export type ProfilData = z.infer<typeof ProfilFormSchema>;
