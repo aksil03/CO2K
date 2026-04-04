@@ -49,6 +49,7 @@ enum BacAliment {
   S_HOT
   S_COLD
   VINAIGRETTE
+  OLEAGINEUX
   BC
   GAL_RIZ
 }
@@ -72,6 +73,12 @@ enum Genre {
   FEMME
 }
 
+enum RegimeAlimentaire {
+  STANDARD
+  SANS_PORC
+  SANS_VIANDE
+}
+
 model Utilisateur {
   id            Int               @id @default(autoincrement())
   nom           String
@@ -84,6 +91,7 @@ model Utilisateur {
   genre         Genre             @default(HOMME)
   activite      NiveauActivite    @default(MODERE)
   objectif      ObjectifPhysique  @default(MAINTIEN)
+  regime        RegimeAlimentaire @default(STANDARD)
   repas         Repas[]
   posts         Post[]
   likes         Like[]
@@ -199,7 +207,7 @@ model Aliment {
   lip           Float?
   glu           Float?
   sucre         Float?
+  sel           Float?
   gras_sat      Float?
-  
   portions      Portion[] 
 }
