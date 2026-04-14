@@ -1,7 +1,7 @@
 import express, { Request, Response } from 'express';
 import cors from 'cors';
 import { db } from './src/lib/db.ts';
-import { getMail, getUtilisateurComplet } from './src/lib/queries.ts';
+import { getMail, getUtilisateurComplet, sauvegarderPlanning } from './src/lib/queries.ts';
 import { ajouterUtilisateur, majProfil } from './src/lib/queries.ts';
 import { getAlimentsParBac, getAllAliments } from './src/lib/queries.ts';
 import { AlimentsGroupes } from './src/lib/types';
@@ -103,6 +103,18 @@ app.get('/api/aliments/all', async (req, res) => {
   }
 });
 
+// sauvegarde un planning
+app.post('/api/planning/sauvegarder', async (req, res) => {
+  try {
+    const planning = await sauvegarderPlanning(req.body);
+    res.status(201).json(planning); 
+  } catch (error) {
+    res.status(500).send("Erreur serveur lors de la sauvegarde du planning");
+  }
+});
+
 app.listen(3000, () => {
   console.log("Serveur démarré sur le port 3000");
 });
+
+

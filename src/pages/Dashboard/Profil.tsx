@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import axios from 'axios';
 import { toast } from "sonner";
 import { Card, CardContent } from "@/components/ui/card";
@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Save, User, Target, Activity, Loader2 } from "lucide-react";
 import { Genre, ObjectifPhysique, NiveauActivite, RegimeAlimentaire, formatEnum, ProfilFormSchema } from '@/lib/types';
 import type { UserWithRelations } from '@/lib/types';
+import { CalculateurImpact } from '@/lib/planning/impact';
 
 function Profil({ email }: { email: string }) {
   const [user, setUser] = useState<UserWithRelations | null>(null);
@@ -33,6 +34,11 @@ function Profil({ email }: { email: string }) {
     }
   };
 
+  const besoins = useMemo(() => {
+    if (!user) return null;
+    return CalculateurImpact.calculerBesoinsNutritionnels(user);
+  }, [user]);
+
   if (!user) return <div className="p-20 text-center font-bold text-emerald-500">Chargement...</div>;
 
   return (
@@ -43,12 +49,87 @@ function Profil({ email }: { email: string }) {
           <User size={32} />
         </div>
         <div>
-          <h1 className="text-4xl font-black uppercase italic tracking-tighter">
+          <h1 className="text-4xl font-black uppercase italic">
             {user.prenom} <span className="text-emerald-500">{user.nom}</span>
           </h1>
           <p className="text-slate-400 font-bold text-lg">{user.email}</p>
         </div>
       </div>
+
+      <Card className="border border-slate-100 shadow-lg bg-white rounded-3xl overflow-hidden">
+        <div className="bg-slate-50 px-6 py-3 border-b flex items-center justify-between font-black text-slate-500 text-sm">
+          <div className="flex items-center gap-3">
+            <Activity size={20} className="text-emerald-500" /> VOS BESOINS
+          </div>
+          <span className="text-[10px] bg-emerald-100 text-emerald-700 px-2 py-1 rounded-md uppercase">Objectifs Quotidiens</span>
+        </div>
+
+        <CardContent className="px-10 py-12">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            
+            <div className="space-y-8 md:border-r md:border-slate-100 md:pr-12">
+              <div className="text-center md:text-left">
+                <label className="text-[10px] font-black uppercase text-slate-400 italic block mb-1">Apport énergétique quotidien</label>
+                <div className="flex items-baseline gap-2">
+                  <span className="text-6xl font-black italic text-slate-900">
+                    {besoins?.calories}
+                  </span>
+                  <div className="flex flex-col">
+                    <span className="text-2xl text-emerald-500 font-black italic">Kcal</span>
+                    <span className="text-[10px] text-slate-400 font-bold uppercase -mt-1">/ jour</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex justify-between gap-4">
+                <div className="bg-slate-50 p-4 rounded-2xl flex-1 text-center border border-slate-100">
+                  <p className="text-2xl font-black text-slate-900">{besoins?.proteines}g</p>
+                  <p className="text-[10px] font-black text-slate-400 uppercase italic">Protéines</p>
+                </div>
+                <div className="bg-slate-50 p-4 rounded-2xl flex-1 text-center border border-slate-100">
+                  <p className="text-2xl font-black text-slate-900">{besoins?.lipides}g</p>
+                  <p className="text-[10px] font-black text-slate-400 uppercase italic">Lipides</p>
+                </div>
+                <div className="bg-slate-50 p-4 rounded-2xl flex-1 text-center border border-slate-100">
+                  <p className="text-2xl font-black text-slate-900">{besoins?.glucides}g</p>
+                  <p className="text-[10px] font-black text-slate-400 uppercase italic">Glucides</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              <label className="text-[10px] font-black uppercase text-slate-400 italic block mb-2">Seuils Max recommandés par jour</label>
+              
+              <div className="flex justify-between items-center bg-white px-5 py-4 rounded-2xl border border-slate-100 shadow-sm">
+                <div className="flex items-center gap-3">
+                  <div className="w-2 h-2 rounded-full bg-rose-500" />
+                  <span className="text-sm font-bold text-slate-600">Sucre</span>
+                </div>
+                <span className="font-black text-slate-900">{besoins?.limites.sucre}g</span>
+              </div>
+
+              <div className="flex justify-between items-center bg-white px-5 py-4 rounded-2xl border border-slate-100 shadow-sm">
+                <div className="flex items-center gap-3">
+                  <div className="w-2 h-2 rounded-full bg-amber-500" />
+                  <span className="text-sm font-bold text-slate-600">Graisses Saturées</span>
+                </div>
+                <span className="font-black text-slate-900">{besoins?.limites.gras_sat}g</span>
+              </div>
+
+              <div className="flex justify-between items-center bg-white px-5 py-4 rounded-2xl border border-slate-100 shadow-sm">
+                <div className="flex items-center gap-3">
+                  <div className="w-2 h-2 rounded-full bg-blue-500" />
+                  <span className="text-sm font-bold text-slate-600">Sel</span>
+                </div>
+                <span className="font-black text-slate-900">{besoins?.limites.sel}g</span>
+              </div>
+            </div>
+
+          </div>
+        </CardContent>
+      </Card>
+    
+      
       <Card className="border border-slate-100 shadow-lg bg-white rounded-3xl overflow-hidden">
         <div className="bg-slate-50 px-6 py-3 border-b flex items-center gap-3 font-black text-slate-500 text-sm">
           <Activity size={20} className="text-emerald-500" /> MORPHOLOGIE

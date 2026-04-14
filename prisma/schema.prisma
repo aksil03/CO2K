@@ -14,7 +14,6 @@ enum TemplateRepas {
   SANDWICH
   WRAP
   SALADE
-  BOWL_ASIAT
   COLLATION
 }
 
@@ -32,9 +31,11 @@ enum BacAliment {
   PROT_BLANCHE_AUTRE
   PROT_P
   PROT_VEG
-  PATE
-  NOUILLE_VERMICELLE
   RIZ
+  PATE
+  NOUILLE
+  GNOCCHI
+  CERE_REPAS
   SEMOU
   POTATO
   PAIN
@@ -46,12 +47,15 @@ enum BacAliment {
   FRUIT_PULPE
   CERE
   LAIT
-  S_HOT
+  S_HOT_RED
+  S_HOT_WHITE
+  S_HOT_ASIA
   S_COLD
   VINAIGRETTE
   OLEAGINEUX
   BC
   GAL_RIZ
+  HUILE
 }
 
 enum ObjectifPhysique {
@@ -209,5 +213,9 @@ model Aliment {
   sucre         Float?
   sel           Float?
   gras_sat      Float?
+  estSnack      Boolean        @default(false)
+  estPlat       Boolean        @default(false) 
+  estSandwich   Boolean        @default(false) 
+  estVege       Boolean        @default(true) 
   portions      Portion[] 
 }

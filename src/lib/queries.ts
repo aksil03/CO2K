@@ -2,6 +2,7 @@ import { db } from './db.ts';
 import type { InscriptionData } from './types.ts'; 
 import type { ProfilData } from './types';
 import type { Aliment } from './types.ts';
+import type { SavePlanningData, JourneePlanning, RepasGenere, PanierItem } from './types.ts';
 
 // recupere l'utilisateur via sont mail
 export const getMail = async (email: string) => {
@@ -63,5 +64,36 @@ export const getAlimentById = async (id: number) => {
 export const getAllAliments = async (): Promise<Aliment[]> => {
   return await db.aliment.findMany({
     orderBy: { nom: 'asc' }
+  });
+};
+
+// Sauvegarder un planning
+export const sauvegarderPlanning = async (params: SavePlanningData) => {
+  const { utilisateurId, nom, journal } = params;
+
+  return await db.planning.create({
+    data: {
+      nom: nom,
+      auteurId: utilisateurId,
+      repas: {
+        create: journal.flatMap((unJour: JourneePlanning, index: number) => {
+          const dateCible = new Date();
+          dateCible.setDate(dateCible.getDate() + index);
+
+          return unJour.repas.map((unRepas: RepasGenere) => ({
+            dateConsom: dateCible,
+            type: unRepas.moment,
+            nomTemplate: unRepas.template || "HOT",
+            utilisateurId: utilisateurId,
+            portions: {
+              create: unRepas.aliments.map((al: PanierItem) => ({
+                quantite: al.poids,
+                alimentId: al.aliment.id,
+              }))
+            }
+          }));
+        })
+      }
+    }
   });
 };

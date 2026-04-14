@@ -1,63 +1,101 @@
-import { Prisma } from "@prisma/client";
 import { z } from "zod";
+import { 
+  Prisma, 
+  ObjectifPhysique,
+  NiveauActivite,
+  Genre,
+  RegimeAlimentaire,
+  MomentRepas,
+  TemplateRepas,
+  BacAliment
+} from "@prisma/client";
+import type { Aliment } from "@prisma/client";
 import { getUtilisateurComplet } from "./queries";
-import type { Aliment as PrismaAliment } from "@prisma/client";
-import { Genre, ObjectifPhysique, NiveauActivite, BacAliment, RegimeAlimentaire } from "@prisma/client";
 
-export { Genre, ObjectifPhysique, NiveauActivite, RegimeAlimentaire};
-
-// normalise les mots
-export const formatEnum = (text: string ) => {
-  const mots = text.toLowerCase().split("_");
-  const motsFormates = mots.map((mot) => {
-    return mot.charAt(0).toUpperCase() + mot.slice(1);
-  });
-  return motsFormates.join(" ");
+export { 
+  MomentRepas, 
+  TemplateRepas, 
+  BacAliment, 
+  ObjectifPhysique, 
+  NiveauActivite, 
+  Genre, 
+  RegimeAlimentaire 
 };
+export type { Aliment };
 
-// type de recuperation d'attributs associée a un utilisateur via sont mail
-export type UserWithRelations = Awaited<ReturnType<typeof getUtilisateurComplet>>;
-
-// type de recuperation d'aliments
-export type Aliment = PrismaAliment;
-
+export type UserWithRelations = Prisma.PromiseReturnType<typeof getUtilisateurComplet>;
 export type AlimentsGroupes = Partial<Record<BacAliment, Aliment[]>>;
-
 export type Periode = 'JOUR' | 'SEMAINE' | 'MOIS';
 
-// schema d'inscription pour respecter la structure d'utilisateur voulu avant insertion en bdd
+
+export const formatEnum = (text: string) => 
+  text.toLowerCase().split("_").map(m => m.charAt(0).toUpperCase() + m.slice(1)).join(" ");
+
+
 export const InscriptionFormSchema = z.object({
-  nom: z.string().min(1, "Le nom doit comporter au moins une lettre"),
-  prenom: z.string().min(1, "Le prenom doit comporter au moins une lettre"),
-  email: z.string().email("l'email doit etre au format standard"),
-  password: z.string().min(4, "Le mot de passe doit comporter au moins 4 lettres"),
-  age: z.preprocess((val) => Number(val), z.number().int("L'âge doit être un nombre entier").min(15, "Vous devez avoir au minimum 15 ans")),
-  taille: z.preprocess((val) => Number(val), z.number().int("La taille doit être un nombre entier").min(50, "La taille minimum requise est de 50 cm")),
-  poids: z.preprocess((val) => Number(val), z.number().min(20, "Le poids minimum requis est de 20 kilos")),
+  nom: z.string().min(1, "Requis"),
+  prenom: z.string().min(1, "Requis"),
+  email: z.string().email("Format invalide"),
+  password: z.string().min(4, "4 caractères min"),
+  age: z.coerce.number().int().min(15),
+  taille: z.coerce.number().int().min(50),
+  poids: z.coerce.number().min(20),
 });
 
-
-export type InscriptionData = z.infer<typeof InscriptionFormSchema>;
-
-
-// schema de structure d'une identification
-export const LoginFormSchema = z.object({
-  email: z.string().email("L'email doit être au format standard"),
-  password: z.string().min(1, "Le mot de passe est requis"), 
-});
-
-export type LoginData = z.infer<typeof LoginFormSchema>;
-
-
-// schema d'un profil utilisateur
 export const ProfilFormSchema = z.object({
-  poids: z.preprocess((val) => Number(val), z.number().min(20)),
-  taille: z.preprocess((val) => Number(val), z.number().min(50)),
-  age: z.preprocess((val) => Number(val), z.number().int().min(15)),
+  poids: z.coerce.number().min(20),
+  taille: z.coerce.number().int().min(50),
+  age: z.coerce.number().int().min(15),
   objectif: z.nativeEnum(ObjectifPhysique),
   activite: z.nativeEnum(NiveauActivite),
   genre: z.nativeEnum(Genre),
   regime: z.nativeEnum(RegimeAlimentaire),
 });
 
+export const LoginFormSchema = z.object({
+  email: z.string().email(),
+  password: z.string().min(1),
+});
+
+export type InscriptionData = z.infer<typeof InscriptionFormSchema>;
+export type LoginData = z.infer<typeof LoginFormSchema>;
 export type ProfilData = z.infer<typeof ProfilFormSchema>;
+
+
+export interface PanierItem { 
+  aliment: Aliment; 
+  poids: number; 
+}
+
+export interface Repartition {
+  prot: number;
+  lip: number;
+  glu: number;
+}
+
+export interface RepasGenere {
+  moment: MomentRepas;
+  template: TemplateRepas;
+  aliments: PanierItem[];
+  stats: Record<'prot' | 'lip' | 'glu' | 'co2' | 'sucre' | 'sel' | 'gras_sat', number>;
+  cibles: Repartition;
+}
+
+export interface JourneePlanning {
+  jour: number;
+  repas: RepasGenere[];
+  bilan: BilanNutritionnel; 
+}
+
+export interface BilanNutritionnel {
+  prot: { actuel: number; cible: number };
+  lip: { actuel: number; cible: number };
+  glu: { actuel: number; cible: number };
+  co2Total: number;
+}
+
+export interface SavePlanningData {
+  utilisateurId: number;
+  nom: string;
+  journal: JourneePlanning[]; 
+}

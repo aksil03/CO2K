@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { LayoutDashboard, Utensils, Dumbbell, Leaf, Settings, LogOut, User, CalendarDays } from 'lucide-react'
 import { Button } from "@/components/ui/button"
 import Repas from "./Dashboard/Repas"
@@ -6,6 +6,7 @@ import Sport from "./Dashboard/Sport"
 import Profil from "./Dashboard/Profil"
 import { useParams } from 'react-router-dom'
 import Plannings from './Dashboard/Plannings'
+import { type UserWithRelations, type Aliment } from '@/lib/types'
 
 interface SidebarProps {
   icon: React.ReactNode;
@@ -32,6 +33,42 @@ function Dashboard() {
  
   const { email } = useParams<{ email: string }>();
   
+  const [user, setUser] = useState<UserWithRelations>(null);
+  const [aliments, setAliments] = useState<Aliment[]>([]);
+  const [loading, setLoading] = useState(true);
+
+useEffect(() => {
+    async function initDashboard() {
+      try {
+        setLoading(true); 
+
+        const [resUser, resAliments] = await Promise.all([
+          fetch(`http://localhost:3000/api/utilisateur?email=${email}`),
+          fetch(`http://localhost:3000/api/aliments/all`)
+        ]);
+
+        if (!resUser.ok || !resAliments.ok) {
+          throw new Error("Erreur lors de la récupération des données");
+        }
+
+        const userData = await resUser.json();
+        const alimentsDataGroupes = await resAliments.json();
+        const alimentsPlats = Object.values(alimentsDataGroupes).flat() as Aliment[];
+        setUser(userData);
+        setAliments(alimentsPlats);
+
+      } catch (error) {
+      } finally {
+        setLoading(false);
+      }
+    }
+    if (email && email !== ":email") {
+      initDashboard();
+    }
+  }, [email]);
+
+  if (loading) return <div className="flex h-screen items-center justify-center font-bold">Initialisation du tableau de bord...</div>
+
   return (
     <div className="flex min-h-screen pt-16">
       <aside className="w-64 fixed left-0 top-16 bottom-0 bg-emerald-700/1 backdrop-blur-sm p-6 flex flex-col justify-between border-r border-white/20">
@@ -50,7 +87,9 @@ function Dashboard() {
         {page === "alimentation" && <Repas />}
         {page === "sport" && <Sport />}
         {page === "profil" && <Profil email={email || ""}/>}
-        {page === "plannings" && <Plannings />}
+        {page === "plannings" && (
+          <Plannings user={user} tousLesAliments={aliments} />
+        )}
       </main>
     </div>
   )

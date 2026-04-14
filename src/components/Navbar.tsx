@@ -73,7 +73,10 @@ return (
               
               <DropdownMenuSeparator />
               
-              <DropdownMenuItem onClick={() => navigate(CHEMIN_DASHBOARD)} className="flex items-center gap-3 px-3 py-2 cursor-pointer dark:text-zinc-300">
+              <DropdownMenuItem 
+                onClick={() => navigate(CHEMIN_DASHBOARD(email))} 
+                className="flex items-center gap-3 px-3 py-2 cursor-pointer dark:text-zinc-300"
+              >
                 <LayoutDashboard size={18} />
                 <span>Mon Dashboard</span>
               </DropdownMenuItem>
