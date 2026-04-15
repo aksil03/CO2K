@@ -97,3 +97,48 @@ export const sauvegarderPlanning = async (params: SavePlanningData) => {
     }
   });
 };
+
+
+// Récupérer tous les plannings d'un user
+export const getPlanningsUtilisateur = async (userId: number) => {
+  return await db.planning.findMany({
+    where: { auteurId: userId },
+    include: {
+      repas: {
+        include: {
+          portions: {
+            include: {
+              aliment: true 
+            }
+          }
+        },
+        orderBy: { dateConsom: 'asc' }
+      }
+    },
+    orderBy: { id: 'desc' }
+  });
+};
+
+// Supprimer un planning 
+export const supprimerPlanning = async (id: number) => {
+  return await db.planning.delete({
+    where: { id }
+  });
+};
+
+// Met à jour un planning 
+export const majPlanning = async (repas: any[]) => { 
+  return await db.$transaction(
+    repas.flatMap((unRepas) =>
+      unRepas.portions.map((portion: any) =>
+        db.portion.update({
+          where: { id: portion.id },
+          data: {
+            quantite: portion.quantite,
+            alimentId: portion.aliment.id,
+          },
+        })
+      )
+    )
+  );
+};

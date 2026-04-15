@@ -1,9 +1,9 @@
 import express, { Request, Response } from 'express';
 import cors from 'cors';
 import { db } from './src/lib/db.ts';
-import { getMail, getUtilisateurComplet, sauvegarderPlanning } from './src/lib/queries.ts';
+import { getMail, getUtilisateurComplet, sauvegarderPlanning, majPlanning } from './src/lib/queries.ts';
 import { ajouterUtilisateur, majProfil } from './src/lib/queries.ts';
-import { getAlimentsParBac, getAllAliments } from './src/lib/queries.ts';
+import { getAlimentsParBac, getAllAliments, getPlanningsUtilisateur, supprimerPlanning } from './src/lib/queries.ts';
 import { AlimentsGroupes } from './src/lib/types';
 
 const app = express();
@@ -113,8 +113,47 @@ app.post('/api/planning/sauvegarder', async (req, res) => {
   }
 });
 
+// Récupérer la liste de tous les plannings d'un utilisateur
+app.get('/api/planning/liste', async (req, res) => {
+  const userId = Number(req.query.userId);
+
+  if (!userId) {
+    return res.status(400).send("ID utilisateur manquant");
+  }
+
+  try {
+    const plannings = await getPlanningsUtilisateur(userId);
+    res.json(plannings);
+  } catch (error) {
+    res.status(500).send("Erreur lors de la récupération des plannings");
+  }
+});
+
+// Supprimer un planning 
+app.delete('/api/planning/:id', async (req, res) => {
+  const id = Number(req.params.id);
+  try {
+    await supprimerPlanning(id);
+    res.sendStatus(204);
+  } catch (error) {
+    res.status(500).send("Erreur lors de la suppression");
+  }
+});
+
+// Mise à jour planning
+app.post('/api/planning/update', async (req, res) => {
+  const { repas } = req.body;
+  try {
+    const resultat = await majPlanning(repas);
+    res.send(resultat);
+  } catch (error) {
+    res.status(500).send("Erreur lors de la mise à jour du planning");
+  }
+});
+
 app.listen(3000, () => {
   console.log("Serveur démarré sur le port 3000");
 });
+
 
 
