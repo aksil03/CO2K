@@ -11,6 +11,8 @@ import {
 } from "@prisma/client";
 import type { Aliment } from "@prisma/client";
 import { getUtilisateurComplet } from "./queries";
+import { getPlanningsUtilisateur } from "./queries";
+import { getProgrammesUtilisateur } from "./queries";
 
 export { 
   MomentRepas, 
@@ -22,6 +24,8 @@ export {
   RegimeAlimentaire 
 };
 export type { Aliment };
+
+export type PlanningComplet = Prisma.PromiseReturnType<typeof getPlanningsUtilisateur>[number];
 
 export type UserWithRelations = Prisma.PromiseReturnType<typeof getUtilisateurComplet>;
 export type AlimentsGroupes = Partial<Record<BacAliment, Aliment[]>>;
@@ -58,10 +62,107 @@ export const LoginFormSchema = z.object({
 });
 
 export type InscriptionData = z.infer<typeof InscriptionFormSchema>;
+const _checkInscr: Prisma.UtilisateurCreateInput = {} as InscriptionData;
+
 export type LoginData = z.infer<typeof LoginFormSchema>;
 export type ProfilData = z.infer<typeof ProfilFormSchema>;
+const _checkProfil: Prisma.UtilisateurUpdateInput = {} as ProfilData;
 
 
+// repas schema
+export const RepasGenereSchema = z.object({
+  moment: z.nativeEnum(MomentRepas),
+  template: z.nativeEnum(TemplateRepas),
+  aliments: z.array(z.object({
+    aliment: z.custom<Aliment>(),
+    poids: z.number(),
+  })),
+  stats: z.record(z.string(), z.number()),
+  cibles: z.object({
+    prot: z.number(),
+    lip: z.number(),
+    glu: z.number(),
+  }),
+});
+
+export type RepasGenere = z.infer<typeof RepasGenereSchema>;
+
+// journée schema
+export const JourneePlanningSchema = z.object({
+  jour: z.number(),
+  repas: z.array(RepasGenereSchema),
+  bilan: z.object({
+    prot: z.object({ actuel: z.number(), cible: z.number() }),
+    lip: z.object({ actuel: z.number(), cible: z.number() }),
+    glu: z.object({ actuel: z.number(), cible: z.number() }),
+    co2Total: z.number(),
+  }),
+});
+
+export type BilanNutritionnel = JourneePlanning['bilan'];
+
+export type JourneePlanning = z.infer<typeof JourneePlanningSchema>;
+
+// schema portion
+export const PortionSchema = z.object({
+  quantite: z.number(),
+  alimentId: z.number(),
+  repasId: z.number(),
+});
+const _checkPortion: Prisma.PortionUncheckedCreateInput = {} as z.infer<typeof PortionSchema>;
+
+// schema repas
+export const RepasSchema = z.object({
+  dateConsom: z.coerce.date(),
+  type: z.nativeEnum(MomentRepas),
+  nomTemplate: z.nativeEnum(TemplateRepas),
+  utilisateurId: z.number(),
+  portions: z.array(PortionSchema), 
+});
+const _checkRepas: Omit<Prisma.RepasUncheckedCreateInput, 'portions'> = {} as z.infer<typeof RepasSchema>;
+
+// schema sauvegarde
+export const SavePlanningSchema = z.object({
+  nom: z.string().min(1),
+  description: z.string().optional(),
+  estPublic: z.boolean().default(false),
+  auteurId: z.number(),
+  journal: z.array(JourneePlanningSchema), 
+});
+
+export type SavePlanningData = z.infer<typeof SavePlanningSchema>;
+const _checkSave: Prisma.PlanningUncheckedCreateInput = {} as Omit<SavePlanningData, 'journal'>;
+
+
+export const AssignerPlanningSchema = z.object({
+  programmeId: z.coerce.number(),   
+  planningId: z.coerce.number(),
+  semaineDebut: z.coerce.date(),
+  ordre: z.coerce.number().default(1),
+});
+
+export type AssignerPlanningData = z.infer<typeof AssignerPlanningSchema>;
+const _checkCal: Prisma.CalendrierPlanningUncheckedCreateInput = {} as AssignerPlanningData;
+
+
+export const CreateProgrammeSchema = z.object({
+  nom: z.string().min(1, "Le nom du programme est requis"),
+  description: z.string().optional(),
+  auteurId: z.number(),
+  semaines: z.array(z.object({
+    planningId: z.number().nullable(),
+    semaineDebut: z.coerce.date(),
+    ordre: z.number(),
+  })).min(1, "Ajoutez au moins une semaine au programme"),
+});
+
+export type CreateProgrammeData = z.infer<typeof CreateProgrammeSchema>;
+
+export type ProgrammeComplet = Prisma.PromiseReturnType<typeof getProgrammesUtilisateur>[number];
+
+const _checkProg: Prisma.ProgrammeUncheckedCreateInput = {} as Omit<CreateProgrammeData, 'semaines'>;
+
+// interface
 export interface PanierItem { 
   aliment: Aliment; 
   poids: number; 
@@ -73,29 +174,3 @@ export interface Repartition {
   glu: number;
 }
 
-export interface RepasGenere {
-  moment: MomentRepas;
-  template: TemplateRepas;
-  aliments: PanierItem[];
-  stats: Record<'prot' | 'lip' | 'glu' | 'co2' | 'sucre' | 'sel' | 'gras_sat', number>;
-  cibles: Repartition;
-}
-
-export interface JourneePlanning {
-  jour: number;
-  repas: RepasGenere[];
-  bilan: BilanNutritionnel; 
-}
-
-export interface BilanNutritionnel {
-  prot: { actuel: number; cible: number };
-  lip: { actuel: number; cible: number };
-  glu: { actuel: number; cible: number };
-  co2Total: number;
-}
-
-export interface SavePlanningData {
-  utilisateurId: number;
-  nom: string;
-  journal: JourneePlanning[]; 
-}

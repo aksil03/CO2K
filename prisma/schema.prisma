@@ -101,6 +101,7 @@ model Utilisateur {
   likes         Like[]
   commentaires  Commentaire[]
   plannings     Planning[]
+  programmes    Programme[]
   badges        BadgeUtilisateur[]
   mesAbonnes     Follow[]          @relation("MesAbonnes")
   mesAbonnements Follow[]          @relation("MesAbonnements")
@@ -127,6 +128,8 @@ model Post {
   repas         Repas?      @relation(fields: [repasId], references: [id])
   planningId    Int?        
   planning      Planning?   @relation(fields: [planningId], references: [id])
+  programmeId   Int?        
+  programme     Programme?  @relation(fields: [programmeId], references: [id])
   likes         Like[]
   commentaires  Commentaire[]
 }
@@ -176,7 +179,9 @@ model Planning {
   auteurId      Int
   auteur        Utilisateur @relation(fields: [auteurId], references: [id])
   repas         Repas[]     
+  calendriers   CalendrierPlanning[]
   posts         Post[]      
+  createdAt     DateTime             @default(now())
 }
 
 model Repas {
@@ -218,4 +223,26 @@ model Aliment {
   estSandwich   Boolean        @default(false) 
   estVege       Boolean        @default(true) 
   portions      Portion[] 
+}
+
+model Programme {
+  id            Int         @id @default(autoincrement())
+  nom           String      // ex: "Objectif Été 2026"
+  description   String?
+  estPublic     Boolean     @default(false)
+  auteurId      Int
+  auteur        Utilisateur @relation(fields: [auteurId], references: [id])
+  semaines      CalendrierPlanning[]
+  posts         Post[]      
+  createdAt     DateTime    @default(now())
+}
+
+model CalendrierPlanning {
+  id            Int         @id @default(autoincrement())
+  semaineDebut  DateTime 
+  ordre         Int 
+  planningId    Int?
+  planning      Planning?    @relation(fields: [planningId], references: [id], onDelete: Cascade)
+  programmeId   Int
+  programme     Programme   @relation(fields: [programmeId], references: [id], onDelete: Cascade)
 }

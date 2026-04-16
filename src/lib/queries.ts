@@ -19,10 +19,16 @@ export const getUtilisateurComplet = async (email: string) => {
       repas: true,
       badges: { include: { badge: true } },
       plannings: true,
+      programmes: { 
+        include: {
+          semaines: true
+        }
+      },
       _count: {
         select: {
           mesAbonnes: true,
-          mesAbonnements: true
+          mesAbonnements: true,
+          programmes: true 
         }
       }
     }
@@ -67,14 +73,14 @@ export const getAllAliments = async (): Promise<Aliment[]> => {
   });
 };
 
-// Sauvegarder un planning
+// sauvegarde un planning
 export const sauvegarderPlanning = async (params: SavePlanningData) => {
-  const { utilisateurId, nom, journal } = params;
+  const { auteurId, nom, journal } = params;
 
   return await db.planning.create({
     data: {
       nom: nom,
-      auteurId: utilisateurId,
+      auteurId: auteurId,
       repas: {
         create: journal.flatMap((unJour: JourneePlanning, index: number) => {
           const dateCible = new Date();
@@ -84,7 +90,7 @@ export const sauvegarderPlanning = async (params: SavePlanningData) => {
             dateConsom: dateCible,
             type: unRepas.moment,
             nomTemplate: unRepas.template || "HOT",
-            utilisateurId: utilisateurId,
+            utilisateurId: auteurId, 
             portions: {
               create: unRepas.aliments.map((al: PanierItem) => ({
                 quantite: al.poids,
@@ -94,10 +100,20 @@ export const sauvegarderPlanning = async (params: SavePlanningData) => {
           }));
         })
       }
+    },
+    include: {
+      repas: {
+        include: {
+          portions: {
+            include: {
+              aliment: true 
+            }
+          }
+        }
+      }
     }
   });
 };
-
 
 // Récupérer tous les plannings d'un user
 export const getPlanningsUtilisateur = async (userId: number) => {
@@ -141,4 +157,73 @@ export const majPlanning = async (repas: any[]) => {
       )
     )
   );
+};
+
+// mise à jour légère des infos du planning
+export const majInfosPlanning = async (id: number, data: { nom?: string, estPublic?: boolean, description?: string }) => {
+  return await db.planning.update({
+    where: { id },
+    data: data
+  });
+};
+
+// Récupère tous les programmes d'un utilisateur
+export const getProgrammesUtilisateur = async (userId: number) => {
+  return await db.programme.findMany({
+    where: { auteurId: userId },
+    include: {
+      semaines: {
+        include: {
+          planning: {
+            include: {
+              repas: {
+                include: { portions: { include: { aliment: true } } }
+              }
+            }
+          }
+        },
+        orderBy: { ordre: 'asc' } 
+      }
+    },
+    orderBy: { createdAt: 'desc' }
+  });
+};
+
+export const creerProgrammeComplet = async (data: { 
+  nom: string, 
+  description?: string, 
+  auteurId: number,
+  semaines: { planningId: number | null, semaineDebut: Date, ordre: number }[]
+}) => {
+  return await db.programme.create({
+    data: {
+      nom: data.nom,
+      description: data.description,
+      auteurId: data.auteurId,
+      semaines: {
+        create: data.semaines.map(s => ({
+          semaineDebut: s.semaineDebut,
+          ordre: s.ordre,
+          planningId: (s.planningId && s.planningId !== 0) ? s.planningId : null
+        }))
+      }
+    },
+    include: { 
+      semaines: { 
+        include: { planning: true } 
+      } 
+    }
+  });
+};
+
+export const supprimerProgramme = async (id: number) => {
+  return await db.programme.delete({
+    where: { id }
+  });
+};
+
+export const viderTousLesProgrammes = async (userId: number) => {
+  return await db.programme.deleteMany({
+    where: { auteurId: userId }
+  });
 };

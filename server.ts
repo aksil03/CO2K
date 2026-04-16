@@ -1,10 +1,14 @@
 import express, { Request, Response } from 'express';
 import cors from 'cors';
 import { db } from './src/lib/db.ts';
-import { getMail, getUtilisateurComplet, sauvegarderPlanning, majPlanning } from './src/lib/queries.ts';
-import { ajouterUtilisateur, majProfil } from './src/lib/queries.ts';
-import { getAlimentsParBac, getAllAliments, getPlanningsUtilisateur, supprimerPlanning } from './src/lib/queries.ts';
-import { AlimentsGroupes } from './src/lib/types';
+import { 
+  getMail, getUtilisateurComplet, sauvegarderPlanning, majPlanning, getProgrammesUtilisateur,
+  ajouterUtilisateur, majProfil, majInfosPlanning, creerProgrammeComplet,
+  getAlimentsParBac, getAllAliments, getPlanningsUtilisateur, supprimerPlanning, supprimerProgramme
+} from './src/lib/queries.ts';
+import { AlimentsGroupes, CreateProgrammeSchema } from './src/lib/types';
+import { AssignerPlanningSchema } from './src/lib/types';
+import { InscriptionFormSchema, SavePlanningSchema, LoginFormSchema, ProfilFormSchema } from './src/lib/types';
 
 const app = express();
 
@@ -13,9 +17,8 @@ app.use(express.json());
 
 // api qui verifie si l'utilisateur existe dans la bdd via sont mail unique
 app.post('/api/connexion', async (req, res) => {
-  const { email, password } = req.body;
-
   try {
+    const { email, password } = LoginFormSchema.parse(req.body);
     const user = await getMail(email);
 
     if (user && user.password === password) {
@@ -24,14 +27,15 @@ app.post('/api/connexion', async (req, res) => {
       res.status(401).send("Email ou MDP incorrect");
     }
   } catch (error) {
-    res.status(500).send("Erreur serveur");
+      res.status(500).send("Erreur serveur");
   }
 });
 
 // api qui ajoute un utilisateur
 app.post('/api/inscription', async (req, res) => {
   try {
-    const user = await ajouterUtilisateur(req.body);
+    const donneesValides = InscriptionFormSchema.parse(req.body);
+    const user = await ajouterUtilisateur(donneesValides);
     res.send(user); 
   } catch (error) {
     res.status(500).send("Erreur serveur");
@@ -59,8 +63,8 @@ app.get('/api/utilisateur', async (req, res) => {
 // maj profil
 app.put('/api/utilisateur/update/:email', async (req, res) => {
   const email = req.params.email;
-  const nouvellesDonnees = req.body;
   try {
+    const nouvellesDonnees = ProfilFormSchema.parse(req.body);
     const misAjour = await majProfil(email, nouvellesDonnees);
     res.send(misAjour);
   } catch (erreur) {
@@ -106,10 +110,11 @@ app.get('/api/aliments/all', async (req, res) => {
 // sauvegarde un planning
 app.post('/api/planning/sauvegarder', async (req, res) => {
   try {
-    const planning = await sauvegarderPlanning(req.body);
+    const planningValide = SavePlanningSchema.parse(req.body);
+    const planning = await sauvegarderPlanning(planningValide);
     res.status(201).json(planning); 
   } catch (error) {
-    res.status(500).send("Erreur serveur lors de la sauvegarde du planning");
+    res.status(500).send("Erreur lors de la sauvegarde");
   }
 });
 
@@ -148,6 +153,74 @@ app.post('/api/planning/update', async (req, res) => {
     res.send(resultat);
   } catch (error) {
     res.status(500).send("Erreur lors de la mise à jour du planning");
+  }
+});
+
+// Mise à jour des informations de base du planning 
+app.patch('/api/planning/:id', async (req, res) => {
+  const id = Number(req.params.id);
+  try {
+    const data = SavePlanningSchema.partial().parse(req.body); 
+    const planningMisAJour = await majInfosPlanning(id, data);
+    res.json(planningMisAJour);
+  } catch (error) {
+    res.status(500).send("Erreur lors de la modification");
+  }
+});
+
+// recupérer les programmes
+app.get('/api/programmes/:userId', async (req, res) => {
+  const userId = Number(req.params.userId);
+  try {
+    const programmes = await getProgrammesUtilisateur(userId);
+    res.json(programmes);
+  } catch (error) {
+    res.status(500).send("Erreur lors de la récupération des programmes");
+  }
+});
+
+// creer programme
+app.post('/api/programmes/creer', async (req, res) => {
+  try {
+    const validData = CreateProgrammeSchema.parse(req.body);
+    const resultat = await creerProgrammeComplet(validData);
+    res.json(resultat);
+  } catch (error) {
+    res.status(500).send("Erreur lors de la création du programme");
+  }
+});
+
+// supp programme
+app.delete('/api/programmes/:id', async (req, res) => {
+  const id = Number(req.params.id);
+  try {
+    await supprimerProgramme(id);
+    res.sendStatus(204);
+  } catch (error) {
+    res.status(500).send("Erreur lors de la suppression du programme");
+  }
+});
+
+// Mettre a jour le planning d'une semaine dans un programme
+app.patch('/api/programmes/semaine/:id', async (req, res) => {
+  const id = Number(req.params.id);
+  
+  try {
+    const { planningId } = req.body;
+    const pId = (planningId === 0 || planningId === null) ? null : Number(planningId);
+
+    const semaineUpdate = await db.calendrierPlanning.update({
+      where: { id: id },
+      data: {
+        planningId: pId
+      },
+      include: {
+        planning: true
+      }
+    });
+    res.json(semaineUpdate);
+  } catch (error) {
+    res.status(500).send("Erreur serveur lors de la mise à jour de la semaine");
   }
 });
 

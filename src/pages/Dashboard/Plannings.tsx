@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
 import { Loader2, Rocket, Sun, Utensils, Apple, Moon, Check, Zap, Leaf } from "lucide-react";
+import { type SavePlanningData } from '@/lib/types';
 
 const MOMENTS_CONFIG = {
   [MomentRepas.PETIT_DEJEUNER]: { t: "MATIN", icon: <Sun size={14}/>, color: "text-amber-600", bg: "bg-amber-50" },
@@ -23,27 +24,33 @@ export default function Plannings({ user: u, tousLesAliments: a }: { user: UserW
   const [loading, setLoading] = useState(false);
   const besoins = useMemo(() => u ? CalculateurImpact.calculerBesoinsNutritionnels(u) : null, [u]);
 
-  const handleGeneration = async () => {
-    if (!besoins || !u) return;
-    setLoading(true);
 
-    try {
-      const gen = PlanningLogic.genererSemaine(a, besoins, u);
-      const dataToSave = {
-        utilisateurId: u.id,
-        nom: `Planning ${new Date().toLocaleDateString()}`,
-        journal: gen
-      };
-      await axios.post("http://localhost:3000/api/planning/sauvegarder", dataToSave);
-      setJournal(gen);
-      toast.success("Planning sauvegardé");
-    } catch (err) {
-      toast.error("Erreur de sauvegarde");
-    } finally {
-      setLoading(false);
-    }
-  };
+const handleGeneration = async () => {
+  if (!besoins || !u) return;
+  setLoading(true);
 
+  try {
+    const gen = PlanningLogic.genererSemaine(a, besoins, u);
+    const dataToSave: SavePlanningData = {
+      auteurId: u.id,
+      nom: `Planning ${new Date().toLocaleDateString()}`,
+      journal: gen,
+      estPublic: false,
+      description: "Planning généré automatiquement"
+
+    };
+
+    await axios.post("http://localhost:3000/api/planning/sauvegarder", dataToSave);
+    
+    setJournal(gen);
+    toast.success("Planning sauvegardé");
+  } catch (err: any) {
+    console.error(err.response?.data);
+    toast.error("Données invalides");
+  } finally {
+    setLoading(false);
+  }
+};
   if (!besoins) return null;
 
   return (

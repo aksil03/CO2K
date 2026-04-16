@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import type { Variants } from 'framer-motion';
@@ -9,11 +10,16 @@ import { Card, CardHeader, CardTitle, CardContent, CardDescription } from "@/com
 import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
 import { cn } from "@/lib/utils"
-import { Utensils } from "lucide-react"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { MODELES_REPAS } from "@/lib/constants";
 import { type TemplateRepas, type Aliment } from "@/lib/types";
+import { Utensils, Calendar, Trash2, ChevronRight, Pencil, Check, X, Plus, Info, RotateCcw, Eye, EyeOff } from "lucide-react";
+import React, { useState } from "react";
+import { type PlanningComplet } from '@/lib/types';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter, DialogClose  } from "@/components/ui/dialog";
+import { type CreateProgrammeData } from "@/lib/types";
+import * as DialogPrimitive from "@radix-ui/react-dialog";
 
 export function BoutonVert({ children, onClick, type = "button", disabled = false, className }: any) {
   return (
@@ -244,4 +250,461 @@ export function FormTemplate({ title, form, children, footerText, linkText, link
       </motion.div>
     </div>
   )
+}
+
+
+export function CardProgrammeMaster({ 
+  programme, 
+  onDelete, 
+  onView,
+  onUpdate 
+}: { 
+  programme: any, 
+  onDelete: (id: number) => void, 
+  onView: (programme: any) => void,
+  onUpdate: (id: number, data: any) => void
+}) {
+  const [isEditing, setIsEditing] = useState(false);
+  const [tempName, setTempName] = useState(programme.nom);
+  const [tempDesc, setTempDesc] = useState(programme.description || "");
+  const [isPublic, setIsPublic] = useState(programme.estPublic);
+
+  const totalSemaines = programme.semaines?.length || 0;
+  const semainesRemplies = programme.semaines?.filter((s: any) => s.planningId !== null).length || 0;
+  const estComplet = totalSemaines === semainesRemplies;
+
+  useEffect(() => {
+    setIsPublic(programme.estPublic);
+    setTempName(programme.nom);
+    setTempDesc(programme.description || "");
+  }, [programme]);
+
+  const handleSave = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onUpdate(programme.id, { nom: tempName, description: tempDesc });
+    setIsEditing(false);
+  };
+
+  const togglePublic = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    const newStatus = !isPublic;
+    setIsPublic(newStatus);
+    onUpdate(programme.id, { estPublic: newStatus });
+  };
+
+  return (
+    <div className="h-full group cursor-pointer" onClick={() => !isEditing && onView(programme)}>
+      <Card className={cn(
+        "relative h-full rounded-[2rem] transition-all duration-300 overflow-hidden border flex flex-col items-start text-left",
+        "bg-white border-slate-100 shadow-sm hover:border-slate-200",
+        "dark:bg-zinc-950 dark:border-zinc-800 dark:hover:border-zinc-700 dark:shadow-none"
+      )}>
+        <div className="absolute top-0 left-0 right-0 h-0.5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 bg-emerald-500" />
+
+        <div className="absolute top-7 right-7 flex items-center gap-1 bg-slate-50/50 dark:bg-zinc-900/50 p-1 rounded-xl border border-slate-100 dark:border-zinc-800 z-20">
+          {isEditing ? (
+            <>
+              <button onClick={handleSave} className="p-1.5 rounded-lg text-emerald-600 hover:bg-white dark:hover:bg-zinc-800 shadow-sm transition-all">
+                <Check size={14} strokeWidth={3} />
+              </button>
+              <button onClick={(e) => { e.stopPropagation(); setIsEditing(false); }} className="p-1.5 rounded-lg text-red-400 hover:bg-white dark:hover:bg-zinc-800 transition-all">
+                <X size={14} strokeWidth={3} />
+              </button>
+            </>
+          ) : (
+            <>
+              <button onClick={togglePublic} className={cn(
+                "p-1.5 rounded-lg transition-all",
+                isPublic ? "text-emerald-500 hover:bg-white" : "text-slate-300 hover:text-slate-500"
+              )}>
+                {isPublic ? <Eye size={14} /> : <EyeOff size={14} />}
+              </button>
+              <button onClick={(e) => { e.stopPropagation(); setIsEditing(true); }} className="p-1.5 rounded-lg text-slate-300 hover:text-slate-500 transition-all">
+                <Pencil size={14} />
+              </button>
+            </>
+          )}
+        </div>
+
+        <CardHeader className="p-7 pb-0 w-full flex flex-col items-start text-left">
+          <Badge className={cn(
+            "border-none font-black italic text-[9px] uppercase px-3 py-1.5 mb-4",
+            estComplet ? "bg-emerald-500 text-white" : "bg-amber-500 text-white"
+          )}>
+            {semainesRemplies}/{totalSemaines} SEMAINES
+          </Badge>
+
+          <div className="w-full mt-4 text-left">
+            {isEditing ? (
+              <Input 
+                autoFocus
+                value={tempName}
+                onChange={(e) => setTempName(e.target.value)}
+                className="h-10 text-lg font-black uppercase italic border-emerald-500/30 bg-slate-50 dark:bg-zinc-900 focus-visible:ring-emerald-500/30 w-full text-left"
+                onClick={(e) => e.stopPropagation()}
+              />
+            ) : (
+              <CardTitle className="text-2xl font-black uppercase italic text-slate-900 dark:text-white leading-tight truncate pr-16 text-left w-full">
+                {programme.nom}
+              </CardTitle>
+            )}
+          </div>
+        </CardHeader>
+
+        <CardContent className="p-7 pt-6 space-y-6 flex flex-col h-full w-full text-left items-start">
+          <div className="w-full text-left">
+            {isEditing ? (
+              <textarea 
+                value={tempDesc}
+                onChange={(e) => setTempDesc(e.target.value)}
+                className="w-full h-24 text-xs text-slate-600 dark:text-zinc-400 bg-slate-50 dark:bg-zinc-900 rounded-2xl p-4 border-none resize-none italic outline-none focus:ring-1 focus:ring-emerald-500/20 text-left"
+                onClick={(e) => e.stopPropagation()}
+              />
+            ) : (
+              <p className="text-[11px] text-slate-400 italic line-clamp-2 leading-relaxed text-left">
+                {programme.description || "Aucune description"}
+              </p>
+            )}
+          </div>
+
+          <div className="flex items-center gap-3 py-4 border-y border-slate-50 dark:border-zinc-900 w-full">
+            <div className="flex -space-x-1.5">
+              {programme.semaines?.map((s: any, i: number) => (
+                <div key={i} className={cn(
+                  "w-9 h-9 rounded-full border-2 border-white dark:border-zinc-950 flex items-center justify-center transition-colors shadow-sm",
+                  s.planningId ? "bg-emerald-500 text-white" : "bg-slate-100 dark:bg-zinc-800 text-slate-300"
+                )}>
+                  {s.planningId ? <Check size={14} strokeWidth={4} /> : <Calendar size={14} />}
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="flex gap-2.5 pt-4 mt-auto border-t border-slate-50 w-full">
+            {isEditing ? (
+              <Button onClick={handleSave} className="flex-1 rounded-xl font-black italic uppercase text-[10px] bg-emerald-500 text-white py-7 transition-all">
+                Valider les changements
+              </Button>
+            ) : (
+              <>
+                <Button variant="ghost" className="flex-1 rounded-xl font-black italic uppercase text-xs bg-slate-950 text-white dark:bg-white dark:text-zinc-900 hover:bg-emerald-500 py-7 transition-all border-none">
+                  Ouvrir le Programme <ChevronRight size={14} className="ml-1" />
+                </Button>
+                <Button variant="ghost" size="icon" onClick={(e) => { e.stopPropagation(); onDelete(programme.id); }} className="rounded-xl hover:bg-red-50 hover:text-red-500 text-slate-200 h-14 w-14 shrink-0 transition-all">
+                  <Trash2 size={20} />
+                </Button>
+              </>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
+
+export function CardSemaineTimeline({ 
+  date, semaineData, index, planningsDisponibles, onAssigner, onRetirer 
+}: any) {
+  const hasPlanning = semaineData?.planningId !== null;
+
+  return (
+    <div className="h-full group">
+      <Card className={cn(
+        "relative h-full rounded-[2rem] transition-all duration-300 overflow-hidden text-left border",
+        hasPlanning 
+          ? "bg-white border-slate-100 shadow-sm" 
+          : "bg-slate-50 dark:bg-zinc-900/50 border-dashed border-slate-200"
+      )}>
+        <div className="absolute top-0 left-0 right-0 h-0.5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 bg-emerald-500" />
+
+        <CardHeader className="p-6 pb-4">
+          <div className="flex justify-between items-start">
+            <div className="space-y-1">
+              <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Semaine {index + 1}</span>
+              <CardTitle className="text-xl font-black uppercase italic text-slate-900 dark:text-white">
+                {date.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })}
+              </CardTitle>
+            </div>
+            <div className={cn("p-2 rounded-xl", hasPlanning ? "bg-emerald-500 text-white" : "text-slate-300")}>
+              <Calendar size={16} />
+            </div>
+          </div>
+        </CardHeader>
+
+        <CardContent className="px-6 pb-6">
+          {hasPlanning ? (
+            <div className="space-y-4">
+              <div className="p-4 rounded-2xl bg-slate-50 dark:bg-zinc-900 border border-slate-100 dark:border-zinc-800">
+                <p className="text-[9px] font-bold text-emerald-600 uppercase mb-1">Planning</p>
+                <p className="text-xs font-black italic uppercase text-slate-900 dark:text-zinc-100 truncate">
+                  {semaineData.planning?.nom || "Modèle assigné"}
+                </p>
+              </div>
+              <Button 
+                variant="ghost" onClick={onRetirer}
+                className="w-full h-10 rounded-xl text-[9px] font-black uppercase text-slate-400 hover:text-red-500 hover:bg-red-50"
+              >
+                <RotateCcw size={12} className="mr-2" /> Changer
+              </Button>
+            </div>
+          ) : (
+            <div className="space-y-4">
+               <Select onValueChange={(val) => onAssigner(Number(val))}>
+                <SelectTrigger className="w-full h-14 rounded-2xl border-none bg-white dark:bg-zinc-950 shadow-sm font-black italic text-[10px] uppercase tracking-widest ring-1 ring-slate-100 dark:ring-zinc-800">
+                  <div className="flex items-center gap-2">
+                    <Plus size={14} className="text-emerald-500" />
+                    <SelectValue placeholder="Choisir" />
+                  </div>
+                </SelectTrigger>
+                <SelectContent className="rounded-2xl">
+                  {planningsDisponibles.map((p: any) => (
+                    <SelectItem key={p.id} value={p.id.toString()} className="font-bold italic uppercase text-[10px]">
+                      {p.nom}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
+export function CardPlanningMaster({ 
+  planning, 
+  onDelete, 
+  onView, 
+  onUpdate 
+}: {
+  planning: PlanningComplet,
+  onDelete: (id: number) => void,
+  onView: (id: number) => void,
+  onUpdate: (id: number, data: any) => void
+}) {
+  const [isEditing, setIsEditing] = useState(false);
+  const [tempName, setTempName] = useState(planning.nom);
+  const [tempDesc, setTempDesc] = useState(planning.description || ""); 
+  const [isPublic, setIsPublic] = useState(planning.estPublic);
+
+  useEffect(() => {
+    setIsPublic(planning.estPublic);
+    setTempName(planning.nom);
+    setTempDesc(planning.description || "");
+  }, [planning]);
+
+  const handleSave = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onUpdate(planning.id, { nom: tempName, description: tempDesc });
+    setIsEditing(false);
+  };
+
+  const togglePublic = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    const newStatus = !isPublic;
+    setIsPublic(newStatus);
+    onUpdate(planning.id, { estPublic: newStatus });
+  };
+
+  return (
+    <div className="h-full group cursor-pointer" onClick={() => !isEditing && onView(planning.id)}>
+      <Card className={cn(
+        "relative h-full rounded-[2rem] transition-all duration-300 overflow-hidden border",
+        "bg-white border-slate-100 shadow-sm hover:border-slate-200 text-left items-start flex flex-col", 
+        "dark:bg-zinc-950 dark:border-zinc-800 dark:hover:border-zinc-700 dark:shadow-none"
+      )}>
+        <div className="absolute top-0 left-0 right-0 h-0.5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 bg-emerald-500" />
+
+        <CardHeader className="p-7 pb-0 w-full text-left items-start flex flex-col">
+          <div className="flex justify-between items-center w-full">
+            <CardDescription className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] text-left">
+              Modèle de Planning
+            </CardDescription>
+
+            <div className="flex items-center gap-1 shrink-0 bg-slate-50/50 dark:bg-zinc-900/50 p-1 rounded-xl border border-slate-100 dark:border-zinc-800">
+              {isEditing ? (
+                <>
+                  <button onClick={handleSave} className="p-1.5 rounded-lg text-emerald-600 hover:bg-white dark:hover:bg-zinc-800 shadow-sm transition-all">
+                    <Check size={14} strokeWidth={3} />
+                  </button>
+                  <button onClick={(e) => { e.stopPropagation(); setIsEditing(false); }} className="p-1.5 rounded-lg text-red-400 hover:bg-white dark:hover:bg-zinc-800 transition-all">
+                    <X size={14} strokeWidth={3} />
+                  </button>
+                </>
+              ) : (
+                <>
+                  <button onClick={togglePublic} className={cn("p-1.5 rounded-lg transition-all", isPublic ? "text-emerald-500 hover:bg-white" : "text-slate-300 hover:text-slate-500")}>
+                    {isPublic ? <Eye size={14} /> : <EyeOff size={14} />}
+                  </button>
+                  <button onClick={(e) => { e.stopPropagation(); setIsEditing(true); }} className="p-1.5 rounded-lg text-slate-300 hover:text-slate-500 transition-all">
+                    <Pencil size={14} />
+                  </button>
+                </>
+              )}
+            </div>
+          </div>
+
+          <div className="w-full mt-8 text-left">
+            {isEditing ? (
+              <Input 
+                autoFocus 
+                value={tempName} 
+                onChange={(e) => setTempName(e.target.value)}
+                className="h-10 text-lg font-black uppercase italic border-emerald-500/30 bg-slate-50 dark:bg-zinc-900 focus-visible:ring-emerald-500/30 w-full text-left" 
+                onClick={(e) => e.stopPropagation()}
+              />
+            ) : (
+              <CardTitle className="text-2xl font-black uppercase italic text-slate-900 dark:text-zinc-100 truncate leading-tight text-left w-full">
+                {planning.nom || "Sans titre"}
+              </CardTitle>
+            )}
+          </div>
+        </CardHeader>
+
+        <CardContent className="p-7 pt-6 space-y-6 flex flex-col h-full w-full text-left items-start">
+          <div className="w-full text-left">
+            {isEditing ? (
+              <textarea 
+                 value={tempDesc}
+                 onChange={(e) => setTempDesc(e.target.value)}
+                 className="w-full h-24 text-xs text-slate-600 dark:text-zinc-400 bg-slate-50 dark:bg-zinc-900 rounded-2xl p-4 border-none resize-none italic outline-none focus:ring-1 focus:ring-emerald-500/20 text-left"
+                 onClick={(e) => e.stopPropagation()}
+              />
+            ) : (
+              <p className="text-[11px] text-slate-400 italic line-clamp-2 leading-relaxed text-left">
+                {planning.description || "Aucune description"}
+              </p>
+            )}
+          </div>
+
+          <div className="flex gap-2.5 pt-4 mt-auto border-t border-slate-50 w-full">
+            {isEditing ? (
+              <Button onClick={handleSave} className="flex-1 rounded-xl font-black italic uppercase text-[10px] bg-emerald-500 text-white py-7">
+                Valider les changements
+              </Button>
+            ) : (
+              <>
+              
+                <Button onClick={(e) => { e.stopPropagation(); onView(planning.id); }} variant="ghost" className="flex-1 rounded-xl font-black italic uppercase text-xs bg-slate-950 text-white dark:bg-white dark:text-zinc-900 hover:bg-emerald-500 py-7 transition-all border-none">
+                  Ouvrir <ChevronRight size={14} className="ml-1" />
+                </Button>
+                <Button variant="ghost" size="icon" onClick={(e) => { e.stopPropagation(); onDelete(planning.id); }} className="rounded-xl hover:bg-red-50 hover:text-red-500 text-slate-200 h-14 w-14 shrink-0 transition-all">
+                  <Trash2 size={20} />
+                </Button>
+              </>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
+
+export function ModalCreerProgramme({ onCreer }: { onCreer: (data: CreateProgrammeData) => void }) {
+  const [open, setOpen] = useState(false);
+  const [formData, setFormData] = useState({ nom: "", description: "", nbSemaines: 1 });
+
+  const handleSubmit = () => {
+    const semainesInitiales = Array.from({ length: formData.nbSemaines }).map((_, i) => {
+      const date = new Date();
+      date.setDate(date.getDate() + (i * 7));
+      return { ordre: i + 1, semaineDebut: date, planningId: null };
+    });
+
+    onCreer({
+      nom: formData.nom,
+      description: formData.description || undefined,
+      auteurId: 0, 
+      semaines: semainesInitiales as any,
+    });
+    
+    setOpen(false);
+    setFormData({ nom: "", description: "" , nbSemaines: 1 });
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger 
+        render={
+          <Button className="rounded-2xl bg-emerald-500 hover:bg-emerald-600 text-white font-black italic uppercase text-xs px-8 py-6 shadow-lg shadow-emerald-500/20 active:scale-95 transition-all">
+            <Plus className="mr-2" size={18} /> Créer un Programme
+          </Button>
+        } 
+      />
+      
+      <DialogContent 
+        showCloseButton={false} 
+        className="overflow-hidden p-0 max-w-sm w-[95vw] rounded-[3.5rem] border-none bg-white dark:bg-zinc-950 shadow-2xl"
+      >
+        <div className="absolute top-8 right-8 z-50">
+           <DialogClose render={
+            <button className="p-2 rounded-full text-slate-300 hover:text-slate-900 transition-colors">
+              <X size={22} />
+            </button>
+          }/>
+        </div>
+
+        <div className="w-full flex flex-col items-center justify-center p-10 pt-16 pb-12 space-y-8">
+          
+          <div className="w-full">
+            <DialogHeader className="flex flex-col items-center justify-center">
+              <DialogTitle className="text-4xl sm:text-5xl font-black uppercase italic text-slate-950 dark:text-white leading-[0.85] tracking-tighter text-center w-full">
+                NOUVEAU<br />
+                <span className="text-emerald-500 block w-full text-center">PROGRAMME</span>
+              </DialogTitle>
+            </DialogHeader>
+          </div>
+
+          <div className="w-full max-w-70 flex flex-col items-center space-y-7">
+
+            <div className="w-full space-y-2 flex flex-col items-center">
+              <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] text-center w-full">Nom du programme</p>
+              <Input 
+                placeholder="Ex: FORCE ATHLÉTIQUE" 
+                className="w-full h-12 rounded-xl border-none bg-slate-50 dark:bg-zinc-900 px-4 font-black italic text-slate-900 dark:text-white text-center focus-visible:ring-2 focus-visible:ring-emerald-500/20"
+                value={formData.nom}
+                onChange={e => setFormData({...formData, nom: e.target.value})}
+              />
+            </div>
+            <div className="w-full space-y-2 flex flex-col items-center">
+              <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] text-center w-full">Description</p>
+              <textarea 
+                className="w-full h-24 rounded-2xl border-none bg-slate-50 dark:bg-zinc-900 p-5 font-bold italic text-xs text-slate-700 dark:text-slate-300 outline-none focus:ring-2 focus:ring-emerald-500/20 resize-none text-center"
+                placeholder="Objectifs du programme..."
+                value={formData.description}
+                onChange={e => setFormData({...formData, description: e.target.value})}
+              />
+            </div>
+
+            <div className="w-full p-6 rounded-[2.5rem] bg-emerald-50/50 dark:bg-emerald-500/5 border border-emerald-100 dark:border-emerald-500/10 flex flex-col items-center">
+              <div className="flex flex-col items-center mb-4">
+                <p className="text-[10px] font-black text-emerald-600 uppercase tracking-widest mb-1">Durée totale</p>
+                <div className="font-black italic flex items-baseline gap-1">
+                  <span className="text-4xl text-emerald-700 dark:text-emerald-400 leading-none">{formData.nbSemaines}</span>
+                  <span className="text-[10px] uppercase text-emerald-600/60 font-black">Semaines</span>
+                </div>
+              </div>
+              <input 
+                type="range" min="1" max="12" step="1" 
+                className="w-full h-1.5 bg-emerald-200 dark:bg-emerald-900 rounded-full appearance-none cursor-pointer accent-emerald-500"
+                value={formData.nbSemaines}
+                onChange={e => setFormData({...formData, nbSemaines: parseInt(e.target.value)})}
+              />
+            </div>
+
+            <Button 
+              onClick={handleSubmit} 
+              disabled={!formData.nom.trim()}
+              className="w-full h-16 rounded-full font-black italic uppercase text-[11px] tracking-[0.2em] bg-slate-950 text-white hover:bg-emerald-500 transition-all active:scale-95 disabled:opacity-30"
+            >
+              VALIDER LE PROGRAMME
+            </Button>
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
 }
