@@ -227,3 +227,17 @@ export const viderTousLesProgrammes = async (userId: number) => {
     where: { auteurId: userId }
   });
 };
+
+export const majInfosProgramme = async (id: number, data: { nom?: string, description?: string }) => {
+  return await db.programme.update({
+    where: { id },
+    data: data,
+    include: {
+      semaines: {
+        include: {
+          planning: true
+        }
+      }
+    }
+  });
+};

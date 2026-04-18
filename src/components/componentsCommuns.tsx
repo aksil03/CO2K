@@ -20,16 +20,64 @@ import { type PlanningComplet } from '@/lib/types';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter, DialogClose  } from "@/components/ui/dialog";
 import { type CreateProgrammeData } from "@/lib/types";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
+import { Loader2 } from "lucide-react";
 
-export function BoutonVert({ children, onClick, type = "button", disabled = false, className }: any) {
+
+export function Loading({ fullPage = true, message = "Chargement Master..." }: { fullPage?: boolean, message?: string }) {
+  const containerClasses = fullPage 
+    ? "fixed inset-0 z-50 flex flex-col items-center justify-center bg-white/80 dark:bg-zinc-950/80 backdrop-blur-sm"
+    : "flex flex-col items-center justify-center p-12 w-full";
+
+  return (
+    <div className={containerClasses}>
+      <div className="relative flex items-center justify-center">
+        <motion.div
+          animate={{ scale: [1, 1.1, 1], opacity: [0.2, 0.5, 0.2] }}
+          transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+          className="absolute w-16 h-16 rounded-full border-4 border-emerald-500/20"
+        />
+        
+        <motion.div
+          animate={{ rotate: 360 }}
+          transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+          className="text-emerald-500"
+        >
+          <Loader2 size={40} strokeWidth={3} />
+        </motion.div>
+      </div>
+
+      <motion.p
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="mt-6 text-[10px] font-black uppercase italic tracking-[0.3em] text-emerald-700 dark:text-emerald-500 animate-pulse"
+      >
+        {message}
+      </motion.p>
+    </div>
+  );
+}
+
+export function Bouton({ children, onClick, type = "button", disabled = false, className }: any) {
   return (
     <Button 
       type={type}
       onClick={onClick}
       disabled={disabled}
-      className={cn("w-full bg-emerald-700 text-white font-bold hover:bg-emerald-800 transition-all border-none shadow-md", className)}
+      className={cn(
+        "w-full h-12 bg-slate-800 text-slate-100 font-black italic uppercase text-[10px] tracking-[0.25em]",
+        "rounded-xl transition-all duration-300 border-none shadow-none relative",
+        "ring-1 ring-inset ring-white/5",
+        "dark:bg-zinc-800 dark:text-zinc-100 dark:ring-white/5",
+        "hover:bg-slate-700 dark:hover:bg-zinc-700",
+        "active:scale-[0.98] active:bg-slate-900",
+        "disabled:bg-slate-900/50 disabled:text-slate-600",
+        
+        className
+      )}
     >
-      {children}
+      <span className="flex items-center justify-center gap-2">
+        {children}
+      </span>
     </Button>
   )
 }
@@ -336,11 +384,11 @@ export function CardProgrammeMaster({
 
           <div className="w-full mt-4 text-left">
             {isEditing ? (
-              <Input 
+            <Input 
                 autoFocus
                 value={tempName}
                 onChange={(e) => setTempName(e.target.value)}
-                className="h-10 text-lg font-black uppercase italic border-emerald-500/30 bg-slate-50 dark:bg-zinc-900 focus-visible:ring-emerald-500/30 w-full text-left"
+                className="h-10 text-lg font-black uppercase italic border-emerald-500/50 bg-white dark:bg-zinc-900 text-slate-900 dark:text-white focus-visible:ring-emerald-500/30 w-full text-left shadow-inner"
                 onClick={(e) => e.stopPropagation()}
               />
             ) : (
@@ -354,12 +402,12 @@ export function CardProgrammeMaster({
         <CardContent className="p-7 pt-6 space-y-6 flex flex-col h-full w-full text-left items-start">
           <div className="w-full text-left">
             {isEditing ? (
-              <textarea 
-                value={tempDesc}
-                onChange={(e) => setTempDesc(e.target.value)}
-                className="w-full h-24 text-xs text-slate-600 dark:text-zinc-400 bg-slate-50 dark:bg-zinc-900 rounded-2xl p-4 border-none resize-none italic outline-none focus:ring-1 focus:ring-emerald-500/20 text-left"
-                onClick={(e) => e.stopPropagation()}
-              />
+            <textarea 
+              value={tempDesc}
+              onChange={(e) => setTempDesc(e.target.value)}
+              className="w-full h-24 text-xs text-slate-800 dark:text-zinc-200 bg-slate-50 dark:bg-zinc-900 rounded-2xl p-4 border border-slate-200 dark:border-zinc-800 italic outline-none focus:ring-2 focus:ring-emerald-500/20 text-left transition-all shadow-inner"
+              onClick={(e) => e.stopPropagation()}
+            />
             ) : (
               <p className="text-[11px] text-slate-400 italic line-clamp-2 leading-relaxed text-left">
                 {programme.description || "Aucune description"}
@@ -382,17 +430,26 @@ export function CardProgrammeMaster({
 
           <div className="flex gap-2.5 pt-4 mt-auto border-t border-slate-50 w-full">
             {isEditing ? (
-              <Button onClick={handleSave} className="flex-1 rounded-xl font-black italic uppercase text-[10px] bg-emerald-500 text-white py-7 transition-all">
-                Valider les changements
-              </Button>
+            <Bouton onClick={handleSave} className="h-14">
+              Valider les changements
+            </Bouton>
             ) : (
               <>
-                <Button variant="ghost" className="flex-1 rounded-xl font-black italic uppercase text-xs bg-slate-950 text-white dark:bg-white dark:text-zinc-900 hover:bg-emerald-500 py-7 transition-all border-none">
-                  Ouvrir le Programme <ChevronRight size={14} className="ml-1" />
-                </Button>
-                <Button variant="ghost" size="icon" onClick={(e) => { e.stopPropagation(); onDelete(programme.id); }} className="rounded-xl hover:bg-red-50 hover:text-red-500 text-slate-200 h-14 w-14 shrink-0 transition-all">
-                  <Trash2 size={20} />
-                </Button>
+              <Bouton 
+                onClick={(e: any) => { e.stopPropagation(); onView(programme); }} 
+                className="flex-1 h-14"
+              >
+                Ouvrir le Programme <ChevronRight size={14} className="ml-1" />
+              </Bouton>
+              
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                onClick={(e) => { e.stopPropagation(); onDelete(programme.id); }} 
+                className="rounded-xl hover:bg-red-50 hover:text-red-500 text-slate-300 h-14 w-14 shrink-0 transition-all border border-transparent hover:border-red-100"
+              >
+                <Trash2 size={20} />
+              </Button>
               </>
             )}
           </div>
@@ -411,55 +468,66 @@ export function CardSemaineTimeline({
   return (
     <div className="h-full group">
       <Card className={cn(
-        "relative h-full rounded-[2rem] transition-all duration-300 overflow-hidden text-left border",
+        "relative h-full min-h-70 rounded-[2rem] transition-all duration-300 overflow-hidden text-left border flex flex-col",
         hasPlanning 
-          ? "bg-white border-slate-100 shadow-sm" 
-          : "bg-slate-50 dark:bg-zinc-900/50 border-dashed border-slate-200"
+          ? "bg-white border-slate-100 shadow-sm dark:bg-zinc-950 dark:border-zinc-800" 
+          : "bg-slate-50 dark:bg-zinc-900/40 border-dashed border-slate-200 dark:border-zinc-800"
       )}>
         <div className="absolute top-0 left-0 right-0 h-0.5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 bg-emerald-500" />
 
-        <CardHeader className="p-6 pb-4">
-          <div className="flex justify-between items-start">
+        <CardHeader className="p-6 pb-4 h-25 flex shrink-0">
+          <div className="flex justify-between items-start w-full">
             <div className="space-y-1">
-              <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Semaine {index + 1}</span>
-              <CardTitle className="text-xl font-black uppercase italic text-slate-900 dark:text-white">
-                {date.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })}
+              <span className="text-[8px] font-black text-slate-400 dark:text-zinc-500 uppercase tracking-widest block">
+                Semaine {index + 1}
+              </span>
+              <CardTitle className="text-xl font-black uppercase italic text-slate-900 dark:text-zinc-100 leading-tight">
+                {date.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' }).replace('.', '')}
               </CardTitle>
             </div>
-            <div className={cn("p-2 rounded-xl", hasPlanning ? "bg-emerald-500 text-white" : "text-slate-300")}>
+            <div className={cn(
+              "p-2 rounded-xl shrink-0 transition-colors", 
+              hasPlanning 
+                ? "bg-emerald-500 text-white shadow-lg shadow-emerald-500/20" 
+                : "bg-slate-100 text-slate-300 dark:bg-zinc-800 dark:text-zinc-600"
+            )}>
               <Calendar size={16} />
             </div>
           </div>
         </CardHeader>
 
-        <CardContent className="px-6 pb-6">
+        <CardContent className="px-6 pb-6 flex-1 flex flex-col justify-between">
           {hasPlanning ? (
-            <div className="space-y-4">
-              <div className="p-4 rounded-2xl bg-slate-50 dark:bg-zinc-900 border border-slate-100 dark:border-zinc-800">
-                <p className="text-[9px] font-bold text-emerald-600 uppercase mb-1">Planning</p>
+            <>
+              <div className="p-4 rounded-2xl bg-slate-50 dark:bg-zinc-900/80 border border-slate-100 dark:border-zinc-800/50">
+                <p className="text-[9px] font-bold text-emerald-600 dark:text-emerald-500 uppercase mb-1">Planning</p>
                 <p className="text-xs font-black italic uppercase text-slate-900 dark:text-zinc-100 truncate">
                   {semaineData.planning?.nom || "Modèle assigné"}
                 </p>
               </div>
-              <Button 
-                variant="ghost" onClick={onRetirer}
-                className="w-full h-10 rounded-xl text-[9px] font-black uppercase text-slate-400 hover:text-red-500 hover:bg-red-50"
+              
+              <Bouton 
+                onClick={onRetirer}
+                className="h-10 text-[9px] mt-4"
               >
-                <RotateCcw size={12} className="mr-2" /> Changer
-              </Button>
-            </div>
+                <RotateCcw size={12} className="mr-2" /> Changer le planning
+              </Bouton>
+            </>
           ) : (
-            <div className="space-y-4">
+            <div className="mt-auto">
                <Select onValueChange={(val) => onAssigner(Number(val))}>
-                <SelectTrigger className="w-full h-14 rounded-2xl border-none bg-white dark:bg-zinc-950 shadow-sm font-black italic text-[10px] uppercase tracking-widest ring-1 ring-slate-100 dark:ring-zinc-800">
+                <SelectTrigger className={cn(
+                  "w-full h-14 rounded-2xl border-none shadow-sm font-black italic text-[10px] uppercase tracking-widest ring-1",
+                  "bg-white dark:bg-zinc-900 ring-slate-100 dark:ring-zinc-800 text-slate-900 dark:text-zinc-100"
+                )}>
                   <div className="flex items-center gap-2">
                     <Plus size={14} className="text-emerald-500" />
                     <SelectValue placeholder="Choisir" />
                   </div>
                 </SelectTrigger>
-                <SelectContent className="rounded-2xl">
+                <SelectContent className="rounded-2xl dark:bg-zinc-900 dark:border-zinc-800">
                   {planningsDisponibles.map((p: any) => (
-                    <SelectItem key={p.id} value={p.id.toString()} className="font-bold italic uppercase text-[10px]">
+                    <SelectItem key={p.id} value={p.id.toString()} className="font-bold italic uppercase text-[10px] focus:bg-emerald-500 focus:text-white">
                       {p.nom}
                     </SelectItem>
                   ))}
@@ -549,10 +617,10 @@ export function CardPlanningMaster({
           <div className="w-full mt-8 text-left">
             {isEditing ? (
               <Input 
-                autoFocus 
-                value={tempName} 
+                autoFocus
+                value={tempName}
                 onChange={(e) => setTempName(e.target.value)}
-                className="h-10 text-lg font-black uppercase italic border-emerald-500/30 bg-slate-50 dark:bg-zinc-900 focus-visible:ring-emerald-500/30 w-full text-left" 
+                className="h-10 text-lg font-black uppercase italic border-emerald-500/50 bg-white dark:bg-zinc-900 text-slate-900 dark:text-white focus-visible:ring-emerald-500/30 w-full text-left shadow-inner"
                 onClick={(e) => e.stopPropagation()}
               />
             ) : (
@@ -566,12 +634,12 @@ export function CardPlanningMaster({
         <CardContent className="p-7 pt-6 space-y-6 flex flex-col h-full w-full text-left items-start">
           <div className="w-full text-left">
             {isEditing ? (
-              <textarea 
-                 value={tempDesc}
-                 onChange={(e) => setTempDesc(e.target.value)}
-                 className="w-full h-24 text-xs text-slate-600 dark:text-zinc-400 bg-slate-50 dark:bg-zinc-900 rounded-2xl p-4 border-none resize-none italic outline-none focus:ring-1 focus:ring-emerald-500/20 text-left"
-                 onClick={(e) => e.stopPropagation()}
-              />
+            <textarea 
+              value={tempDesc}
+              onChange={(e) => setTempDesc(e.target.value)}
+              className="w-full h-24 text-xs text-slate-800 dark:text-zinc-200 bg-slate-50 dark:bg-zinc-900 rounded-2xl p-4 border border-slate-200 dark:border-zinc-800 italic outline-none focus:ring-2 focus:ring-emerald-500/20 text-left transition-all shadow-inner"
+              onClick={(e) => e.stopPropagation()}
+            />
             ) : (
               <p className="text-[11px] text-slate-400 italic line-clamp-2 leading-relaxed text-left">
                 {planning.description || "Aucune description"}
@@ -581,15 +649,18 @@ export function CardPlanningMaster({
 
           <div className="flex gap-2.5 pt-4 mt-auto border-t border-slate-50 w-full">
             {isEditing ? (
-              <Button onClick={handleSave} className="flex-1 rounded-xl font-black italic uppercase text-[10px] bg-emerald-500 text-white py-7">
-                Valider les changements
-              </Button>
+            <Bouton onClick={handleSave} className="h-14">
+              Valider les changements
+            </Bouton>
             ) : (
               <>
               
-                <Button onClick={(e) => { e.stopPropagation(); onView(planning.id); }} variant="ghost" className="flex-1 rounded-xl font-black italic uppercase text-xs bg-slate-950 text-white dark:bg-white dark:text-zinc-900 hover:bg-emerald-500 py-7 transition-all border-none">
-                  Ouvrir <ChevronRight size={14} className="ml-1" />
-                </Button>
+                <Bouton 
+                  onClick={(e: any) => { e.stopPropagation(); onView(planning.id); }} 
+                  className="flex-1 h-14"
+                >
+                  Ouvrir le modèle <ChevronRight size={14} className="ml-1" />
+                </Bouton>
                 <Button variant="ghost" size="icon" onClick={(e) => { e.stopPropagation(); onDelete(planning.id); }} className="rounded-xl hover:bg-red-50 hover:text-red-500 text-slate-200 h-14 w-14 shrink-0 transition-all">
                   <Trash2 size={20} />
                 </Button>
@@ -629,9 +700,9 @@ export function ModalCreerProgramme({ onCreer }: { onCreer: (data: CreateProgram
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger 
         render={
-          <Button className="rounded-2xl bg-emerald-500 hover:bg-emerald-600 text-white font-black italic uppercase text-xs px-8 py-6 shadow-lg shadow-emerald-500/20 active:scale-95 transition-all">
+          <Bouton className="w-auto px-8 h-14 rounded-2xl">
             <Plus className="mr-2" size={18} /> Créer un Programme
-          </Button>
+          </Bouton>
         } 
       />
       
@@ -664,7 +735,8 @@ export function ModalCreerProgramme({ onCreer }: { onCreer: (data: CreateProgram
               <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] text-center w-full">Nom du programme</p>
               <Input 
                 placeholder="Ex: FORCE ATHLÉTIQUE" 
-                className="w-full h-12 rounded-xl border-none bg-slate-50 dark:bg-zinc-900 px-4 font-black italic text-slate-900 dark:text-white text-center focus-visible:ring-2 focus-visible:ring-emerald-500/20"
+                className="h-10 text-lg font-black uppercase italic border-emerald-500/50 bg-white dark:bg-zinc-900 text-slate-900 dark:text-white focus-visible:ring-emerald-500/30 w-full text-left shadow-inner"
+                onClick={(e) => e.stopPropagation()}
                 value={formData.nom}
                 onChange={e => setFormData({...formData, nom: e.target.value})}
               />
@@ -672,7 +744,7 @@ export function ModalCreerProgramme({ onCreer }: { onCreer: (data: CreateProgram
             <div className="w-full space-y-2 flex flex-col items-center">
               <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] text-center w-full">Description</p>
               <textarea 
-                className="w-full h-24 rounded-2xl border-none bg-slate-50 dark:bg-zinc-900 p-5 font-bold italic text-xs text-slate-700 dark:text-slate-300 outline-none focus:ring-2 focus:ring-emerald-500/20 resize-none text-center"
+                className="w-full h-24 text-xs text-slate-800 dark:text-zinc-200 bg-slate-50 dark:bg-zinc-900 rounded-2xl p-4 border border-slate-200 dark:border-zinc-800 italic outline-none focus:ring-2 focus:ring-emerald-500/20 text-left transition-all shadow-inner"
                 placeholder="Objectifs du programme..."
                 value={formData.description}
                 onChange={e => setFormData({...formData, description: e.target.value})}
@@ -695,13 +767,13 @@ export function ModalCreerProgramme({ onCreer }: { onCreer: (data: CreateProgram
               />
             </div>
 
-            <Button 
+            <Bouton 
               onClick={handleSubmit} 
               disabled={!formData.nom.trim()}
-              className="w-full h-16 rounded-full font-black italic uppercase text-[11px] tracking-[0.2em] bg-slate-950 text-white hover:bg-emerald-500 transition-all active:scale-95 disabled:opacity-30"
+              className="w-full h-16 rounded-full"
             >
               VALIDER LE PROGRAMME
-            </Button>
+            </Bouton>
           </div>
         </div>
       </DialogContent>

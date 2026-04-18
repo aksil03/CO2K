@@ -120,7 +120,7 @@ useEffect(() => {
           <Plannings user={user} tousLesAliments={aliments} />
         )}
         {page === "panel" && user && (
-          <Panel userId={user.id} tousLesAliments={aliments} />
+          <Panel user={user} tousLesAliments={aliments} />
         )}
       </main>
     </div>

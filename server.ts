@@ -3,7 +3,7 @@ import cors from 'cors';
 import { db } from './src/lib/db.ts';
 import { 
   getMail, getUtilisateurComplet, sauvegarderPlanning, majPlanning, getProgrammesUtilisateur,
-  ajouterUtilisateur, majProfil, majInfosPlanning, creerProgrammeComplet,
+  ajouterUtilisateur, majProfil, majInfosPlanning, creerProgrammeComplet, majInfosProgramme,
   getAlimentsParBac, getAllAliments, getPlanningsUtilisateur, supprimerPlanning, supprimerProgramme
 } from './src/lib/queries.ts';
 import { AlimentsGroupes, CreateProgrammeSchema } from './src/lib/types';
@@ -221,6 +221,17 @@ app.patch('/api/programmes/semaine/:id', async (req, res) => {
     res.json(semaineUpdate);
   } catch (error) {
     res.status(500).send("Erreur serveur lors de la mise à jour de la semaine");
+  }
+});
+
+app.patch('/api/programmes/:id', async (req, res) => {
+  const id = Number(req.params.id);
+  try {
+    const data = req.body; 
+    const programmeMisAJour = await majInfosProgramme(id, data);
+    res.json(programmeMisAJour);
+  } catch (error) {
+    res.status(500).send("Erreur lors de la mise à jour du programme");
   }
 });
 

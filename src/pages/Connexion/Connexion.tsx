@@ -3,7 +3,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import axios from 'axios'
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
-import { BoutonVert, FormTemplate } from '../../components/componentsCommuns'
+import { Bouton, FormTemplate } from '../../components/componentsCommuns'
 import { LoginFormSchema, type LoginData } from "@/lib/types" 
 import { toast } from "sonner"
 import { useNavigate } from "react-router-dom";
@@ -82,8 +82,8 @@ return (
           </FormItem>
         )}
       />
-      <BoutonVert type="submit">
+      <Bouton type="submit">
         Se connecter
-      </BoutonVert>
+      </Bouton>
     </FormTemplate>
   )}

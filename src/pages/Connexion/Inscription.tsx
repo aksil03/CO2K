@@ -4,7 +4,7 @@ import axios from 'axios'
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { CHEMIN_LOGIN } from '../../App'
-import { BoutonVert, FormTemplate } from '../../components/componentsCommuns'
+import { Bouton, FormTemplate } from '../../components/componentsCommuns'
 import { InscriptionFormSchema, type InscriptionData } from "@/lib/types" 
 import { toast } from "sonner"
 
@@ -177,9 +177,9 @@ export default function Inscription() {
           )}
         />
         
-        <BoutonVert type="submit" className="w-full">
+        <Bouton type="submit" className="w-full">
           Créer mon compte
-        </BoutonVert>
+        </Bouton>
       </div>
     </FormTemplate>
   )

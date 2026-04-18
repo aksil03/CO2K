@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { CHEMIN_LOGIN, CHEMIN_DASHBOARD, CHEMIN_ACCUEIL } from '../App'
-import { BoutonVert, LogoCo2K, NavBoutonGhost } from './componentsCommuns'
+import { Bouton, LogoCo2K, NavBoutonGhost } from './componentsCommuns'
 import { UserCircle, LogOut, LayoutDashboard, Sun, Moon } from 'lucide-react'
 import { useTheme } from '../providers/theme-provider'
 import {
@@ -91,7 +91,7 @@ return (
           </DropdownMenu>
         ) : (
           <Link to={CHEMIN_LOGIN}>
-            <BoutonVert>Connexion</BoutonVert>
+            <Bouton>Connexion</Bouton>
           </Link>
         )}
       </div>
