@@ -14,10 +14,13 @@ import {
   type ProgrammeComplet,
   type CreateProgrammeData,
   type Aliment,
-  MomentRepas
+  MomentRepas,
+  type SavePlanningData
 } from '@/lib/types'
+import axios from 'axios'
+import { toast } from "sonner"
 
-export default function Panel({ user }: { user: UserWithRelations, tousLesAliments: Aliment[] }) {
+export default function Panel({ user, tousLesAliments }: { user: UserWithRelations, tousLesAliments: Aliment[] }) {
   const [programmes, setProgrammes] = useState<ProgrammeComplet[]>([]);
   const [plannings, setPlannings] = useState<PlanningComplet[]>([]);
   const [loading, setLoading] = useState(true);
@@ -36,12 +39,12 @@ export default function Panel({ user }: { user: UserWithRelations, tousLesAlimen
       setLoading(true);
       try {
         const [resProg, resPlan] = await Promise.all([
-          fetch(`http://localhost:3000/api/programmes/${userId}`),
-          fetch(`http://localhost:3000/api/planning/liste?userId=${userId}`)
+          axios.get<ProgrammeComplet[]>(`http://localhost:3000/api/programmes/${userId}`),
+          axios.get<PlanningComplet[]>(`http://localhost:3000/api/planning/liste?userId=${userId}`)
         ]);
 
-        if (resProg.ok) setProgrammes(await resProg.json());
-        if (resPlan.ok) setPlannings(await resPlan.json());
+        setProgrammes(resProg.data);
+        setPlannings(resPlan.data);
       } catch (err) {
       } finally {
         setLoading(false);
@@ -52,37 +55,36 @@ export default function Panel({ user }: { user: UserWithRelations, tousLesAlimen
   }, [userId]);
 
   const creerProgramme = async (data: CreateProgrammeData) => {
-    const res = await fetch('http://localhost:3000/api/programmes/creer', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ ...data, auteurId: userId })
-    });
+    try {
+    const res = await axios.post<ProgrammeComplet>('http://localhost:3000/api/programmes/creer', {
+        ...data, 
+        auteurId: userId 
+      });
 
-    if (res.ok) {
-      const nouveau = await res.json();
-      setProgrammes([nouveau, ...programmes]); 
+      setProgrammes([res.data, ...programmes]); 
+      toast.success("Programme créé");
+    } catch (err) {
+      toast.error("Erreur de création");
     }
   };
 
   const supprimerProgramme = async (id: number) => {
     if (!confirm("Supprimer ce programme ?")) return;
-    
-    const res = await fetch(`http://localhost:3000/api/programmes/${id}`,
-       { method: 'DELETE' });
-    if (res.ok) {
+    try {
+      await axios.delete(`http://localhost:3000/api/programmes/${id}`);
       setProgrammes(programmes.filter(p => p.id !== id));
+      toast.success("Programme supprimé");
+    } catch (err) {
+      toast.error("Erreur lors de la suppression");
     }
   };
 
   const assignerPlanning = async (semaineId: number, planningId: number) => {
-    const res = await fetch(`http://localhost:3000/api/programmes/semaine/${semaineId}`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ planningId })
-    });
-
-    if (res.ok) {
-      const updated = await res.json();
+    try {
+      const res = await axios.patch<any>(`http://localhost:3000/api/programmes/semaine/${semaineId}`, { 
+        planningId 
+      });
+      const updated = res.data;
 
       if (selectedProg) {
         const nouvellesSemaines = selectedProg.semaines.map(s => (s as any).id === semaineId ? updated : s);
@@ -98,45 +100,41 @@ export default function Panel({ user }: { user: UserWithRelations, tousLesAlimen
         }
         return p;
       }));
+    } catch (err) {
+      toast.error("Erreur d'assignation");
     }
   };
 
-  const modifierProgramme = async (id: number, data: any) => {
-    const res = await fetch(`http://localhost:3000/api/programmes/${id}`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data)
-    });
-    if (res.ok) {
-      const updated = await res.json();
-      setProgrammes(prev => prev.map(p => p.id === id ? updated : p));
-      
-      
+  const modifierProgramme = async (id: number, data: Partial<CreateProgrammeData>) => {
+    try {
+      const res = await axios.patch<ProgrammeComplet>(`http://localhost:3000/api/programmes/${id}`, data);
+      setProgrammes(prev => prev.map(p => p.id === id ? res.data : p));
+      toast.success("Programme mis à jour");
+    } catch (err) {
+      toast.error("Erreur de modification");
     }
   };
 
-  const modifierPlanningBase = async (id: number, data: any) => {
-    const res = await fetch(`http://localhost:3000/api/planning/${id}`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data)
-    });
-    if (res.ok) {
-      const updated = await res.json();
-      setPlannings(prev => prev.map(p => p.id === id ? updated : p));
+  const modifierPlanningBase = async (id: number, data: Partial<SavePlanningData>) => {
+    try {
+      const res = await axios.patch<PlanningComplet>(`http://localhost:3000/api/planning/${id}`, data);
+      setPlannings(prev => prev.map(p => p.id === id ? res.data : p));
+      toast.success("Planning mis à jour");
+    } catch (err) {
+      toast.error("Erreur de modification");
     }
   };
 
   const handleDeletePlanning = async (id: number) => {
-  if (!confirm("Supprimer ce modèle de planning ?")) return;
-
-  const res = await fetch(`http://localhost:3000/api/planning/${id}`, {
-    method: 'DELETE'
-  });
-  if (res.ok) {
-    setPlannings(prev => prev.filter(p => p.id !== id));
-  } 
-};
+    if (!confirm("Supprimer ce modèle de planning ?")) return;
+    try {
+      await axios.delete(`http://localhost:3000/api/planning/${id}`);
+      setPlannings(prev => prev.filter(p => p.id !== id));
+      toast.success("Planning supprimé");
+    } catch (err) {
+      toast.error("Erreur de suppression");
+    }
+  };
 
   if (loading) {
     return <Loading message="Initialisation du Panel..." />;
@@ -178,7 +176,7 @@ export default function Panel({ user }: { user: UserWithRelations, tousLesAlimen
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                 {repasDuJour
                   .sort((a, b) => {
-                    const scores: Record<string, number> = {
+                    const scores: Record<MomentRepas, number> = {
                       [MomentRepas.PETIT_DEJEUNER]: 1,
                       [MomentRepas.DEJEUNER]: 2,
                       [MomentRepas.COLLATION]: 3,
@@ -241,7 +239,7 @@ export default function Panel({ user }: { user: UserWithRelations, tousLesAlimen
         <div className="space-y-2">
           <h1 className="text-6xl font-black uppercase italic">Panel <span className="text-emerald-700">{user?.prenom}</span></h1>
         </div>
-        <ModalCreerProgramme onCreer={creerProgramme} />
+        <ModalCreerProgramme onCreer={creerProgramme} auteurId={user?.id as number} />
       </div>
 
       <section className="space-y-8">

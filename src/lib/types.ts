@@ -12,7 +12,8 @@ import {
 import type { Aliment } from "@prisma/client";
 import { getUtilisateurComplet } from "./queries";
 import { getPlanningsUtilisateur } from "./queries";
-import { getProgrammesUtilisateur } from "./queries";
+import { getProgrammesUtilisateur, getFeedCommunaute } from "./queries";
+import { CalculateurImpact } from "./planning/impact";
 
 export { 
   MomentRepas, 
@@ -161,6 +162,25 @@ export type CreateProgrammeData = z.infer<typeof CreateProgrammeSchema>;
 export type ProgrammeComplet = Prisma.PromiseReturnType<typeof getProgrammesUtilisateur>[number];
 
 const _checkProg: Prisma.ProgrammeUncheckedCreateInput = {} as Omit<CreateProgrammeData, 'semaines'>;
+
+
+// Schema pour la création d'un Post
+export const CreatePostSchema = z.object({
+  titre: z.string().min(3, "Le titre doit comporter plus de 3 caractères"),
+  contenu: z.string().min(10, "La description doit comporter plus de 10 caractères"),
+  imageUrl: z.string().url().optional().or(z.literal("")),
+  auteurId: z.number(),
+  programmeId: z.number().nullable().optional(),
+  planningId: z.number().nullable().optional(),
+  repasId: z.number().nullable().optional(),
+});
+
+export type CreatePostData = z.infer<typeof CreatePostSchema>;
+export type PostComplet = Prisma.PromiseReturnType<typeof getFeedCommunaute>[number];
+const _checkPost: Prisma.PostUncheckedCreateInput = {} as CreatePostData;
+
+export type BesoinsNutritionnels = NonNullable<ReturnType<typeof CalculateurImpact.calculerBesoinsNutritionnels>>;
+
 
 // interface
 export interface PanierItem { 

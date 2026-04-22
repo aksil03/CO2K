@@ -2,7 +2,7 @@ import { db } from './db.ts';
 import type { InscriptionData } from './types.ts'; 
 import type { ProfilData } from './types';
 import type { Aliment } from './types.ts';
-import type { SavePlanningData, JourneePlanning, RepasGenere, PanierItem } from './types.ts';
+import type { SavePlanningData, JourneePlanning, RepasGenere, PanierItem, CreatePostData } from './types.ts';
 
 // recupere l'utilisateur via sont mail
 export const getMail = async (email: string) => {
@@ -238,6 +238,136 @@ export const majInfosProgramme = async (id: number, data: { nom?: string, descri
           planning: true
         }
       }
+    }
+  });
+};
+
+// Créer un nouveau post
+export const creerPost = async (data: CreatePostData) => {
+  return await db.post.create({
+    data: {
+      titre: data.titre,
+      contenu: data.contenu,
+      imageUrl: data.imageUrl,
+      auteurId: data.auteurId,
+      programmeId: data.programmeId ?? null,
+      planningId: data.planningId ?? null,
+      repasId: data.repasId ?? null,
+    },
+    include: {
+      auteur: true,
+      programme: true,
+      planning: true   
+    }
+  });
+};
+
+// Récupére tout les post de tout le monde
+export const getFeedCommunaute = async () => {
+  return await db.post.findMany({
+    include: {
+      auteur: {
+        select: {
+          prenom: true,
+          nom: true,
+          email: true,
+        }
+      },
+      programme: {
+        include: {
+          semaines: {
+            include: { 
+              planning: {
+                include: {
+                  repas: {
+                    include: {
+                      portions: { include: { aliment: true } }
+                    }
+                  }
+                }
+              } 
+            }
+          }
+        }
+      },
+      planning: {
+        include: {
+          repas: {
+            include: {
+              portions: { include: { aliment: true } }
+            }
+          }
+        }
+      },
+      _count: {
+        select: {
+          likes: true,
+          commentaires: true
+        }
+      }
+    },
+    orderBy: {
+      createdAt: 'desc'
+    }
+  });
+};
+
+// Supprimer un post
+export const supprimerPost = async (id: number) => {
+  return await db.post.delete({
+    where: { id }
+  });
+};
+
+// Récupére les post d'un user
+export const getPostsByUserId = async (userId: number) => {
+  return await db.post.findMany({
+    where: {
+      auteurId: userId, 
+    },
+    include: {
+      auteur: {
+        select: {
+          prenom: true,
+          nom: true,
+          email: true,
+        }
+      },
+      programme: {
+        include: {
+          semaines: {
+            include: { 
+              planning: {
+                include: {
+                  repas: {
+                    include: {
+                      portions: { include: { aliment: true } }
+                    }
+                  }
+                }
+              } 
+            }
+          }
+        }
+      },
+      planning: {
+        include: {
+          repas: {
+            include: {
+              portions: { include: { aliment: true } }
+            }
+          }
+        }
+      },
+      _count: {
+        select: {
+          likes: true,
+          commentaires: true
+        }
+      }
+    },
+    orderBy: {
+      createdAt: 'desc' 
     }
   });
 };

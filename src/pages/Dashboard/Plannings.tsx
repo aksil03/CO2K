@@ -10,9 +10,10 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
 import { Loader2, Rocket, Sun, Utensils, Apple, Moon, Check, Zap, Leaf } from "lucide-react";
-import { type SavePlanningData } from '@/lib/types';
+import { type SavePlanningData, type BesoinsNutritionnels, type PlanningComplet } from '@/lib/types';
+import { Loading } from '@/components/componentsCommuns';
 
-const MOMENTS_CONFIG = {
+const MOMENTS_CONFIG: Record<MomentRepas, { t: string; icon: React.ReactNode; color: string; bg: string }> = {
   [MomentRepas.PETIT_DEJEUNER]: { t: "MATIN", icon: <Sun size={14}/>, color: "text-amber-600", bg: "bg-amber-50" },
   [MomentRepas.DEJEUNER]: { t: "MIDI", icon: <Utensils size={14}/>, color: "text-emerald-600", bg: "bg-emerald-50" },
   [MomentRepas.COLLATION]: { t: "PAUSE", icon: <Apple size={14}/>, color: "text-rose-600", bg: "bg-rose-50" },
@@ -22,7 +23,7 @@ const MOMENTS_CONFIG = {
 export default function Plannings({ user: u, tousLesAliments: a }: { user: UserWithRelations, tousLesAliments: Aliment[] }) {
   const [journal, setJournal] = useState<JourneePlanning[]>([]);
   const [loading, setLoading] = useState(false);
-  const besoins = useMemo(() => u ? CalculateurImpact.calculerBesoinsNutritionnels(u) : null, [u]);
+  const besoins = useMemo<BesoinsNutritionnels | null>(() => u ? CalculateurImpact.calculerBesoinsNutritionnels(u) : null, [u]);
 
 
 const handleGeneration = async () => {
@@ -40,18 +41,17 @@ const handleGeneration = async () => {
 
     };
 
-    await axios.post("http://localhost:3000/api/planning/sauvegarder", dataToSave);
+    await axios.post<PlanningComplet>("http://localhost:3000/api/planning/sauvegarder", dataToSave);
     
     setJournal(gen);
     toast.success("Planning sauvegardé");
   } catch (err: any) {
-    console.error(err.response?.data);
     toast.error("Données invalides");
   } finally {
     setLoading(false);
   }
 };
-  if (!besoins) return null;
+  if (!besoins) return <Loading message="Calcul de vos besoins..." />;
 
   return (
     <div className="w-full px-6 pb-20">
