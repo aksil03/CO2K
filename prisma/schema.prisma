@@ -125,11 +125,11 @@ model Post {
   auteurId      Int
   auteur        Utilisateur @relation(fields: [auteurId], references: [id])
   repasId       Int?        @unique
-  repas         Repas?      @relation(fields: [repasId], references: [id])
+  repas         Repas?      @relation(fields: [repasId], references: [id], onDelete: Cascade)
   planningId    Int?        
-  planning      Planning?   @relation(fields: [planningId], references: [id])
+  planning      Planning?   @relation(fields: [planningId], references: [id], onDelete: Cascade)
   programmeId   Int?        
-  programme     Programme?  @relation(fields: [programmeId], references: [id])
+  programme     Programme?  @relation(fields: [programmeId], references: [id], onDelete: Cascade)
   likes         Like[]
   commentaires  Commentaire[]
 }
@@ -139,7 +139,7 @@ model Commentaire {
   texte     String
   createdAt DateTime @default(now())
   postId    Int
-  post      Post     @relation(fields: [postId], references: [id])
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
   auteurId  Int
   auteur    Utilisateur @relation(fields: [auteurId], references: [id])
 }
@@ -147,7 +147,7 @@ model Commentaire {
 model Like {
   id        Int         @id @default(autoincrement())
   postId    Int
-  post      Post        @relation(fields: [postId], references: [id])
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
   userId    Int
   user      Utilisateur @relation(fields: [userId], references: [id])
   @@unique([postId, userId])
@@ -227,7 +227,7 @@ model Aliment {
 
 model Programme {
   id            Int         @id @default(autoincrement())
-  nom           String      // ex: "Objectif Été 2026"
+  nom           String
   description   String?
   estPublic     Boolean     @default(false)
   auteurId      Int

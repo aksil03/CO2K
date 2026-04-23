@@ -327,11 +327,15 @@ export const getPostsByUserId = async (userId: number) => {
     },
     include: {
       auteur: {
-        select: {
-          prenom: true,
-          nom: true,
-          email: true,
-        }
+        select: { prenom: true, nom: true, email: true }
+      },
+      commentaires: {
+        include: {
+          auteur: {
+            select: { prenom: true, nom: true }
+          }
+        },
+        orderBy: { createdAt: 'asc' } 
       },
       programme: {
         include: {
@@ -340,9 +344,7 @@ export const getPostsByUserId = async (userId: number) => {
               planning: {
                 include: {
                   repas: {
-                    include: {
-                      portions: { include: { aliment: true } }
-                    }
+                    include: { portions: { include: { aliment: true } } }
                   }
                 }
               } 
@@ -353,21 +355,14 @@ export const getPostsByUserId = async (userId: number) => {
       planning: {
         include: {
           repas: {
-            include: {
-              portions: { include: { aliment: true } }
-            }
+            include: { portions: { include: { aliment: true } } }
           }
         }
       },
       _count: {
-        select: {
-          likes: true,
-          commentaires: true
-        }
+        select: { likes: true, commentaires: true }
       }
     },
-    orderBy: {
-      createdAt: 'desc' 
-    }
+    orderBy: { createdAt: 'desc' }
   });
 };

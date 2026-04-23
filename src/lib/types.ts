@@ -12,7 +12,7 @@ import {
 import type { Aliment } from "@prisma/client";
 import { getUtilisateurComplet } from "./queries";
 import { getPlanningsUtilisateur } from "./queries";
-import { getProgrammesUtilisateur, getFeedCommunaute } from "./queries";
+import { getProgrammesUtilisateur, getFeedCommunaute, getPostsByUserId } from "./queries";
 import { CalculateurImpact } from "./planning/impact";
 
 export { 
@@ -176,7 +176,7 @@ export const CreatePostSchema = z.object({
 });
 
 export type CreatePostData = z.infer<typeof CreatePostSchema>;
-export type PostComplet = Prisma.PromiseReturnType<typeof getFeedCommunaute>[number];
+export type PostComplet = Prisma.PromiseReturnType<typeof getPostsByUserId>[number];
 const _checkPost: Prisma.PostUncheckedCreateInput = {} as CreatePostData;
 
 export type BesoinsNutritionnels = NonNullable<ReturnType<typeof CalculateurImpact.calculerBesoinsNutritionnels>>;
