@@ -24,11 +24,12 @@ const valide = async (values: LoginData) => {
       localStorage.setItem("user_email", res.data.email);
 
       window.dispatchEvent(new Event("storage"));
-      navigate(CHEMIN_DASHBOARD);
       
       toast.success("Connexion réussie", {
         description: `Content de vous revoir, ${res.data.prenom} !`,
       })
+
+      navigate(CHEMIN_DASHBOARD(res.data.email));
 
     } catch (err: any) {
       toast.error("Échec de la connexion", {

@@ -1,9 +1,29 @@
 import { Prisma } from "@prisma/client";
 import { z } from "zod";
-import { getMail } from "./queries";
+import { getUtilisateurComplet } from "./queries";
+import type { Aliment as PrismaAliment } from "@prisma/client";
+import { Genre, ObjectifPhysique, NiveauActivite, BacAliment, RegimeAlimentaire } from "@prisma/client";
+
+export { Genre, ObjectifPhysique, NiveauActivite, RegimeAlimentaire};
+
+// normalise les mots
+export const formatEnum = (text: string ) => {
+  const mots = text.toLowerCase().split("_");
+  const motsFormates = mots.map((mot) => {
+    return mot.charAt(0).toUpperCase() + mot.slice(1);
+  });
+  return motsFormates.join(" ");
+};
 
 // type de recuperation d'attributs associée a un utilisateur via sont mail
-export type UserWithRelations = Awaited<ReturnType<typeof getMail>>;
+export type UserWithRelations = Awaited<ReturnType<typeof getUtilisateurComplet>>;
+
+// type de recuperation d'aliments
+export type Aliment = PrismaAliment;
+
+export type AlimentsGroupes = Partial<Record<BacAliment, Aliment[]>>;
+
+export type Periode = 'JOUR' | 'SEMAINE' | 'MOIS';
 
 // schema d'inscription pour respecter la structure d'utilisateur voulu avant insertion en bdd
 export const InscriptionFormSchema = z.object({
@@ -11,6 +31,9 @@ export const InscriptionFormSchema = z.object({
   prenom: z.string().min(1, "Le prenom doit comporter au moins une lettre"),
   email: z.string().email("l'email doit etre au format standard"),
   password: z.string().min(4, "Le mot de passe doit comporter au moins 4 lettres"),
+  age: z.preprocess((val) => Number(val), z.number().int("L'âge doit être un nombre entier").min(15, "Vous devez avoir au minimum 15 ans")),
+  taille: z.preprocess((val) => Number(val), z.number().int("La taille doit être un nombre entier").min(50, "La taille minimum requise est de 50 cm")),
+  poids: z.preprocess((val) => Number(val), z.number().min(20, "Le poids minimum requis est de 20 kilos")),
 });
 
 
@@ -24,3 +47,17 @@ export const LoginFormSchema = z.object({
 });
 
 export type LoginData = z.infer<typeof LoginFormSchema>;
+
+
+// schema d'un profil utilisateur
+export const ProfilFormSchema = z.object({
+  poids: z.preprocess((val) => Number(val), z.number().min(20)),
+  taille: z.preprocess((val) => Number(val), z.number().min(50)),
+  age: z.preprocess((val) => Number(val), z.number().int().min(15)),
+  objectif: z.nativeEnum(ObjectifPhysique),
+  activite: z.nativeEnum(NiveauActivite),
+  genre: z.nativeEnum(Genre),
+  regime: z.nativeEnum(RegimeAlimentaire),
+});
+
+export type ProfilData = z.infer<typeof ProfilFormSchema>;
