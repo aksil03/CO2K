@@ -263,14 +263,24 @@ export const creerPost = async (data: CreatePostData) => {
 };
 
 // Récupére tout les post de tout le monde
-export const getFeedCommunaute = async () => {
+export const getFeedCommunaute = async (userId?: number) => {
   return await db.post.findMany({
+    where: {
+      NOT: {
+        auteurId: userId
+      }
+    },
     include: {
       auteur: {
         select: {
           prenom: true,
           nom: true,
           email: true,
+        }
+      },
+      likes: {
+        where: {
+          userId: userId
         }
       },
       programme: {
@@ -329,6 +339,11 @@ export const getPostsByUserId = async (userId: number) => {
       auteur: {
         select: { prenom: true, nom: true, email: true }
       },
+      likes: {
+        where: {
+          userId: userId 
+        }
+      },
       commentaires: {
         include: {
           auteur: {
@@ -365,4 +380,35 @@ export const getPostsByUserId = async (userId: number) => {
     },
     orderBy: { createdAt: 'desc' }
   });
+};
+
+
+// gere les likes des postes
+export const toggleLike = async (postId: number, userId: number) => {
+  const existingLike = await db.like.findUnique({
+    where: {
+      postId_userId: {
+        postId: postId,
+        userId: userId,
+      },
+    },
+  });
+
+  if (existingLike) {
+    return await db.like.delete({
+      where: {
+        postId_userId: {
+          postId: postId,
+          userId: userId,
+        },
+      },
+    });
+  } else {
+    return await db.like.create({
+      data: {
+        postId: postId,
+        userId: userId,
+      },
+    });
+  }
 };

@@ -20,7 +20,7 @@ const MOMENTS_CONFIG: Record<MomentRepas, { t: string; icon: React.ReactNode; co
   [MomentRepas.DINER]: { t: "SOIR", icon: <Moon size={14}/>, color: "text-indigo-600", bg: "bg-indigo-50" }
 };
 
-export default function Plannings({ user: u, tousLesAliments: a }: { user: UserWithRelations, tousLesAliments: Aliment[] }) {
+export default function Plannings({ user: u, tousLesAliments: a, onUpdate }: { user: UserWithRelations, tousLesAliments: Aliment[], onUpdate: () => void }) {
   const [journal, setJournal] = useState<JourneePlanning[]>([]);
   const [loading, setLoading] = useState(false);
   const besoins = useMemo<BesoinsNutritionnels | null>(() => u ? CalculateurImpact.calculerBesoinsNutritionnels(u) : null, [u]);
@@ -45,6 +45,7 @@ const handleGeneration = async () => {
     
     setJournal(gen);
     toast.success("Planning sauvegardé");
+    onUpdate();
   } catch (err: any) {
     toast.error("Données invalides");
   } finally {

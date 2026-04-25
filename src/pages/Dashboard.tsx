@@ -12,6 +12,7 @@ import Mon_compte from './Dashboard/Mon_compte'
 import Communaute from './Dashboard/Communaute'
 import { cn } from "@/lib/utils"
 import { Loading } from '../components/componentsCommuns'
+import axios from 'axios';
 
 interface SidebarProps {
   icon: React.ElementType; 
@@ -61,24 +62,29 @@ function Dashboard() {
   const [aliments, setAliments] = useState<Aliment[]>([]);
   const [loading, setLoading] = useState(true);
 
+  const refreshUser = async () => {
+    try {
+      const res = await axios.get<UserWithRelations>(`http://localhost:3000/api/utilisateur?email=${email}`);
+      setUser(res.data);
+    } catch (error) {
+    }
+  };
+
 useEffect(() => {
     async function initDashboard() {
+      if (!email || email === ":email") return;
+
       try {
         setLoading(true); 
-
         const [resUser, resAliments] = await Promise.all([
-          fetch(`http://localhost:3000/api/utilisateur?email=${email}`),
-          fetch(`http://localhost:3000/api/aliments/all`)
+          axios.get<UserWithRelations>(`http://localhost:3000/api/utilisateur?email=${email}`),
+          axios.get(`http://localhost:3000/api/aliments/all`)
         ]);
 
-        if (!resUser.ok || !resAliments.ok) {
-          throw new Error("Erreur lors de la récupération des données");
-        }
-
-        const userData = await resUser.json();
-        const alimentsDataGroupes = await resAliments.json();
+        const alimentsDataGroupes = resAliments.data;
         const alimentsPlats = Object.values(alimentsDataGroupes).flat() as Aliment[];
-        setUser(userData);
+
+        setUser(resUser.data);
         setAliments(alimentsPlats);
 
       } catch (error) {
@@ -86,9 +92,7 @@ useEffect(() => {
         setLoading(false);
       }
     }
-    if (email && email !== ":email") {
-      initDashboard();
-    }
+    initDashboard();
   }, [email]);
 
   if (loading) return <Loading message="Initialisation du tableau de bord..." />;
@@ -124,12 +128,12 @@ useEffect(() => {
       <main className="flex-1 ml-64 p-10 min-h-[calc(100vh-64px)] overflow-x-hidden">
         {page === "profil" && <Profil email={email || ""}/>}
         {page === "plannings" && (
-          <Plannings user={user} tousLesAliments={aliments} />
+          <Plannings user={user} tousLesAliments={aliments} onUpdate={refreshUser}/>
         )}
         {page === "panel" && user && (
-          <Panel user={user} tousLesAliments={aliments} />
+          <Panel user={user} tousLesAliments={aliments} onUpdate={refreshUser}/>
         )}
-        {page === "mon-profil" && user && <Mon_compte user={user} /> }
+        {page === "mon-profil" && user && <Mon_compte user={user} onUpdate={refreshUser}/> }
         {page === "communaute" && user && <Communaute user={user} /> }
       </main>
     </div>

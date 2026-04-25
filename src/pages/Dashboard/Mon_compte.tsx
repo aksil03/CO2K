@@ -5,7 +5,7 @@ import { LayoutGrid, ClipboardList } from "lucide-react"
 import type { UserWithRelations, PostComplet } from "@/lib/types"
 import { Loading, ModalCreerPost, CardPost } from '../../components/componentsCommuns'
 
-export default function Mon_compte({ user }: { user: UserWithRelations }) {
+export default function Mon_compte({ user, onUpdate }: { user: UserWithRelations, onUpdate: () => void }) {
   const [mesPosts, setMesPosts] = useState<PostComplet[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -38,6 +38,7 @@ export default function Mon_compte({ user }: { user: UserWithRelations }) {
       if (res.status === 201 || res.status === 200) {
         toast.success("Publication partagée");
         setMesPosts(prev => [res.data, ...prev]);
+        onUpdate();
       }
     } catch (error) {
       toast.error("Erreur lors de la publication");
@@ -88,7 +89,7 @@ export default function Mon_compte({ user }: { user: UserWithRelations }) {
             ) : (
               postsProgrammes.map(post => (
                 <div key={post.id} className="w-full">
-                  <CardPost post={post} />
+                  <CardPost post={post} user={user} />
                 </div>
               ))
             )}
@@ -116,7 +117,7 @@ export default function Mon_compte({ user }: { user: UserWithRelations }) {
             ) : (
               postsPlannings.map(post => (
                 <div key={post.id} className="w-full">
-                  <CardPost post={post} />
+                  <CardPost post={post} user={user} />
                 </div>
               ))
             )}

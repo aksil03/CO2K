@@ -20,7 +20,7 @@ import {
 import axios from 'axios'
 import { toast } from "sonner"
 
-export default function Panel({ user, tousLesAliments }: { user: UserWithRelations, tousLesAliments: Aliment[] }) {
+export default function Panel({ user, tousLesAliments, onUpdate }: { user: UserWithRelations, tousLesAliments: Aliment[], onUpdate: () => void }) {
   const [programmes, setProgrammes] = useState<ProgrammeComplet[]>([]);
   const [plannings, setPlannings] = useState<PlanningComplet[]>([]);
   const [loading, setLoading] = useState(true);
@@ -63,6 +63,7 @@ export default function Panel({ user, tousLesAliments }: { user: UserWithRelatio
 
       setProgrammes([res.data, ...programmes]); 
       toast.success("Programme créé");
+      onUpdate();
     } catch (err) {
       toast.error("Erreur de création");
     }

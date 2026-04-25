@@ -28,6 +28,8 @@ import {
   type PlanningComplet,
   MomentRepas 
 } from "@/lib/types";
+import axios from 'axios';
+import { toast } from "sonner"
 
 export function Loading({ fullPage = true, message = "Chargement Master..." }: { fullPage?: boolean, message?: string }) {
   const containerClasses = fullPage 
@@ -953,10 +955,38 @@ export function ModalCreerPost({
   );
 }
 
-export function CardPost({ post }: { post: PostComplet }) {
+export function CardPost({ post, user }: { post: PostComplet, user: UserWithRelations }) {
   const [reponse, setReponse] = useState<string>("");
   const [viewOpen, setViewOpen] = useState<boolean>(false);
   const [inspectingPlanning, setInspectingPlanning] = useState<PlanningComplet | null>(null);
+
+  const dejaLike = post.likes && post.likes.length > 0;
+
+  const [isLiked, setIsLiked] = useState(false);
+  const [likesCount, setLikesCount] = useState(post._count?.likes || 0);
+
+  useEffect(() => {
+    setIsLiked(post.likes && post.likes.length > 0);
+    setLikesCount(post._count?.likes || 0);
+  }, [post]);
+  
+  const handleLike = async (e: React.MouseEvent) => {
+    e.stopPropagation(); 
+    
+    const nouveauStatut = !isLiked;
+    setIsLiked(nouveauStatut);
+    setLikesCount(prev => nouveauStatut ? prev + 1 : prev - 1);
+
+    try {
+      await axios.post(`http://localhost:3000/api/posts/${post.id}/like`, {
+        userId: user?.id
+      });
+    } catch (err) {
+      setIsLiked(!nouveauStatut);
+      setLikesCount(prev => !nouveauStatut ? prev + 1 : prev - 1);
+      toast.error("Erreur lors du like");
+    }
+  };
 
   const jours = ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi", "Dimanche"];
   const nbSemaines = post.programme?.semaines?.length || 0;
@@ -1027,15 +1057,27 @@ export function CardPost({ post }: { post: PostComplet }) {
               <ChevronRight size={16} className="text-slate-300 group-hover/btn:text-emerald-500 group-hover/btn:translate-x-1 transition-all" />
             </div>
           )}
-
           <div className="flex items-center gap-4 pt-4 mt-auto border-t border-slate-50 dark:border-zinc-900 w-full">
             <div className="flex items-center gap-1.5 py-1">
-              <Heart size={14} className="text-rose-500 fill-rose-500/10" />
-              <span className="text-[10px] font-black text-slate-400">
-                {post._count?.likes || 0}
+              <button 
+                onClick={handleLike}
+                className={cn(
+                  "transition-all duration-300 active:scale-150 outline-none",
+                  isLiked ? "text-rose-500" : "text-slate-300 hover:text-rose-400"
+                )}
+              >
+                <Heart 
+                  size={16} 
+                  className={cn("transition-all", isLiked && "fill-rose-500")} 
+                />
+              </button>
+              <span className={cn(
+                "text-[10px] font-black transition-colors",
+                isLiked ? "text-rose-600" : "text-slate-400"
+              )}>
+                {likesCount}
               </span>
             </div>
-
             <Dialog>
               <DialogTrigger render={
                 <button className="flex items-center gap-1.5 group outline-none">

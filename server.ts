@@ -5,7 +5,7 @@ import {
   getMail, getUtilisateurComplet, sauvegarderPlanning, majPlanning, getProgrammesUtilisateur,
   ajouterUtilisateur, majProfil, majInfosPlanning, creerProgrammeComplet, majInfosProgramme,
   getAlimentsParBac, getAllAliments, getPlanningsUtilisateur, supprimerPlanning, supprimerProgramme,
-  creerPost, getFeedCommunaute, getPostsByUserId
+  creerPost, getFeedCommunaute, getPostsByUserId, toggleLike
 } from './src/lib/queries.ts';
 import { AlimentsGroupes, CreateProgrammeSchema, CreatePostSchema } from './src/lib/types';
 import { AssignerPlanningSchema } from './src/lib/types';
@@ -236,7 +236,7 @@ app.patch('/api/programmes/:id', async (req, res) => {
   }
 });
 
-// Route pour créer un Post (Partager Programme ou Planning)
+// créer un post
 app.post('/api/posts/creer', async (req, res) => {
   try {
     const validData = CreatePostSchema.parse(req.body);
@@ -247,15 +247,18 @@ app.post('/api/posts/creer', async (req, res) => {
   }
 });
 
-// Route pour récupérer le feed social complet
+// récupère le feed
 app.get('/api/communaute/feed', async (req, res) => {
+  const queryId = req.query.exclureId;
+  const exclureId = queryId ? Number(queryId) : undefined;
   try {
-    const feed = await getFeedCommunaute();
+    const feed = await getFeedCommunaute(exclureId);
     res.json(feed);
   } catch (error) {
     res.status(500).send("Erreur lors de la récupération du feed");
   }
 });
+
 
 app.get('/api/posts/utilisateur/:id', async (req, res) => {
   try {
@@ -264,6 +267,17 @@ app.get('/api/posts/utilisateur/:id', async (req, res) => {
     res.json(posts);
   } catch (error) {
     res.status(500).send("Erreur lors de la récupération de tes posts");
+  }
+});
+
+app.post('/api/posts/:id/like', async (req, res) => {
+  const postId = Number(req.params.id);
+  const { userId } = req.body; 
+  try {
+    const action = await toggleLike(postId, userId);
+    res.json(action);
+  } catch (error) {
+    res.status(500).send("Erreur lors du like");
   }
 });
 
