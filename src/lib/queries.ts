@@ -395,7 +395,7 @@ export const toggleLike = async (postId: number, userId: number) => {
   });
 
   if (existingLike) {
-    return await db.like.delete({
+    await db.like.delete({
       where: {
         postId_userId: {
           postId: postId,
@@ -404,11 +404,19 @@ export const toggleLike = async (postId: number, userId: number) => {
       },
     });
   } else {
-    return await db.like.create({
+    await db.like.create({
       data: {
         postId: postId,
         userId: userId,
       },
     });
   }
+
+  const totalGlobal = await db.like.count({
+    where: {
+      postId: postId
+    }
+  });
+
+  return totalGlobal;
 };

@@ -31,6 +31,23 @@ export default function Mon_compte({ user, onUpdate }: { user: UserWithRelations
     fetchMesPosts();
   }, [userId]);
 
+  const updatePostInList = (postId: number, newLikesCount: number, isLiked: boolean) => {
+    setMesPosts((prev) => prev.map(post => {
+      if (post.id === postId) {
+        return {
+          ...post,
+          _count: { 
+            ...post._count, 
+            likes: newLikesCount,
+            commentaires: post._count?.commentaires || 0 
+          },
+          likes: (isLiked ? [{ userId: user?.id, postId }] : []) as any 
+        };
+      }
+      return post;
+    }));
+  };
+
   const handlePublishPost = async (postData: any) => {
     try {
       const res = await axios.post<PostComplet>("http://localhost:3000/api/posts/creer", postData);
@@ -89,7 +106,7 @@ export default function Mon_compte({ user, onUpdate }: { user: UserWithRelations
             ) : (
               postsProgrammes.map(post => (
                 <div key={post.id} className="w-full">
-                  <CardPost post={post} user={user} />
+                  <CardPost post={post} user={user} onUpdate={updatePostInList} />
                 </div>
               ))
             )}
@@ -117,7 +134,7 @@ export default function Mon_compte({ user, onUpdate }: { user: UserWithRelations
             ) : (
               postsPlannings.map(post => (
                 <div key={post.id} className="w-full">
-                  <CardPost post={post} user={user} />
+                  <CardPost post={post} user={user} onUpdate={updatePostInList}/>
                 </div>
               ))
             )}

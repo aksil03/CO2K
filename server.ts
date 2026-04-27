@@ -274,8 +274,8 @@ app.post('/api/posts/:id/like', async (req, res) => {
   const postId = Number(req.params.id);
   const { userId } = req.body; 
   try {
-    const action = await toggleLike(postId, userId);
-    res.json(action);
+    const totalLikes = await toggleLike(postId, userId);
+    res.json({ likesCount: totalLikes });
   } catch (error) {
     res.status(500).send("Erreur lors du like");
   }

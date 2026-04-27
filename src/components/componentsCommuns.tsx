@@ -955,12 +955,15 @@ export function ModalCreerPost({
   );
 }
 
-export function CardPost({ post, user }: { post: PostComplet, user: UserWithRelations }) {
+export function CardPost({ post, user, onUpdate, onUserClick }: { 
+  post: PostComplet, 
+  user: UserWithRelations,
+  onUpdate?: (postId: number, newLikesCount: number, isLiked: boolean) => void,
+  onUserClick?: (id: number, nom: string, prenom: string) => void 
+}) {
   const [reponse, setReponse] = useState<string>("");
   const [viewOpen, setViewOpen] = useState<boolean>(false);
   const [inspectingPlanning, setInspectingPlanning] = useState<PlanningComplet | null>(null);
-
-  const dejaLike = post.likes && post.likes.length > 0;
 
   const [isLiked, setIsLiked] = useState(false);
   const [likesCount, setLikesCount] = useState(post._count?.likes || 0);
@@ -972,19 +975,39 @@ export function CardPost({ post, user }: { post: PostComplet, user: UserWithRela
   
   const handleLike = async (e: React.MouseEvent) => {
     e.stopPropagation(); 
-    
+    if (!user?.id) return;
+
+    const ancienStatut = isLiked;
+    const ancienTotal = likesCount;
+
     const nouveauStatut = !isLiked;
     setIsLiked(nouveauStatut);
     setLikesCount(prev => nouveauStatut ? prev + 1 : prev - 1);
 
     try {
-      await axios.post(`http://localhost:3000/api/posts/${post.id}/like`, {
-        userId: user?.id
+      const res = await axios.post(`http://localhost:3000/api/posts/${post.id}/like`, {
+        userId: user.id
       });
+
+      const nouveauTotalServeur = res.data.likesCount;
+
+      setLikesCount(nouveauTotalServeur);
+
+      if (onUpdate) {
+          onUpdate(post.id, nouveauTotalServeur, nouveauStatut);
+      }
+
     } catch (err) {
-      setIsLiked(!nouveauStatut);
-      setLikesCount(prev => !nouveauStatut ? prev + 1 : prev - 1);
+      setIsLiked(ancienStatut);
+      setLikesCount(ancienTotal);
       toast.error("Erreur lors du like");
+    }
+  };
+
+  const handleUserClick = (e: React.MouseEvent) => {
+    e.stopPropagation(); 
+    if (onUserClick && post.auteur) {
+      onUserClick(post.auteurId, post.auteur.nom, post.auteur.prenom);
     }
   };
 
@@ -1007,11 +1030,22 @@ export function CardPost({ post, user }: { post: PostComplet, user: UserWithRela
 
         <CardHeader className="p-7 pb-0 w-full flex flex-col items-start">
           <div className="flex justify-between items-start w-full">
-            <div className="space-y-0.5">
-              <p className="text-[9px] font-black uppercase italic text-slate-900 dark:text-white leading-none">
-                {post.auteur?.prenom} <span className="text-emerald-700">{post.auteur?.nom}</span>
-              </p>
-              <p className="text-[9px] font-bold text-slate-400 mt-1 uppercase tracking-tighter">
+            <div className="space-y-1.5">
+              <button 
+                onClick={handleUserClick}
+                className={cn(
+                  "group/author outline-none text-left px-2.5 py-1 rounded-lg border-2 transition-colors",
+                  "bg-white border-slate-200 shadow-sm",
+                  "dark:bg-zinc-900 dark:border-zinc-800",
+                  "hover:border-emerald-500/50"
+                )}
+              >
+                <p className="text-[9px] font-black uppercase italic text-slate-900 dark:text-white leading-none">
+                  {post.auteur?.prenom} <span className="text-emerald-700">{post.auteur?.nom}</span>
+                </p>
+              </button>
+
+              <p className="text-[9px] font-bold text-slate-400 mt-1 uppercase tracking-tighter px-0.5">
                 {post.createdAt ? new Date(post.createdAt).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' }) : 'Date inconnue'}
               </p>
             </div>
