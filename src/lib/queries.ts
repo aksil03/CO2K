@@ -19,6 +19,7 @@ export const getUtilisateurComplet = async (email: string) => {
       repas: true,
       badges: { include: { badge: true } },
       plannings: true,
+      mesAbonnements: true,
       programmes: { 
         include: {
           semaines: true
@@ -419,4 +420,36 @@ export const toggleLike = async (postId: number, userId: number) => {
   });
 
   return totalGlobal;
+};
+
+
+export const toggleFollow = async (abonneId: number, starId: number) => {
+  const existingFollow = await db.follow.findUnique({
+    where: {
+      id_abonne_id_star: {
+        id_abonne: abonneId,
+        id_star: starId,
+      },
+    },
+  });
+
+  if (existingFollow) {
+    await db.follow.delete({
+      where: {
+        id_abonne_id_star: {
+          id_abonne: abonneId,
+          id_star: starId,
+        },
+      },
+    });
+    return false; 
+  } else {
+    await db.follow.create({
+      data: {
+        id_abonne: abonneId,
+        id_star: starId,
+      },
+    });
+    return true; 
+  }
 };

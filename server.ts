@@ -5,7 +5,7 @@ import {
   getMail, getUtilisateurComplet, sauvegarderPlanning, majPlanning, getProgrammesUtilisateur,
   ajouterUtilisateur, majProfil, majInfosPlanning, creerProgrammeComplet, majInfosProgramme,
   getAlimentsParBac, getAllAliments, getPlanningsUtilisateur, supprimerPlanning, supprimerProgramme,
-  creerPost, getFeedCommunaute, getPostsByUserId, toggleLike
+  creerPost, getFeedCommunaute, getPostsByUserId, toggleLike, toggleFollow
 } from './src/lib/queries.ts';
 import { AlimentsGroupes, CreateProgrammeSchema, CreatePostSchema } from './src/lib/types';
 import { AssignerPlanningSchema } from './src/lib/types';
@@ -279,6 +279,20 @@ app.post('/api/posts/:id/like', async (req, res) => {
   } catch (error) {
     res.status(500).send("Erreur lors du like");
   }
+});
+
+app.get('/api/follow/status', async (req, res) => {
+  const { abonneId, starId } = req.query;
+  const follow = await db.follow.findUnique({
+    where: { id_abonne_id_star: { id_abonne: Number(abonneId), id_star: Number(starId) } }
+  });
+  res.json({ isFollowing: !!follow });
+});
+
+app.post('/api/follow/toggle', async (req, res) => {
+  const { abonneId, starId } = req.body;
+  const result = await toggleFollow(Number(abonneId), Number(starId));
+  res.json({ isFollowing: result });
 });
 
 app.listen(3000, () => {
