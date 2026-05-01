@@ -142,6 +142,9 @@ model Commentaire {
   post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
   auteurId  Int
   auteur    Utilisateur @relation(fields: [auteurId], references: [id])
+  parentId  Int? 
+  parent    Commentaire?  @relation("Reponses", fields: [parentId], references: [id], onDelete: Cascade)
+  reponses  Commentaire[] @relation("Reponses")
 }
 
 model Like {

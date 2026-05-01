@@ -967,6 +967,12 @@ export function CardPost({ post, user, onUpdate, onUserClick }: {
 
   const [isLiked, setIsLiked] = useState(false);
   const [likesCount, setLikesCount] = useState(post._count?.likes || 0);
+  const [replyTo, setReplyTo] = useState<{id: number, nom: string, commentId: number} | null>(null);
+
+  const handleInitiateReply = (auteurId: number, auteurPrenom: string, commentId: number) => {
+    setReplyTo({ id: auteurId, nom: auteurPrenom, commentId: commentId });
+    setReponse(`@${auteurPrenom} `);
+  };
 
   useEffect(() => {
     setIsLiked(post.likes && post.likes.length > 0);
@@ -1001,6 +1007,30 @@ export function CardPost({ post, user, onUpdate, onUserClick }: {
       setIsLiked(ancienStatut);
       setLikesCount(ancienTotal);
       toast.error("Erreur lors du like");
+    }
+  };
+
+  const handleSendCommentaire = async () => {
+    if (!reponse.trim() || !user?.id) return;
+
+    try {
+      const res = await axios.post(`http://localhost:3000/api/posts/${post.id}/commentaires`, {
+        auteurId: user.id,
+        texte: reponse,
+        parentId: replyTo ? replyTo.commentId : null
+      });
+      
+      post.commentaires = [...(post.commentaires || []), res.data];
+
+      if (post._count) {
+        post._count.commentaires = (post._count.commentaires || 0) + 1;
+      }
+      
+      setReponse(""); 
+      setReplyTo(null);
+      toast.success("Réponse publiée"); 
+    } catch (err) {
+      toast.error("Erreur lors de l'envoi");
     }
   };
 
@@ -1136,27 +1166,91 @@ export function CardPost({ post, user, onUpdate, onUserClick }: {
                   <DialogTitle className="text-xl font-black italic uppercase text-center">Commentaires</DialogTitle>
                 </DialogHeader>
 
-                <div className="p-6 space-y-3 max-h-87.5 overflow-y-auto custom-scrollbar">
-                   {post.commentaires && post.commentaires.length > 0 ? post.commentaires.map((c) => (
-                      <div key={c.id} className="flex gap-3 p-4 bg-slate-50 dark:bg-zinc-900 rounded-2xl border border-slate-100 dark:border-zinc-800">
-                        <div className="w-8 h-8 rounded-lg bg-white dark:bg-zinc-800 flex items-center justify-center text-[10px] font-black uppercase text-emerald-500 shrink-0 shadow-sm">{c.auteur?.prenom?.[0]}</div>
-                        <div className="space-y-1">
-                          <p className="text-[9px] font-black text-emerald-600 uppercase leading-none">{c.auteur?.prenom} {c.auteur?.nom}</p>
-                          <p className="text-xs text-slate-600 dark:text-zinc-300 leading-tight italic">{c.texte}</p>
+                <div className="p-6 space-y-6 max-h-87.5 overflow-y-auto custom-scrollbar">
+                  {post.commentaires && post.commentaires.length > 0 ? (
+                    post.commentaires.filter(c => !c.parentId).map((parentCom) => (
+                      <div key={parentCom.id} className="space-y-4">
+
+                        <div 
+                          onClick={() => handleInitiateReply(parentCom.auteurId, parentCom.auteur.prenom, parentCom.id)}
+                          className="group/com flex gap-3 p-4 bg-slate-50 dark:bg-zinc-900 rounded-2xl border border-slate-100 dark:border-zinc-800 cursor-pointer transition-all active:scale-95"
+                        >
+                          <div className="w-8 h-8 rounded-lg bg-white dark:bg-zinc-800 flex items-center justify-center text-[10px] font-black uppercase text-emerald-500 shrink-0 shadow-sm">
+                            {parentCom.auteur?.prenom?.[0]}
+                          </div>
+                          <div className="space-y-1">
+                            <div className="flex items-center gap-2">
+                              <p className="text-[9px] font-black text-emerald-600 uppercase leading-none">
+                                {parentCom.auteur?.prenom} {parentCom.auteur?.nom}
+                              </p>
+                              {parentCom.auteurId === post.auteurId && (
+                                <span className="bg-emerald-500 text-white text-[7px] font-black px-1.5 py-0.5 rounded-full uppercase italic shadow-sm">
+                                  Auteur
+                                </span>
+                              )}
+                              <span className="text-[7px] font-bold text-slate-400 uppercase opacity-0 group-hover/com:opacity-100 transition-opacity"> • Répondre </span>
+                            </div>
+                            <p className="text-xs text-slate-600 dark:text-zinc-300 leading-tight italic">{parentCom.texte}</p>
+                          </div>
                         </div>
+
+                        <div className="ml-10 space-y-3 border-l-2 border-slate-100 dark:border-zinc-900 pl-4">
+                          {post.commentaires
+                            .filter(child => child.parentId === parentCom.id)
+                            .map((reply) => (
+                              <div 
+                                key={reply.id} 
+                                className="flex gap-2 p-3 bg-white dark:bg-zinc-950 rounded-xl border border-slate-50 dark:border-zinc-900 shadow-sm"
+                              >
+                                <div className="w-6 h-6 rounded-md bg-emerald-50 dark:bg-emerald-500/10 text-[8px] flex items-center justify-center font-black text-emerald-500 shrink-0">
+                                  {reply.auteur?.prenom?.[0]}
+                                </div>
+                                <div className="space-y-0.5">
+                                  <div className="flex items-center gap-1.5">
+                                  <p className="text-[8px] font-black text-emerald-600 uppercase leading-none">{reply.auteur?.prenom}</p>
+                                  {reply.auteurId === post.auteurId && (
+                                    <span className="bg-emerald-500 text-white text-[6px] font-black px-1 py-0.5 rounded-full uppercase italic">
+                                      Auteur
+                                    </span>
+                                  )}
+                                  </div>
+                                  <p className="text-[10px] text-slate-500 dark:text-zinc-400 italic leading-tight">{reply.texte}</p>
+                                </div>
+                              </div>
+                            ))
+                          }
+                        </div>
+
                       </div>
-                    )) : <div className="py-10 text-center opacity-30 italic font-black uppercase text-[10px]">Aucune réponse</div>}
+                    ))
+                  ) : (
+                    <div className="py-10 text-center opacity-30 italic font-black uppercase text-[10px]">Aucune réponse</div>
+                  )}
                 </div>
 
                 <div className="p-8 pt-4">
+                  {replyTo && (
+                      <div className="flex items-center justify-between mb-2 px-2 animate-in fade-in slide-in-from-bottom-1">
+                        <p className="text-[10px] font-black text-emerald-600 uppercase italic">
+                          En réponse à {replyTo.nom}
+                        </p>
+                        <button 
+                          onClick={() => { setReplyTo(null); setReponse(""); }}
+                          className="text-[9px] font-bold text-slate-400 hover:text-rose-500 transition-colors uppercase"
+                        >
+                          Annuler
+                        </button>
+                      </div>
+                    )}
                   <div className="relative flex items-center gap-2">
                     <Input 
-                      placeholder="Répondre..." 
+                      placeholder={replyTo ? `Répondre à ${replyTo.nom}...` : "Répondre..."}
                       className="rounded-xl h-12 bg-slate-50 dark:bg-zinc-900 border-none font-bold text-xs" 
                       value={reponse} 
                       onChange={(e) => setReponse(e.target.value)} 
+                      onKeyDown={(e) => e.key === 'Enter' && handleSendCommentaire()}
                     />
-                    <button className="p-3 bg-slate-800 text-white rounded-xl active:scale-95 transition-all">
+                    <button onClick={handleSendCommentaire} className="p-3 bg-slate-800 text-white rounded-xl active:scale-95 transition-all">
                       <MessageSquare size={16} />
                     </button>
                   </div>

@@ -284,6 +284,14 @@ export const getFeedCommunaute = async (userId?: number) => {
           userId: userId
         }
       },
+      commentaires: {
+        include: {
+          auteur: {
+            select: { prenom: true, nom: true }
+          }
+        },
+        orderBy: { createdAt: 'asc' }
+      },
       programme: {
         include: {
           semaines: {
@@ -452,4 +460,23 @@ export const toggleFollow = async (abonneId: number, starId: number) => {
     });
     return true; 
   }
+};
+
+export const ajouterCommentaire = async (postId: number, auteurId: number, texte: string, parentId?: number) => {
+  return await db.commentaire.create({
+    data: {
+      postId,
+      auteurId,
+      texte,
+      parentId: parentId || null
+    },
+    include: {
+      auteur: {
+        select: {
+          prenom: true,
+          nom: true
+        }
+      }
+    }
+  });
 };

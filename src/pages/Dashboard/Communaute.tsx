@@ -155,7 +155,7 @@ export default function Communaute({ user }: { user: UserWithRelations | null })
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {auteurProgrammes.map(post => (
-                <CardPost key={post.id} post={post} user={user} />
+                <CardPost key={post.id} post={post} user={user} onUpdate={updatePostInFeed}/>
               ))}
             </div>
           </section>

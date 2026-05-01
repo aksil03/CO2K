@@ -39,7 +39,7 @@ export default function Mon_compte({ user, onUpdate }: { user: UserWithRelations
           _count: { 
             ...post._count, 
             likes: newLikesCount,
-            commentaires: post._count?.commentaires || 0 
+            commentaires: post.commentaires?.length || post._count?.commentaires || 0
           },
           likes: (isLiked ? [{ userId: user?.id, postId }] : []) as any 
         };

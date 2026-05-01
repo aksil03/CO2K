@@ -5,7 +5,7 @@ import {
   getMail, getUtilisateurComplet, sauvegarderPlanning, majPlanning, getProgrammesUtilisateur,
   ajouterUtilisateur, majProfil, majInfosPlanning, creerProgrammeComplet, majInfosProgramme,
   getAlimentsParBac, getAllAliments, getPlanningsUtilisateur, supprimerPlanning, supprimerProgramme,
-  creerPost, getFeedCommunaute, getPostsByUserId, toggleLike, toggleFollow
+  creerPost, getFeedCommunaute, getPostsByUserId, toggleLike, toggleFollow, ajouterCommentaire
 } from './src/lib/queries.ts';
 import { AlimentsGroupes, CreateProgrammeSchema, CreatePostSchema } from './src/lib/types';
 import { AssignerPlanningSchema } from './src/lib/types';
@@ -293,6 +293,22 @@ app.post('/api/follow/toggle', async (req, res) => {
   const { abonneId, starId } = req.body;
   const result = await toggleFollow(Number(abonneId), Number(starId));
   res.json({ isFollowing: result });
+});
+
+app.post('/api/posts/:id/commentaires', async (req, res) => {
+  const postId = Number(req.params.id);
+  const { auteurId, texte, parentId } = req.body;
+
+  try {
+    if (!texte || texte.trim() === "") {
+      return res.status(400).send("Le texte du commentaire est vide");
+    }
+
+    const commentaire = await ajouterCommentaire(postId, Number(auteurId), texte, parentId ? Number(parentId) : undefined);
+    res.status(201).json(commentaire);
+  } catch (error) {
+    res.status(500).send("Erreur lors de l'ajout du commentaire");
+  }
 });
 
 app.listen(3000, () => {
