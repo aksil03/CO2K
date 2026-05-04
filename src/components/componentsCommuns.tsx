@@ -13,7 +13,7 @@ import { cn } from "@/lib/utils"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { MODELES_REPAS } from "@/lib/constants";
-import { type TemplateRepas, type Aliment } from "@/lib/types";
+import { TemplateRepas, type Aliment } from "@/lib/types";
 import { Utensils, Calendar, Trash2, ChevronRight, Pencil, Check, X, Plus, Info, RotateCcw, Eye, EyeOff, ClipboardList, LayoutGrid, ArrowLeft } from "lucide-react";
 import React, { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter, DialogClose  } from "@/components/ui/dialog";
@@ -30,6 +30,16 @@ import {
 } from "@/lib/types";
 import axios from 'axios';
 import { toast } from "sonner"
+import { Sun, Apple, Moon } from "lucide-react";
+import { Flame, Sandwich, Disc, Salad } from "lucide-react";
+import { type RepasGenere } from '@/lib/types';
+
+export const MOMENTS_CONFIG: Record<MomentRepas, { t: string; icon: any; color: string; bg: string }> = {
+  [MomentRepas.PETIT_DEJEUNER]: { t: "MATIN", icon: <Sun size={14}/>, color: "text-amber-600", bg: "bg-amber-50" },
+  [MomentRepas.DEJEUNER]: { t: "MIDI", icon: <Utensils size={14}/>, color: "text-emerald-600", bg: "bg-emerald-50" },
+  [MomentRepas.COLLATION]: { t: "PAUSE", icon: <Apple size={14}/>, color: "text-rose-600", bg: "bg-rose-50" },
+  [MomentRepas.DINER]: { t: "SOIR", icon: <Moon size={14}/>, color: "text-indigo-600", bg: "bg-indigo-50" }
+};
 
 export function Loading({ fullPage = true, message = "Chargement Master..." }: { fullPage?: boolean, message?: string }) {
   const containerClasses = fullPage 
@@ -1326,5 +1336,84 @@ export function CardPost({ post, user, onUpdate, onUserClick }: {
         </DialogContent>
       </Dialog>
     </div>
+  );
+}
+
+export function CarteRepas({ 
+  moment, 
+  repas, 
+  templateActuel, 
+  onChangeTemplate,
+  estModifiable = false 
+}: { 
+  moment: MomentRepas, 
+  repas?: RepasGenere, 
+  templateActuel: TemplateRepas,
+  onChangeTemplate: (t: TemplateRepas) => void,
+  estModifiable?: boolean
+}) {
+  const config = MOMENTS_CONFIG[moment];
+  const estRepasPrincipal = moment === MomentRepas.DEJEUNER || moment === MomentRepas.DINER;
+
+  return (
+    <Card className="rounded-2xl overflow-hidden shadow-md h-full flex flex-col border border-slate-100 dark:border-zinc-800 bg-white dark:bg-zinc-950">
+      <CardHeader className={cn(config.bg, "p-3 border-b space-y-3")}>
+        <div className="flex items-center justify-between">
+          <CardTitle className={cn(config.color, "flex items-center gap-2 text-[10px] font-black italic uppercase")}>
+            {config.icon} {config.t}
+          </CardTitle>
+          {repas && (
+            <span className="text-[9px] font-bold opacity-60 italic">
+              {Math.round(repas.stats.prot * 4 + repas.stats.glu * 4 + repas.stats.lip * 9)} KCAL
+            </span>
+          )}
+        </div>
+
+        {estRepasPrincipal && (
+          <div className="flex justify-between gap-1 p-1 bg-white/50 dark:bg-black/20 rounded-lg backdrop-blur-sm">
+            {estModifiable ? (
+              [
+                { k: TemplateRepas.HOT, i: <Flame size={12}/> },
+                { k: TemplateRepas.SANDWICH, i: <Sandwich size={12}/> },
+                { k: TemplateRepas.WRAP, i: <Disc size={12}/> },
+                { k: TemplateRepas.SALADE, i: <Salad size={12}/> }
+              ].map(t => (
+                <button
+                  key={t.k}
+                  onClick={() => onChangeTemplate(t.k)}
+                  className={cn(
+                    "flex-1 flex justify-center py-1 rounded-md transition-all",
+                    templateActuel === t.k 
+                      ? "bg-white dark:bg-zinc-700 shadow-sm text-slate-900" 
+                      : "text-slate-400 hover:text-slate-600 opacity-50"
+                  )}
+                >
+                  {t.i}
+                </button>
+              ))
+            ) : (
+              <div className="w-full flex items-center justify-center py-1 gap-2 text-[9px] font-black uppercase italic text-slate-500">
+                 {repas?.template || templateActuel}
+              </div>
+            )}
+          </div>
+        )}
+      </CardHeader>
+
+      <CardContent className="p-4 flex-1 space-y-2">
+        {repas && repas.aliments.length > 0 ? (
+          repas.aliments.map((al, ai) => (
+            <div key={ai} className="flex justify-between items-start text-[10px] border-b border-slate-50 dark:border-zinc-900 pb-1.5 last:border-none">
+              <span className="truncate pr-2 font-bold text-slate-600 dark:text-slate-400">{al.aliment.nom}</span>
+              <span className="font-black text-emerald-600 shrink-0">{Math.round(al.poids)}g</span>
+            </div>
+          ))
+        ) : (
+          <div className="h-full flex items-center justify-center opacity-20 italic text-[9px] py-4">
+            Aucun aliment
+          </div>
+        )}
+      </CardContent>
+    </Card>
   );
 }

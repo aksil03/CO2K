@@ -10,6 +10,17 @@ const shuffle = <T>(array: T[]): T[] => [...array].sort(() => Math.random() - 0.
 
 export const PlanningLogic = {
 
+    estLigneAutorisee: (indexLigne: number, template: TemplateRepas, panier: PanierItem[]): boolean => {
+        const bacsChoisis = panier.map(c => c.aliment.bac);
+        if (template === TemplateRepas.PETIT_DEJ) {
+            const aCereales = bacsChoisis.includes(BacAliment.CERE);
+            const aPainGalette = bacsChoisis.includes(BacAliment.PAIN) || bacsChoisis.includes(BacAliment.GAL_RIZ);
+            if (indexLigne === 1) return aCereales;
+            if (indexLigne === 3) return aPainGalette; 
+        }
+        return true;
+    },
+
     piocherPanier: (aliments: Aliment[], moment: MomentRepas, template: TemplateRepas, regime: RegimeAlimentaire, besoins: any): PanierItem[] => {
         const modele = MODELES_REPAS[template];
         const panier: PanierItem[] = [];
@@ -21,10 +32,20 @@ export const PlanningLogic = {
         };
 
         modele.forEach((bacsDuGroupe, index) => {
+            if (!PlanningLogic.estLigneAutorisee(index, template, panier)) return
+
             let options = aliments.filter(a => 
                 bacsDuGroupe.includes(a.bac) && 
                 ReglesRepas.verifAcces(a, moment, regime, besoins)
             );
+
+            if (template === TemplateRepas.PETIT_DEJ && index === 1) {
+                const aChoisiCereales = panier.some(item => item.aliment.bac === BacAliment.CERE);
+                
+                if (aChoisiCereales) {
+                    options = options.filter(al => al.bac === BacAliment.LAIT);
+                }
+            }
 
             const estElementVital = bacsDuGroupe.some(b => 
                 [BacAliment.RIZ, BacAliment.PATE, BacAliment.PROT_VOLAILLE, BacAliment.PAIN].includes(b as any)
