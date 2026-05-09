@@ -54,7 +54,7 @@ const Sidebar = ({ icon: Icon, label, active, onClick }: SidebarProps) => (
 );
 
 function Dashboard() {
-  const [page, setPage] = useState("alimentation")
+  const [page, setPage] = useState("panel")
  
   const { email } = useParams<{ email: string }>();
   

@@ -13,7 +13,7 @@ import { cn } from "@/lib/utils"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { MODELES_REPAS } from "@/lib/constants";
-import { TemplateRepas, type Aliment } from "@/lib/types";
+import { BacAliment, RegimeAlimentaire, TemplateRepas, type Aliment, type BesoinsNutritionnels } from "@/lib/types";
 import { Utensils, Calendar, Trash2, ChevronRight, Pencil, Check, X, Plus, Info, RotateCcw, Eye, EyeOff, ClipboardList, LayoutGrid, ArrowLeft } from "lucide-react";
 import React, { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter, DialogClose  } from "@/components/ui/dialog";
@@ -21,7 +21,7 @@ import { type CreateProgrammeData, type UserWithRelations } from "@/lib/types";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { Loader2 } from "lucide-react";
 import { CreatePostSchema, CreateProgrammeSchema } from "@/lib/types";
-import { Heart, MessageCircle, MessageSquare } from "lucide-react";
+import { Heart, MessageCircle, MessageSquare, Search } from "lucide-react";
 import { 
   type PostComplet, 
   type ProgrammeComplet, 
@@ -33,6 +33,7 @@ import { toast } from "sonner"
 import { Sun, Apple, Moon } from "lucide-react";
 import { Flame, Sandwich, Disc, Salad } from "lucide-react";
 import { type RepasGenere } from '@/lib/types';
+import { ReglesRepas } from "@/lib/planning/rules";
 
 export const MOMENTS_CONFIG: Record<MomentRepas, { t: string; icon: any; color: string; bg: string }> = {
   [MomentRepas.PETIT_DEJEUNER]: { t: "MATIN", icon: <Sun size={14}/>, color: "text-amber-600", bg: "bg-amber-50" },
@@ -211,9 +212,10 @@ export function AjusterRepasForm({ repas, tousLesAliments, onUpdatePortion }: {
       {repas.portions.map((portion: any, index: number) => {
         const templateKey = repas.nomTemplate as TemplateRepas;
         const structureAttendue = MODELES_REPAS[templateKey] || [];
-        const bacsAutorises = structureAttendue.find((groupe: any) => 
-          groupe.includes(portion.aliment.bac)
-        ) || (structureAttendue[index] || []);
+        const groupeTrouve = structureAttendue.find((groupe: any) => 
+          groupe.bacs.includes(portion.aliment.bac)
+        );
+        const bacsAutorises = groupeTrouve ? groupeTrouve.bacs : [];
         
         const optionsAliments = (tousLesAliments || []).filter(
           (aliment: any) => String(aliment.bac).toUpperCase() === String(portion.aliment.bac).toUpperCase()
@@ -1339,79 +1341,159 @@ export function CardPost({ post, user, onUpdate, onUserClick }: {
   );
 }
 
+
 export function CarteRepas({ 
-  moment, 
-  repas, 
-  templateActuel, 
-  onChangeTemplate,
-  estModifiable = false 
+  moment, repas, templateActuel, onChangeTemplate, estModifiable = false, 
+  manuelleAliments = [], onAjouterAliment, onRetirerAliment, tousLesAliments = [], 
+  userRegime = RegimeAlimentaire.STANDARD, besoins 
 }: { 
-  moment: MomentRepas, 
-  repas?: RepasGenere, 
-  templateActuel: TemplateRepas,
-  onChangeTemplate: (t: TemplateRepas) => void,
-  estModifiable?: boolean
+  moment: MomentRepas, repas?: RepasGenere, templateActuel: TemplateRepas,
+  onChangeTemplate: (t: TemplateRepas) => void, estModifiable?: boolean,
+  manuelleAliments?: { aliment: Aliment, poids: number }[], onAjouterAliment?: (a: Aliment) => void,
+  onRetirerAliment?: (moment: MomentRepas, bac: string) => void, tousLesAliments?: Aliment[],
+  userRegime?: RegimeAlimentaire, besoins?: BesoinsNutritionnels | null
 }) {
+  const [recherche, setRecherche] = useState("");
+  const [openModalIndex, setOpenModalIndex] = useState<number | null>(null);
   const config = MOMENTS_CONFIG[moment];
   const estRepasPrincipal = moment === MomentRepas.DEJEUNER || moment === MomentRepas.DINER;
+  const structure = MODELES_REPAS[templateActuel] || [];
+  const alimentsManuelsSelectionnes = manuelleAliments.map(m => m.aliment);
 
   return (
-    <Card className="rounded-2xl overflow-hidden shadow-md h-full flex flex-col border border-slate-100 dark:border-zinc-800 bg-white dark:bg-zinc-950">
-      <CardHeader className={cn(config.bg, "p-3 border-b space-y-3")}>
+    <Card className="rounded-3xl overflow-hidden shadow-sm h-full flex flex-col border border-slate-100 dark:border-zinc-800 bg-white dark:bg-zinc-900">
+      <CardHeader className={cn(config.bg, "p-4 border-b dark:bg-zinc-800/50 space-y-4")}>
         <div className="flex items-center justify-between">
-          <CardTitle className={cn(config.color, "flex items-center gap-2 text-[10px] font-black italic uppercase")}>
-            {config.icon} {config.t}
+          <CardTitle className={cn(config.color, "flex items-center gap-2 text-xs font-black uppercase")}>
+            {config.icon}
+            {config.t}
           </CardTitle>
           {repas && (
-            <span className="text-[9px] font-bold opacity-60 italic">
+            <span className="text-[10px] font-bold text-slate-500 dark:text-zinc-400 italic">
               {Math.round(repas.stats.prot * 4 + repas.stats.glu * 4 + repas.stats.lip * 9)} KCAL
             </span>
           )}
         </div>
 
         {estRepasPrincipal && (
-          <div className="flex justify-between gap-1 p-1 bg-white/50 dark:bg-black/20 rounded-lg backdrop-blur-sm">
-            {estModifiable ? (
-              [
-                { k: TemplateRepas.HOT, i: <Flame size={12}/> },
-                { k: TemplateRepas.SANDWICH, i: <Sandwich size={12}/> },
-                { k: TemplateRepas.WRAP, i: <Disc size={12}/> },
-                { k: TemplateRepas.SALADE, i: <Salad size={12}/> }
-              ].map(t => (
-                <button
-                  key={t.k}
-                  onClick={() => onChangeTemplate(t.k)}
-                  className={cn(
-                    "flex-1 flex justify-center py-1 rounded-md transition-all",
-                    templateActuel === t.k 
-                      ? "bg-white dark:bg-zinc-700 shadow-sm text-slate-900" 
-                      : "text-slate-400 hover:text-slate-600 opacity-50"
-                  )}
-                >
-                  {t.i}
-                </button>
-              ))
-            ) : (
-              <div className="w-full flex items-center justify-center py-1 gap-2 text-[9px] font-black uppercase italic text-slate-500">
-                 {repas?.template || templateActuel}
-              </div>
-            )}
+          <div className="flex gap-1 p-1 bg-white/60 dark:bg-zinc-950/40 rounded-xl border border-white/20">
+            {[
+              { k: TemplateRepas.HOT, i: <Flame size={14}/> },
+              { k: TemplateRepas.SANDWICH, i: <Sandwich size={14}/> },
+              { k: TemplateRepas.WRAP, i: <Disc size={14}/> },
+              { k: TemplateRepas.SALADE, i: <Salad size={14}/> }
+            ].map(t => (
+              <button
+                key={t.k}
+                type="button"
+                disabled={!estModifiable}
+                onClick={() => onChangeTemplate(t.k)}
+                className={cn(
+                  "flex-1 flex justify-center py-1.5 rounded-lg transition-all",
+                  templateActuel === t.k 
+                    ? "bg-white dark:bg-zinc-800 shadow-sm text-slate-900 dark:text-emerald-500" 
+                    : "text-slate-400 opacity-40 hover:opacity-100"
+                )}
+              >
+                {t.i}
+              </button>
+            ))}
           </div>
         )}
       </CardHeader>
 
-      <CardContent className="p-4 flex-1 space-y-2">
-        {repas && repas.aliments.length > 0 ? (
-          repas.aliments.map((al, ai) => (
-            <div key={ai} className="flex justify-between items-start text-[10px] border-b border-slate-50 dark:border-zinc-900 pb-1.5 last:border-none">
-              <span className="truncate pr-2 font-bold text-slate-600 dark:text-slate-400">{al.aliment.nom}</span>
-              <span className="font-black text-emerald-600 shrink-0">{Math.round(al.poids)}g</span>
+      <CardContent className="p-4 flex-1 space-y-4">
+        <div className="space-y-2">
+          {(estModifiable ? manuelleAliments : repas?.aliments || []).map((al, ai) => (
+            <div key={ai} className="flex justify-between items-center text-xs border-b border-slate-50 dark:border-zinc-800/50 pb-2 last:border-none gap-2">
+              <span className="truncate font-medium text-slate-600 dark:text-zinc-400 flex-1">{al.aliment.nom}</span>
+              <span className="font-bold text-emerald-600 dark:text-emerald-500 shrink-0">{Math.round(al.poids)}g</span>
             </div>
-          ))
-        ) : (
-          <div className="h-full flex items-center justify-center opacity-20 italic text-[9px] py-4">
-            Aucun aliment
-          </div>
+          ))}
+          {!estModifiable && (!repas || repas.aliments.length === 0) && (
+             <p className="text-center py-4 text-[10px] uppercase font-bold text-slate-300 dark:text-zinc-700 italic">Vide</p>
+          )}
+        </div>
+
+        {estModifiable && (
+        <div className="space-y-2 pt-2 border-t border-slate-50 dark:border-zinc-800/50">
+          {structure.map((groupe, idx) => {
+            const { bacs, isOptional } = groupe;
+            const categoriesActuelles = alimentsManuelsSelectionnes.map(a => a.bac as BacAliment);
+            const estOptionnelActuel = isOptional ? isOptional(categoriesActuelles) : false;
+
+            if (!ReglesRepas.estLigneAutorisee(idx, templateActuel, alimentsManuelsSelectionnes)) return null;
+
+            const alimentChoisi = manuelleAliments.find(m => bacs.includes(m.aliment.bac as any));
+            const bacsCompatibles = ReglesRepas.getBacsCompatibles(idx, templateActuel, bacs, alimentsManuelsSelectionnes);
+            const label = bacsCompatibles.map(bac => bac.includes('_') ? bac.split('_').pop() : bac).join(' / ');
+
+            return (
+              <div key={idx} className="flex items-center gap-1.5 w-full">
+                <Dialog 
+                  open={openModalIndex === idx} 
+                  onOpenChange={(isOpen) => {
+                    setOpenModalIndex(isOpen ? idx : null);
+                    if (!isOpen) setRecherche("");
+                  }}
+                >
+                  <DialogTrigger className={cn(
+                    "flex-1 min-w-0 flex items-center justify-between p-2.5 rounded-xl border-2 text-[9px] font-black uppercase transition-colors overflow-hidden",
+                    alimentChoisi 
+                      ? "border-emerald-100 bg-emerald-50/30 text-emerald-700 dark:border-emerald-900/30 dark:bg-emerald-900/10 dark:text-emerald-400 border-solid" 
+                      : estOptionnelActuel
+                        ? "border-slate-200 dark:border-zinc-700 text-slate-400 dark:text-zinc-500 border-dotted hover:bg-slate-50 dark:hover:bg-zinc-800/30 opacity-100" 
+                        : "border-slate-300 bg-slate-50 dark:border-zinc-500 dark:bg-zinc-800/50 text-slate-600 dark:text-zinc-300 border-solid shadow-sm"
+                  )}>
+                    <span className="truncate flex-1 text-left mr-2">
+                      {alimentChoisi ? alimentChoisi.aliment.nom : label}
+                    </span>
+                    <div className="shrink-0">
+                      {alimentChoisi ? <Check size={12}/> : <Plus size={12} className={estOptionnelActuel ? "opacity-40" : "opacity-100"}/>}
+                    </div>
+                  </DialogTrigger>
+                  <DialogContent className="max-w-md w-[90vw] rounded-3xl dark:bg-zinc-900 dark:border-zinc-800 p-0 overflow-hidden shadow-2xl border-none flex flex-col">
+                    <DialogHeader className="p-6 pb-0">
+                      <DialogTitle className="text-lg font-black uppercase italic dark:text-white truncate pr-6">Choisir : {label}</DialogTitle>
+                      <div className="relative mt-4 w-full">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={14} />
+                        <Input 
+                          placeholder="Rechercher..." 
+                          className="pl-9 bg-slate-50 dark:bg-zinc-800 border-none rounded-xl w-full h-10 shadow-inner"
+                          value={recherche}
+                          onChange={(e) => setRecherche(e.target.value)}
+                        />
+                      </div>
+                    </DialogHeader>
+                    <div className="max-h-[60vh] overflow-y-auto p-4 space-y-1 custom-scrollbar">
+                      {tousLesAliments
+                        .filter(alim => bacsCompatibles.includes(alim.bac as any) && ReglesRepas.verifAcces(alim, moment, userRegime, besoins) && alim.nom.toLowerCase().includes(recherche.toLowerCase()))
+                        .map(alim => (
+                        <button 
+                          key={alim.id} 
+                          type="button" 
+                          onClick={() => { 
+                            onAjouterAliment?.(alim); 
+                            setOpenModalIndex(null); 
+                          }} 
+                          className="w-full text-left p-3 hover:bg-slate-50 dark:hover:bg-zinc-800 rounded-xl text-sm font-bold flex justify-between items-center transition-colors gap-2 group"
+                        >
+                          <span className="dark:text-zinc-300 truncate flex-1 mr-2">{alim.nom}</span>
+                          <Plus size={14} className="text-emerald-500 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity" />
+                        </button>
+                      ))}
+                    </div>
+                  </DialogContent>
+                </Dialog>
+                {alimentChoisi && (
+                  <button onClick={() => onRetirerAliment?.(moment, alimentChoisi.aliment.bac)} className="p-2 text-slate-300 hover:text-red-500 dark:text-zinc-700 dark:hover:text-red-400 transition-colors shrink-0">
+                    <Trash2 size={14} />
+                  </button>
+                )}
+              </div>
+            );
+          })}
+        </div>
         )}
       </CardContent>
     </Card>

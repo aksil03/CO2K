@@ -10,16 +10,6 @@ const shuffle = <T>(array: T[]): T[] => [...array].sort(() => Math.random() - 0.
 
 export const PlanningLogic = {
 
-    estLigneAutorisee: (indexLigne: number, template: TemplateRepas, panier: PanierItem[]): boolean => {
-        const bacsChoisis = panier.map(c => c.aliment.bac);
-        if (template === TemplateRepas.PETIT_DEJ) {
-            const aCereales = bacsChoisis.includes(BacAliment.CERE);
-            const aPainGalette = bacsChoisis.includes(BacAliment.PAIN) || bacsChoisis.includes(BacAliment.GAL_RIZ);
-            if (indexLigne === 1) return aCereales;
-            if (indexLigne === 3) return aPainGalette; 
-        }
-        return true;
-    },
 
     piocherPanier: (aliments: Aliment[], moment: MomentRepas, template: TemplateRepas, regime: RegimeAlimentaire, besoins: any): PanierItem[] => {
         const modele = MODELES_REPAS[template];
@@ -31,32 +21,35 @@ export const PlanningLogic = {
             prot: besoins.proteines * ratioMacro.prot
         };
 
-        modele.forEach((bacsDuGroupe, index) => {
-            if (!PlanningLogic.estLigneAutorisee(index, template, panier)) return
+        modele.forEach((groupe, index) => {
+            const { bacs, isOptional } = groupe;
+            
+            const alimentsActuels = panier.map(p => p.aliment);
+            const categoriesActuelles = alimentsActuels.map(a => a.bac as BacAliment);
+
+            if (!ReglesRepas.estLigneAutorisee(index, template, alimentsActuels)) return;
+            
+            const estOptionnel = isOptional ? isOptional(categoriesActuelles) : false;
+   
+            if (estOptionnel && Math.random() > 0.8) return; 
+
+            const bacsCompatibles = ReglesRepas.getBacsCompatibles(index, template, bacs, alimentsActuels, regime);
 
             let options = aliments.filter(a => 
-                bacsDuGroupe.includes(a.bac) && 
+                bacsCompatibles.includes(a.bac) && 
                 ReglesRepas.verifAcces(a, moment, regime, besoins)
             );
 
-            if (template === TemplateRepas.PETIT_DEJ && index === 1) {
-                const aChoisiCereales = panier.some(item => item.aliment.bac === BacAliment.CERE);
-                
-                if (aChoisiCereales) {
-                    options = options.filter(al => al.bac === BacAliment.LAIT);
-                }
-            }
-
-            const estElementVital = bacsDuGroupe.some(b => 
+            const estElementVital = bacs.some(b => 
                 [BacAliment.RIZ, BacAliment.PATE, BacAliment.PROT_VOLAILLE, BacAliment.PAIN].includes(b as any)
             );
 
             if (options.length === 0 && estElementVital) {
-                options = aliments.filter(a => bacsDuGroupe.includes(a.bac) && ReglesRepas.verifAcces(a, moment, regime));
+                options = aliments.filter(a => bacsCompatibles.includes(a.bac) && ReglesRepas.verifAcces(a, moment, regime));
             }
 
             if (options.length > 0) {
-                const estSourceProt = bacsDuGroupe.some(b => String(b).startsWith("PROT_") || b === BacAliment.LAIT);
+                const estSourceProt = bacs.some(b => String(b).startsWith("PROT_") || b === BacAliment.LAIT);
 
                 if (estSourceProt && cibles.prot > 25) {
                     options.sort((a, b) => (Number(b.prot) || 0) - (Number(a.prot) || 0));
@@ -64,8 +57,7 @@ export const PlanningLogic = {
                 else if (index === 0 && cibles.glu > 50) {
                     options.sort((a, b) => (Number(b.glu) || 0) - (Number(a.glu) || 0));
                 }
-                else if (bacsDuGroupe.some(b => [BacAliment.HUILE, BacAliment.OLEAGINEUX].includes(b as any))) {
-          
+                else if (bacs.some(b => [BacAliment.HUILE, BacAliment.OLEAGINEUX].includes(b as any))) {
                     options.sort((a, b) => (Number(b.lip) || 0) - (Number(a.lip) || 0));
                 }
 

@@ -59,12 +59,12 @@ function Profil({ email }: { email: string }) {
     <div className="container mx-auto px-4 max-w-7xl -mt-16 space-y-6 pb-10 dark:text-white">
 
       <div className="flex items-center gap-6 bg-white dark:bg-zinc-950 p-6 rounded-3xl border border-slate-100 dark:border-zinc-800 shadow-sm w-full">
-        <div className="bg-emerald-500 p-4 rounded-2xl text-white shadow-md">
+        <div className="bg-emerald-700 p-4 rounded-2xl text-white shadow-md">
           <User size={32} />
         </div>
         <div>
             <h1 className="text-4xl font-black uppercase italic dark:text-white">
-              {user.prenom} <span className="text-emerald-500">{user.nom}</span>
+              {user.prenom} <span className="text-emerald-700">{user.nom}</span>
             </h1>
             <p className="text-slate-400 dark:text-zinc-500 font-bold text-lg">{user.email}</p>
         </div>
@@ -73,7 +73,7 @@ function Profil({ email }: { email: string }) {
       <Card className="border border-slate-100 dark:border-zinc-800 shadow-lg bg-white dark:bg-zinc-950 rounded-3xl overflow-hidden">
         <div className="bg-slate-50 dark:bg-zinc-900/50 px-6 py-3 border-b dark:border-zinc-800 flex items-center justify-between font-black text-slate-500 dark:text-zinc-400 text-sm">
           <div className="flex items-center gap-3">
-            <Activity size={20} className="text-emerald-500" /> VOS BESOINS
+            <Activity size={20} className="text-emerald-700" /> VOS BESOINS
           </div>
           <span className="text-[10px] bg-emerald-100 text-emerald-700 px-2 py-1 rounded-md uppercase">Objectifs Quotidiens</span>
         </div>
@@ -89,7 +89,7 @@ function Profil({ email }: { email: string }) {
                     {besoins?.calories}
                   </span>
                   <div className="flex flex-col">
-                    <span className="text-2xl text-emerald-500 font-black italic">Kcal</span>
+                    <span className="text-2xl text-emerald-700 font-black italic">Kcal</span>
                     <span className="text-[10px] text-slate-400 font-bold uppercase -mt-1">/ jour</span>
                   </div>
                 </div>
@@ -147,7 +147,7 @@ function Profil({ email }: { email: string }) {
       <Card className="border border-slate-100 dark:border-zinc-800 shadow-lg bg-white dark:bg-zinc-950 rounded-3xl overflow-hidden">
         <div className="bg-slate-50 dark:bg-zinc-900/50 px-6 py-3 border-b dark:border-zinc-800 flex items-center justify-between font-black text-slate-500 dark:text-zinc-400 text-sm">
           <div className="flex items-center gap-3">
-            <Activity size={20} className="text-emerald-500" /> MORPHOLOGIE
+            <Activity size={20} className="text-emerald-700" /> MORPHOLOGIE
           </div>
         </div>
         
@@ -205,7 +205,7 @@ function Profil({ email }: { email: string }) {
       <Card className="border border-slate-100 dark:border-zinc-800 shadow-lg bg-white dark:bg-zinc-950 rounded-3xl overflow-hidden">
         <div className="bg-slate-50 dark:bg-zinc-900/50 px-6 py-3 border-b dark:border-zinc-800 flex items-center justify-between font-black text-slate-500 dark:text-zinc-400 text-sm">
           <div className="flex items-center gap-3">
-            <Target size={20} className="text-emerald-500" /> COACHING & OBJECTIFS
+            <Target size={20} className="text-emerald-700" /> COACHING & OBJECTIFS
           </div>
         </div>
 

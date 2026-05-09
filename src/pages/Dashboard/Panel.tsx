@@ -6,7 +6,8 @@ import {
   ModalCreerProgramme,
   CardSemaineTimeline,
   Bouton,
-  Loading
+  Loading,
+  CarteRepas
 } from '../../components/componentsCommuns' 
 import { 
   type PlanningComplet, 
@@ -15,7 +16,8 @@ import {
   type CreateProgrammeData,
   type Aliment,
   MomentRepas,
-  type SavePlanningData
+  type SavePlanningData,
+  TemplateRepas
 } from '@/lib/types'
 import axios from 'axios'
 import { toast } from "sonner"
@@ -150,10 +152,8 @@ export default function Panel({ user, tousLesAliments, onUpdate }: { user: UserW
           <ChevronLeft size={14} /> Retour
         </button>
 
-        <div className="flex justify-between items-center bg-slate-50 dark:bg-zinc-900 p-8 rounded-3xl border border-slate-100 dark:border-zinc-800">
-          <div>
-            <h1 className="text-5xl font-black uppercase italic">{selectedPlan.nom}</h1>
-          </div>
+        <div className="flex justify-between items-center mb-8">
+          <h1 className="text-5xl font-black uppercase italic leading-none">{selectedPlan.nom}</h1>
           <Bouton onClick={() => setSelectedPlan(null)} className="w-auto px-10 h-14 text-[10px]">Fermer</Bouton>
         </div>
 
@@ -164,49 +164,47 @@ export default function Panel({ user, tousLesAliments, onUpdate }: { user: UserW
              return dayIndex === index;
           });
 
+          if (repasDuJour.length === 0) return null;
+
           return (
             <section key={jour} className="space-y-6">
               <div className="flex items-center gap-4">
-                <div className="p-3 bg-slate-900 text-white rounded-xl"><Utensils size={20} /></div>
-                <div>
-                  <h2 className="text-3xl font-black uppercase italic">{jour}</h2>
-                  <div className="h-1 w-12 bg-emerald-600 rounded-full mt-1" />
-                </div>
+                <Utensils size={20} />
+                <h2 className="text-3xl font-black uppercase italic">{jour}</h2>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                 {repasDuJour
                   .sort((a, b) => {
-                    const scores: Record<MomentRepas, number> = {
-                      [MomentRepas.PETIT_DEJEUNER]: 1,
-                      [MomentRepas.DEJEUNER]: 2,
-                      [MomentRepas.COLLATION]: 3,
-                      [MomentRepas.DINER]: 4,
-                    };
+                    const scores: any = { [MomentRepas.PETIT_DEJEUNER]: 1, [MomentRepas.DEJEUNER]: 2, [MomentRepas.COLLATION]: 3, [MomentRepas.DINER]: 4 };
                     return (scores[a.type] || 0) - (scores[b.type] || 0);
                   })
-                  .map((repas, idx) => (
-                    <div key={idx} className="p-6 rounded-3xl border border-slate-100 dark:border-zinc-800 bg-white dark:bg-zinc-950 flex flex-col h-full">
-                      <div className="bg-emerald-50 dark:bg-emerald-500/10 px-3 py-1 rounded-lg mb-4 w-fit">
-                        <p className="text-[10px] font-black text-emerald-700 uppercase italic">
-                          {repas.type.replace('_', ' ')}
-                        </p>
-                      </div>
+                  .map((repas, idx) => {
+                    const repasFormate = {
+                      ...repas,
+                      template: (repas as any).nomTemplate || TemplateRepas.HOT,
+                      aliments: repas.portions.map((p) => ({
+                        aliment: p.aliment,
+                        poids: p.quantite
+                      })),
+                      stats: {
+                        prot: repas.portions.reduce((acc: number, p) => acc + ((p.aliment.prot || 0) * p.quantite) / 100, 0),
+                        glu: repas.portions.reduce((acc: number, p) => acc + ((p.aliment.glu || 0) * p.quantite) / 100, 0),
+                        lip: repas.portions.reduce((acc: number, p) => acc + ((p.aliment.lip || 0) * p.quantite) / 100, 0),
+                      }
+                    };
 
-                      <div className="space-y-3 flex-1">
-                        {repas.portions.map((port, pi) => (
-                          <div key={pi} className="flex justify-between items-start gap-4 border-b border-slate-50 dark:border-zinc-900/50 pb-2 last:border-none">
-                            <span className="text-slate-800 dark:text-zinc-200 font-bold italic text-smwrap-break-word flex-1">
-                              {port.aliment.nom}
-                            </span>
-                            <span className="text-emerald-600 font-black italic text-xs shrink-0">
-                              {Math.round(port.quantite)}g
-                            </span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  ))}
+                    return (
+                      <CarteRepas
+                        key={idx}
+                        moment={repas.type as MomentRepas}
+                        repas={repasFormate as any}
+                        templateActuel={repasFormate.template}
+                        onChangeTemplate={() => {}} 
+                        estModifiable={false}      
+                      />
+                    );
+                  })}
               </div>
             </section>
           );
@@ -219,10 +217,8 @@ export default function Panel({ user, tousLesAliments, onUpdate }: { user: UserW
     return (
       <div className="w-full space-y-12 pb-20 text-left">
         <button onClick={() => setSelectedProg(null)} className="flex items-center gap-2 text-slate-400 font-black uppercase text-[10px]"><ChevronLeft size={14} /> Retour</button>
-        <div className="flex justify-between items-center bg-slate-50 dark:bg-zinc-900 p-8 rounded-3xl border border-slate-100 dark:border-zinc-800">
-          <div>
-            <h1 className="text-5xl font-black uppercase italic">{selectedProg.nom}</h1>
-          </div>
+        <div className="flex justify-between items-center mb-8">
+          <h1 className="text-5xl font-black uppercase italic leading-none">{selectedProg.nom}</h1>
           <Bouton onClick={() => setSelectedProg(null)} className="w-auto px-10 h-14 text-[10px]"><Check size={16} className="mr-2" /> Valider</Bouton>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">

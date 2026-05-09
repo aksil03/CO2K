@@ -61,6 +61,10 @@ export const Accueil_assets = [
   }
 ];
 
+export interface GroupeStructure {
+  bacs: BacAliment[];
+  isOptional?: (selectedBacs: BacAliment[]) => boolean;
+}
 
 export const REPARTITION_MACROS: Partial<Record<MomentRepas, Repartition>> = {
   [MomentRepas.PETIT_DEJEUNER]: { prot: 0.20, lip: 0.25, glu: 0.25 },
@@ -69,49 +73,53 @@ export const REPARTITION_MACROS: Partial<Record<MomentRepas, Repartition>> = {
   [MomentRepas.DINER]: { prot: 0.35, lip: 0.25, glu: 0.25 }
 };
 
-export const MODELES_REPAS: Record<TemplateRepas, BacAliment[][]> = {
+export const MODELES_REPAS: Record<TemplateRepas, GroupeStructure[]> = {
   [TemplateRepas.PETIT_DEJ]: [
-    [BacAliment.CERE, BacAliment.PAIN, BacAliment.GAL_RIZ], 
-    [BacAliment.LAIT, BacAliment.PROT_VEG], 
-    [BacAliment.FRUIT_ENTIER, BacAliment.FRUIT_PULPE], 
-    [BacAliment.BC, BacAliment.LEG, BacAliment.OLEAGINEUX] 
+    { bacs: [BacAliment.CERE, BacAliment.PAIN, BacAliment.GAL_RIZ] },
+    { bacs: [BacAliment.LAIT, BacAliment.PROT_VEG] },
+    { bacs: [BacAliment.FRUIT_ENTIER, BacAliment.FRUIT_PULPE] },
+    { 
+      bacs: [BacAliment.BC, BacAliment.LEG, BacAliment.OLEAGINEUX],
+      isOptional: (selected) => selected.includes(BacAliment.CERE) 
+    }
   ],
   
   [TemplateRepas.HOT]: [
-    [BacAliment.PROT_VOLAILLE, BacAliment.PROT_VIANDE_ROUGE, BacAliment.PROT_P, BacAliment.PROT_VEG, BacAliment.PROT_PORC, BacAliment.PROT_BLANCHE_AUTRE],
-    [BacAliment.RIZ, BacAliment.PATE, BacAliment.GNOCCHI, BacAliment.SEMOU, BacAliment.POTATO, BacAliment.CERE_REPAS, BacAliment.NOUILLE],
-    [BacAliment.LEG], 
-    [BacAliment.S_HOT_RED, BacAliment.S_HOT_WHITE, BacAliment.S_HOT_ASIA],
-    [BacAliment.HUILE] 
+    { bacs: [BacAliment.PROT_VOLAILLE, BacAliment.PROT_VIANDE_ROUGE, BacAliment.PROT_P, BacAliment.PROT_VEG, BacAliment.PROT_PORC, BacAliment.PROT_BLANCHE_AUTRE] },
+    { bacs: [BacAliment.RIZ, BacAliment.PATE, BacAliment.GNOCCHI, BacAliment.SEMOU, BacAliment.POTATO, BacAliment.CERE_REPAS, BacAliment.NOUILLE] },
+    { bacs: [BacAliment.LEG] },
+    { bacs: [BacAliment.S_HOT_RED, BacAliment.S_HOT_WHITE, BacAliment.S_HOT_ASIA], isOptional: () => true },
+    { bacs: [BacAliment.HUILE], isOptional: () => true }
   ],
 
   [TemplateRepas.SANDWICH]: [
-    [BacAliment.PAIN],
-    [BacAliment.PROT_BLANCHE_AUTRE, BacAliment.PROT_VOLAILLE, BacAliment.PROT_VIANDE_ROUGE, BacAliment.PROT_VEG, BacAliment.PROT_PORC],
-    [BacAliment.FROMAGE],
-    [BacAliment.LAITUE, BacAliment.LEG],
-    [BacAliment.S_COLD]
+    { bacs: [BacAliment.PAIN] },
+    { bacs: [BacAliment.PROT_VOLAILLE, BacAliment.PROT_VIANDE_ROUGE, BacAliment.PROT_P, BacAliment.PROT_PORC, BacAliment.PROT_BLANCHE_AUTRE] },
+    { bacs: [BacAliment.FROMAGE], isOptional: () => true },
+    { bacs: [BacAliment.LAITUE, BacAliment.LEG] },
+    { bacs: [BacAliment.S_COLD], isOptional: () => true }
   ],
 
   [TemplateRepas.WRAP]: [
-    [BacAliment.WRAP],
-    [BacAliment.PROT_BLANCHE_AUTRE, BacAliment.PROT_VOLAILLE, BacAliment.PROT_VEG, BacAliment.PROT_P],
-    [BacAliment.LAITUE, BacAliment.LEG],
-    [BacAliment.S_COLD, BacAliment.S_HOT_ASIA]
+    { bacs: [BacAliment.WRAP] },
+    { bacs: [BacAliment.PROT_VOLAILLE, BacAliment.PROT_VIANDE_ROUGE, BacAliment.PROT_P, BacAliment.PROT_VEG, BacAliment.PROT_PORC, BacAliment.PROT_BLANCHE_AUTRE] },
+    { bacs: [BacAliment.LAITUE, BacAliment.LEG] },
+    { bacs: [BacAliment.FROMAGE], isOptional: () => true },
+    { bacs: [BacAliment.S_COLD], isOptional: () => true }
   ],
 
   [TemplateRepas.SALADE]: [
-    [BacAliment.LAITUE, BacAliment.LEG],
-    [BacAliment.PROT_P, BacAliment.PROT_VEG, BacAliment.PROT_VOLAILLE, BacAliment.FROMAGE],
-    [BacAliment.RIZ, BacAliment.PATE, BacAliment.SEMOU, BacAliment.POTATO, BacAliment.CERE_REPAS], 
-    [BacAliment.OLEAGINEUX], 
-    [BacAliment.VINAIGRETTE, BacAliment.HUILE] 
+    { bacs: [BacAliment.LAITUE, BacAliment.LEG] },
+    { bacs: [BacAliment.PROT_P, BacAliment.PROT_VEG, BacAliment.PROT_VOLAILLE, BacAliment.FROMAGE] },
+    { bacs: [BacAliment.RIZ, BacAliment.PATE, BacAliment.SEMOU, BacAliment.POTATO, BacAliment.CERE_REPAS] },
+    { bacs: [BacAliment.OLEAGINEUX], isOptional: () => true },
+    { bacs: [BacAliment.VINAIGRETTE, BacAliment.HUILE, BacAliment.S_HOT_ASIA], isOptional: () => true }
   ],
 
   [TemplateRepas.COLLATION]: [
-      [BacAliment.FRUIT_ENTIER, BacAliment.GAL_RIZ, BacAliment.CERE, BacAliment.PAIN], 
-      [BacAliment.OLEAGINEUX, BacAliment.BC, BacAliment.LEG],
-      [BacAliment.LAIT, BacAliment.PROT_VEG]
+    { bacs: [BacAliment.FRUIT_ENTIER, BacAliment.GAL_RIZ, BacAliment.CERE, BacAliment.PAIN] },
+    { bacs: [BacAliment.OLEAGINEUX, BacAliment.BC, BacAliment.LEG], isOptional: () => true },
+    { bacs: [BacAliment.LAIT, BacAliment.PROT_VEG] }
   ]
 };
 
