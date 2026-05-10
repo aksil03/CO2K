@@ -22,7 +22,7 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
 import { Loader2, Rocket, Zap, Leaf, Plus, Save, Copy, ClipboardCheck, LayoutGrid, ClipboardList } from "lucide-react";
-import { Loading, CarteRepas, MOMENTS_CONFIG, Bouton } from '@/components/componentsCommuns';
+import { Loading, CarteRepas, MOMENTS_CONFIG, Bouton, BilanNutritionnelCard } from '@/components/componentsCommuns';
 import { ReglesRepas } from '@/lib/planning/rules';
 
 export default function Plannings({ user, tousLesAliments, onUpdate }: { user: UserWithRelations, tousLesAliments: Aliment[], onUpdate: () => void }) {
@@ -51,13 +51,17 @@ export default function Plannings({ user, tousLesAliments, onUpdate }: { user: U
   }, [manuel]);
 
   const stats = useMemo(() => {
-    const res = { prot: 0, glu: 0, lip: 0, co2: 0 };
+    const res = { prot: 0, glu: 0, lip: 0, co2: 0, sucre: 0, gras_sat: 0, sel: 0 };
     Object.values(manuel[jour]).forEach(repas => {
       repas?.forEach(i => {
-        res.prot += ((i.aliment.prot || 0) * i.poids) / 100;
-        res.glu += ((i.aliment.glu || 0) * i.poids) / 100;
-        res.lip += ((i.aliment.lip || 0) * i.poids) / 100;
-        res.co2 += (i.aliment.co2 * i.poids) / 1000;
+        const poids = i.poids;
+        res.prot += ((i.aliment.prot || 0) * poids) / 100;
+        res.glu += ((i.aliment.glu || 0) * poids) / 100;
+        res.lip += ((i.aliment.lip || 0) * poids) / 100;
+        res.co2 += (i.aliment.co2 * poids) / 1000;
+        res.sucre += ((i.aliment.sucre || 0) * poids) / 100;
+        res.gras_sat += ((i.aliment.gras_sat || 0) * poids) / 100;
+        res.sel += ((i.aliment.sel || 0) * poids) / 100;
       });
     });
     return res;
@@ -104,13 +108,15 @@ export default function Plannings({ user, tousLesAliments, onUpdate }: { user: U
   if (!besoins) return <Loading message="Chargement..." />;
 
   return (
-    <div className="w-full px-6 max-w-7xl mx-auto pb-20">
+    <div className="w-full px-4 sm:px-6 max-w-7xl mx-auto pb-20">
       
-      <header className="flex justify-between items-center gap-6 pt-4 mb-12">
+      <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 pt-4 mb-12">
         <div className="flex items-center gap-4">
           <div className="p-3 bg-zinc-950 text-white rounded-xl shadow-lg"><Rocket size={24} /></div>
           <div className="text-left">
-            <h1 className="text-6xl font-black uppercase italic leading-none tracking-tighter dark:text-white">GÉNÉRATEUR <span className="text-emerald-700">IA</span></h1>
+            <h1 className="text-3xl md:text-5xl lg:text-6xl font-black uppercase italic leading-none tracking-tighter dark:text-white">
+              GÉNÉRATEUR <span className="text-emerald-700">IA</span>
+            </h1>
             <p className="text-slate-400 text-[10px] uppercase font-bold tracking-widest mt-2">Nutrition Intelligente</p>
           </div>
         </div>
@@ -153,9 +159,9 @@ export default function Plannings({ user, tousLesAliments, onUpdate }: { user: U
           </div>
         </div>
 
-        <div className="flex gap-2 p-1 bg-zinc-100 dark:bg-zinc-800 rounded-xl w-fit border dark:border-zinc-700">
+        <div className="flex gap-2 p-1 bg-zinc-100 dark:bg-zinc-800 rounded-xl w-full sm:w-fit border dark:border-zinc-700 overflow-x-auto no-scrollbar">
           {[1, 2, 3, 4, 5, 6, 7].map((j) => (
-            <button key={j} onClick={() => setJour(j)} className={cn("px-6 py-2 rounded-lg text-xs font-black transition-all uppercase", jour === j ? "bg-white dark:bg-zinc-700 shadow-sm text-zinc-950 dark:text-white" : "text-zinc-400 hover:text-zinc-600")}>
+            <button key={j} onClick={() => setJour(j)} className={cn("flex-1 sm:flex-none px-4 sm:px-6 py-2 rounded-lg text-xs font-black transition-all uppercase", jour === j ? "bg-white dark:bg-zinc-700 shadow-sm text-zinc-950 dark:text-white" : "text-zinc-400 hover:text-zinc-600")}>
               J0{j}
             </button>
           ))}
@@ -173,25 +179,7 @@ export default function Plannings({ user, tousLesAliments, onUpdate }: { user: U
               <div className="flex items-center gap-2 text-emerald-500 font-bold text-[9px] uppercase"><Leaf size={14} /> {stats.co2.toFixed(2)} KG CO2</div>
             </div>
           </Card>
-
-          <Card className="lg:col-span-2 p-6 rounded-3xl bg-white dark:bg-zinc-900 border flex items-center shadow-sm">
-            <div className="grid grid-cols-3 gap-6 w-full">
-              {[
-                { l: "PROTÉINES", a: stats.prot, c: besoins.proteines },
-                { l: "LIPIDES", a: stats.lip, c: besoins.lipides },
-                { l: "GLUCIDES", a: stats.glu, c: besoins.glucides }
-              ].map((m) => (
-                <div key={m.l} className="space-y-3">
-                  <div className="flex justify-between items-end">
-                    <span className="text-[8px] font-black text-slate-400 tracking-wider uppercase">{m.l}</span>
-                    <span className="text-lg font-black italic dark:text-white">{Math.round(m.a)}g</span>
-                  </div>
-                  <Progress value={(m.a / m.c) * 100} className="h-1" />
-                  <span className="text-[8px] font-bold text-slate-400 uppercase">Cible: {Math.round(m.c)}g</span>
-                </div>
-              ))}
-            </div>
-          </Card>
+          <BilanNutritionnelCard stats={stats} besoins={besoins} />
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -211,52 +199,57 @@ export default function Plannings({ user, tousLesAliments, onUpdate }: { user: U
             </div>
           </div>
 
-          {journal.map((j) => (
-            <div key={j.jour} className="space-y-8">
-              <div className="flex items-center gap-4 px-2">
-                <span className="text-6xl font-black tracking-tighter opacity-10 italic">0{j.jour}</span>
-                <div className="h-px flex-1 bg-zinc-200 dark:bg-zinc-800" />
-                <Badge className="bg-emerald-500 text-white rounded-full uppercase text-[8px] px-4 font-black italic">Validé</Badge>
-              </div>
+          {journal.map((j) => {
+            const statsIA = {
+              prot: j.bilan.prot.actuel,
+              lip: j.bilan.lip.actuel,
+              glu: j.bilan.glu.actuel,
+              ...j.repas.reduce((acc, r) => {
+                r.aliments.forEach(al => {
+                  acc.sucre += ((al.aliment.sucre || 0) * al.poids) / 100;
+                  acc.gras_sat += ((al.aliment.gras_sat || 0) * al.poids) / 100;
+                  acc.sel += ((al.aliment.sel || 0) * al.poids) / 100;
+                });
+                return acc;
+              }, { sucre: 0, gras_sat: 0, sel: 0 })
+            };
 
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 text-left">
-                <Card className="bg-zinc-950 p-8 rounded-3xl text-white shadow-xl relative overflow-hidden">
-                  <div className="absolute top-0 right-0 p-6 opacity-10"><Zap size={80} className="text-emerald-400 fill-emerald-400" /></div>
-                  <div className="relative z-10 space-y-4">
-                    <span className="text-emerald-400 font-black text-[9px] uppercase tracking-widest opacity-70">Bilan Journée</span>
-                    <div className="flex items-baseline gap-2">
-                      <p className="text-4xl font-black italic tracking-tighter leading-none">{Math.round(j.bilan.prot.actuel * 4 + j.bilan.glu.actuel * 4 + j.bilan.lip.actuel * 9)}</p>
-                      <span className="text-[10px] opacity-40 uppercase">Kcal</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-emerald-500 font-bold text-[9px] uppercase"><Leaf size={12} /> {j.bilan.co2Total.toFixed(2)} KG CO2</div>
-                  </div>
-                </Card>
+            return (
+              <div key={j.jour} className="space-y-8">
+                <div className="flex items-center gap-4 px-2">
+                  <span className="text-6xl font-black tracking-tighter opacity-10 italic">0{j.jour}</span>
+                  <div className="h-px flex-1 bg-zinc-200 dark:bg-zinc-800" />
+                  <Badge className="bg-emerald-500 text-white rounded-full uppercase text-[8px] px-4 font-black italic">Validé</Badge>
+                </div>
 
-                <Card className="lg:col-span-2 p-8 rounded-3xl bg-white dark:bg-zinc-900 border shadow-sm flex items-center">
-                  <div className="grid grid-cols-3 gap-6 w-full">
-                    {[
-                      { l: "PROTÉINES", a: j.bilan.prot.actuel, c: j.bilan.prot.cible },
-                      { l: "LIPIDES", a: j.bilan.lip.actuel, c: j.bilan.lip.cible },
-                      { l: "GLUCIDES", a: j.bilan.glu.actuel, c: j.bilan.glu.cible }
-                    ].map((m) => (
-                      <div key={m.l} className="space-y-3">
-                        <div className="flex justify-between items-end">
-                          <span className="text-[8px] font-black text-slate-400 tracking-wider uppercase">{m.l}</span>
-                          <span className="text-lg font-black italic dark:text-white">{Math.round(m.a)}g</span>
-                        </div>
-                        <Progress value={(m.a / m.c) * 100} className="h-1" />
-                        <span className="text-[8px] font-bold text-slate-400 uppercase">Cible: {Math.round(m.c)}g</span>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 text-left">
+                  <Card className="bg-zinc-950 p-8 rounded-3xl text-white shadow-xl relative overflow-hidden">
+                    <div className="absolute top-0 right-0 p-6 opacity-10"><Zap size={80} className="text-emerald-400 fill-emerald-400" /></div>
+                    <div className="relative z-10 space-y-4">
+                      <span className="text-emerald-400 font-black text-[9px] uppercase tracking-widest opacity-70">Bilan Journée</span>
+                      <div className="flex items-baseline gap-2">
+                        <p className="text-4xl font-black italic tracking-tighter leading-none">
+                          {Math.round(j.bilan.prot.actuel * 4 + j.bilan.glu.actuel * 4 + j.bilan.lip.actuel * 9)}
+                        </p>
+                        <span className="text-[10px] opacity-40 uppercase">Kcal</span>
                       </div>
-                    ))}
-                  </div>
-                </Card>
-              </div>
+                      <div className="flex items-center gap-2 text-emerald-500 font-bold text-[9px] uppercase">
+                        <Leaf size={12} /> {j.bilan.co2Total.toFixed(2)} KG CO2
+                      </div>
+                    </div>
+                  </Card>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                {j.repas.map((r, ri) => <CarteRepas key={ri} moment={r.moment} repas={r} templateActuel={r.template} onChangeTemplate={() => {}} estModifiable={false} />)}
+                  <BilanNutritionnelCard stats={statsIA} besoins={besoins} />
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                  {j.repas.map((r, ri) => (
+                    <CarteRepas key={ri} moment={r.moment} repas={r} templateActuel={r.template} onChangeTemplate={() => {}} estModifiable={false} />
+                  ))}
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </section>
       )}
     </div>

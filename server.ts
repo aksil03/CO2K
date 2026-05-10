@@ -7,7 +7,8 @@ import {
   getMail, getUtilisateurComplet, sauvegarderPlanning, majPlanning, getProgrammesUtilisateur,
   ajouterUtilisateur, majProfil, majInfosPlanning, creerProgrammeComplet, majInfosProgramme,
   getAlimentsParBac, getAllAliments, getPlanningsUtilisateur, supprimerPlanning, supprimerProgramme,
-  creerPost, getFeedCommunaute, getPostsByUserId, toggleLike, toggleFollow, ajouterCommentaire
+  creerPost, getFeedCommunaute, getPostsByUserId, toggleLike, toggleFollow, ajouterCommentaire,
+  supprimerPost
 } from './src/lib/queries.ts';
 import { AlimentsGroupes, CreateProgrammeSchema, CreatePostSchema } from './src/lib/types';
 import { AssignerPlanningSchema } from './src/lib/types';
@@ -334,6 +335,17 @@ app.post('/api/posts/:id/commentaires', authentifierToken, async (req, res) => {
     res.status(201).json(commentaire);
   } catch (error) {
     res.status(500).send("Erreur lors de l'ajout du commentaire");
+  }
+});
+
+// Supprimer un post
+app.delete('/api/posts/:id', authentifierToken, async (req: Request, res: Response) => {
+  const id = Number(req.params.id);
+  try {
+    await supprimerPost(id);
+    res.sendStatus(204);
+  } catch (error) {
+    res.status(500).send("Erreur lors de la suppression du post");
   }
 });
 

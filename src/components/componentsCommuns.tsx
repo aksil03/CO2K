@@ -14,7 +14,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Input } from "@/components/ui/input";
 import { MODELES_REPAS } from "@/lib/constants";
 import { BacAliment, RegimeAlimentaire, TemplateRepas, type Aliment, type BesoinsNutritionnels } from "@/lib/types";
-import { Utensils, Calendar, Trash2, ChevronRight, Pencil, Check, X, Plus, Info, RotateCcw, Eye, EyeOff, ClipboardList, LayoutGrid, ArrowLeft } from "lucide-react";
+import { Utensils, Calendar, Trash2, ChevronRight, Pencil, Check, X, Plus, Info, RotateCcw, Eye, EyeOff, ClipboardList, LayoutGrid, ArrowLeft, Leaf, AlertTriangle } from "lucide-react";
 import React, { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter, DialogClose  } from "@/components/ui/dialog";
 import { type CreateProgrammeData, type UserWithRelations } from "@/lib/types";
@@ -34,6 +34,8 @@ import { Sun, Apple, Moon } from "lucide-react";
 import { Flame, Sandwich, Disc, Salad } from "lucide-react";
 import { type RepasGenere } from '@/lib/types';
 import { ReglesRepas } from "@/lib/planning/rules";
+import { Separator } from "@/components/ui/separator";
+import { CalculateurImpact } from '@/lib/planning/impact';
 
 export const MOMENTS_CONFIG: Record<MomentRepas, { t: string; icon: any; color: string; bg: string }> = {
   [MomentRepas.PETIT_DEJEUNER]: { t: "MATIN", icon: <Sun size={14}/>, color: "text-amber-600", bg: "bg-amber-50" },
@@ -945,11 +947,18 @@ export function ModalCreerPost({
   );
 }
 
-export function CardPost({ post, user, onUpdate, onUserClick }: { 
+export function CardPost({ 
+  post, 
+  user, 
+  onUpdate, 
+  onUserClick, 
+  onDelete 
+}: { 
   post: PostComplet, 
   user: UserWithRelations,
   onUpdate?: (postId: number, newLikesCount: number, isLiked: boolean) => void,
-  onUserClick?: (id: number, nom: string, prenom: string) => void 
+  onUserClick?: (id: number, nom: string, prenom: string) => void,
+  onDelete?: (postId: number) => void 
 }) {
   const [reponse, setReponse] = useState<string>("");
   const [viewOpen, setViewOpen] = useState<boolean>(false);
@@ -958,6 +967,8 @@ export function CardPost({ post, user, onUpdate, onUserClick }: {
   const [isLiked, setIsLiked] = useState(false);
   const [likesCount, setLikesCount] = useState(post._count?.likes || 0);
   const [replyTo, setReplyTo] = useState<{id: number, nom: string, commentId: number} | null>(null);
+  
+  const isAuteur = user?.id === post.auteurId;
 
   const handleInitiateReply = (auteurId: number, auteurPrenom: string, commentId: number) => {
     setReplyTo({ id: auteurId, nom: auteurPrenom, commentId: commentId });
@@ -1031,6 +1042,20 @@ export function CardPost({ post, user, onUpdate, onUserClick }: {
     }
   };
 
+  const handleDeletePost = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+
+    alerteSuppression(async () => {
+      try {
+        await axios.delete(`http://localhost:3000/api/posts/${post.id}`);
+        toast.success("Supprimé");
+        if (onDelete) onDelete(post.id);
+      } catch (err) {
+        toast.error("Erreur");
+      }
+    }, "Supprimer cette publication ?"); 
+  };
+
   const jours = ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi", "Dimanche"];
   const nbSemaines = post.programme?.semaines?.length || 0;
 
@@ -1039,18 +1064,21 @@ export function CardPost({ post, user, onUpdate, onUserClick }: {
     setViewOpen(true);
   };
 
+  const besoins = CalculateurImpact.calculerBesoinsNutritionnels(user);
+
   return (
     <div className="h-full group">
       <Card className={cn(
         "relative h-full rounded-[2rem] transition-all duration-300 overflow-hidden text-left border flex flex-col items-start",
         "bg-white border-slate-100 shadow-sm hover:shadow-md hover:border-slate-200",
         "dark:bg-zinc-950 dark:border-zinc-800 dark:hover:border-zinc-700 dark:shadow-none"
-      )}>
+       )}>
         <div className="absolute top-0 left-0 right-0 h-0.5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 bg-emerald-500" />
 
         <CardHeader className="p-7 pb-0 w-full flex flex-col items-start">
           <div className="flex justify-between items-start w-full">
             <div className="space-y-1.5">
+              <div className="flex items-center gap-2">
               <button 
                 onClick={handleUserClick}
                 className={cn(
@@ -1064,7 +1092,7 @@ export function CardPost({ post, user, onUpdate, onUserClick }: {
                   {post.auteur?.prenom} <span className="text-emerald-700">{post.auteur?.nom}</span>
                 </p>
               </button>
-
+              </div>
               <p className="text-[9px] font-bold text-slate-400 mt-1 uppercase tracking-tighter px-0.5">
                 {post.createdAt ? new Date(post.createdAt).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' }) : 'Date inconnue'}
               </p>
@@ -1248,73 +1276,126 @@ export function CardPost({ post, user, onUpdate, onUserClick }: {
               </DialogContent>
             </Dialog>
           </div>
+
+          {isAuteur && (
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              onClick={handleDeletePost} 
+              className="absolute bottom-6 right-6 rounded-xl hover:bg-red-50 hover:text-red-500 text-slate-200 h-10 w-10 shrink-0 transition-all"
+            >
+              <Trash2 size={16} />
+            </Button>
+          )}
         </CardContent>
       </Card>
 
       <Dialog open={viewOpen} onOpenChange={(open) => { setViewOpen(open); if(!open) setInspectingPlanning(null); }}>
-        <DialogContent showCloseButton={false} className={cn("rounded-[3.5rem] bg-white dark:bg-zinc-950 border-none shadow-2xl p-0 flex flex-col overflow-hidden max-h-[90vh]", inspectingPlanning ? "sm:max-w-[95vw]! lg:max-w-[90vw]! xl:max-w-350!" : nbSemaines <= 1 ? "sm:max-w-112.5!" : nbSemaines === 2 ? "sm:max-w-200!" : "sm:max-w-300!")}>
-          <div className="absolute top-8 right-8 z-50">
-            <DialogClose render={<button className="p-2 rounded-full text-slate-300 hover:text-slate-900 dark:hover:text-white transition-colors outline-none"><X size={22} /></button>} />
-          </div>
-          <div className="flex-1 overflow-y-auto custom-scrollbar my-6 px-8 md:px-12 text-left">
-            {inspectingPlanning && post.programme && (
-                <button onClick={() => setInspectingPlanning(null)} className="flex items-center gap-2 text-slate-400 font-black uppercase text-[10px] mb-8 hover:text-emerald-500 transition-colors outline-none"><ArrowLeft size={14} /> Retour</button>
-            )}
-            <DialogHeader className="text-left mb-12 pr-16">
-              <DialogTitle className="text-4xl font-black uppercase italic leading-none dark:text-white">{inspectingPlanning ? inspectingPlanning.nom : (post.planning?.nom || post.programme?.nom)}</DialogTitle>
-              {!inspectingPlanning && post.programme?.description && <p className="text-slate-400 italic text-sm mt-4 max-w-xl leading-relaxed">{post.programme.description}</p>}
-            </DialogHeader>
+      <DialogContent showCloseButton={false} className={cn("rounded-[3.5rem] bg-white dark:bg-zinc-950 border-none shadow-2xl p-0 flex flex-col overflow-hidden max-h-[90vh]", inspectingPlanning ? "sm:max-w-[95vw]! lg:max-w-[90vw]! xl:max-w-350!" : nbSemaines <= 1 ? "sm:max-w-112.5!" : nbSemaines === 2 ? "sm:max-w-200!" : "sm:max-w-300!")}>
+        <div className="absolute top-8 right-8 z-50">
+          <DialogClose render={<button className="p-2 rounded-full text-slate-300 hover:text-slate-900 dark:hover:text-white transition-colors outline-none"><X size={22} /></button>} />
+        </div>
+        <div className="flex-1 overflow-y-auto custom-scrollbar my-6 px-8 md:px-12 text-left">
+          {inspectingPlanning && post.programme && (
+              <button onClick={() => setInspectingPlanning(null)} className="flex items-center gap-2 text-slate-400 font-black uppercase text-[10px] mb-8 hover:text-emerald-500 transition-colors outline-none"><ArrowLeft size={14} /> Retour</button>
+          )}
+          <DialogHeader className="text-left mb-12 pr-16">
+            <DialogTitle className="text-4xl font-black uppercase italic leading-none dark:text-white">{inspectingPlanning ? inspectingPlanning.nom : (post.planning?.nom || post.programme?.nom)}</DialogTitle>
+            {!inspectingPlanning && post.programme?.description && <p className="text-slate-400 italic text-sm mt-4 max-w-xl leading-relaxed">{post.programme.description}</p>}
+          </DialogHeader>
 
-            {!inspectingPlanning && post.programme?.semaines ? (
-              <div className={cn("grid gap-6 pb-8", nbSemaines === 1 ? "grid-cols-1" : nbSemaines === 2 ? "grid-cols-2" : "grid-cols-1 md:grid-cols-2 lg:grid-cols-3")}>
-                {post.programme.semaines.map((s, i) => (
-                  <div key={i} onClick={() => s.planning && setInspectingPlanning(s.planning as PlanningComplet)} className="flex items-center justify-between p-6 rounded-[2rem] border bg-slate-50 dark:bg-zinc-900 border-slate-100 dark:border-zinc-800 cursor-pointer hover:border-emerald-500/50 shadow-sm group/item transition-all">
-                    <div className="flex items-center gap-5 text-left">
-                      <div className="w-10 h-10 rounded-2xl bg-white dark:bg-zinc-800 flex items-center justify-center text-xs font-black shadow-inner dark:text-white shrink-0">{i + 1}</div>
-                      <div className="min-w-0"><p className="text-[9px] font-black text-emerald-500 uppercase leading-none mb-1">Nutrition</p><p className="font-black uppercase italic text-base dark:text-white leading-none truncate pr-2">{s.planning?.nom || "Non définie"}</p></div>
-                    </div>
-                    {s.planning && <ChevronRight size={20} className="text-emerald-500 group-hover/item:translate-x-1 transition-all shrink-0" />}
+          {!inspectingPlanning && post.programme?.semaines ? (
+            <div className={cn("grid gap-6 pb-8", nbSemaines === 1 ? "grid-cols-1" : nbSemaines === 2 ? "grid-cols-2" : "grid-cols-1 md:grid-cols-2 lg:grid-cols-3")}>
+              {post.programme.semaines.map((s, i) => (
+                <div key={i} onClick={() => s.planning && setInspectingPlanning(s.planning as PlanningComplet)} className="flex items-center justify-between p-6 rounded-[2rem] border bg-slate-50 dark:bg-zinc-900 border-slate-100 dark:border-zinc-800 cursor-pointer hover:border-emerald-500/50 shadow-sm group/item transition-all">
+                  <div className="flex items-center gap-5 text-left">
+                    <div className="w-10 h-10 rounded-2xl bg-white dark:bg-zinc-800 flex items-center justify-center text-xs font-black shadow-inner dark:text-white shrink-0">{i + 1}</div>
+                    <div className="min-w-0"><p className="text-[9px] font-black text-emerald-500 uppercase leading-none mb-1">Nutrition</p><p className="font-black uppercase italic text-base dark:text-white leading-none truncate pr-2">{s.planning?.nom || "Non définie"}</p></div>
                   </div>
-                ))}
-              </div>
-            ) : inspectingPlanning && (
-               <div className="space-y-20 pb-12">
-                {jours.map((jour, index) => {
-                  const repasDuJour = (inspectingPlanning.repas || []).filter((r) => (new Date(r.dateConsom).getDay() === 0 ? 6 : new Date(r.dateConsom).getDay() - 1) === index)
-                    .sort((a, b) => {
-                      const scores: any = { [MomentRepas.PETIT_DEJEUNER]: 1, [MomentRepas.DEJEUNER]: 2, [MomentRepas.COLLATION]: 3, [MomentRepas.DINER]: 4 };
-                      return (scores[a.type] || 0) - (scores[b.type] || 0);
-                    });
-                  if (repasDuJour.length === 0) return null;
-                  return (
-                    <section key={jour} className="space-y-8 text-left">
-                      <div className="flex items-center gap-4">
-                        <div className="p-3 bg-slate-900 text-white rounded-xl dark:bg-zinc-800"><Utensils size={20} /></div>
-                        <div><h2 className="text-3xl font-black uppercase italic dark:text-white leading-none">{jour}</h2><div className="h-1 w-12 bg-emerald-600 rounded-full mt-2" /></div>
-                      </div>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                        {repasDuJour.map((repas, idx) => (
-                          <div key={idx} className="p-6 rounded-[2rem] border border-slate-100 dark:border-zinc-800 bg-white dark:bg-zinc-950 flex flex-col h-full shadow-sm text-left">
-                            <div className="bg-emerald-50 dark:bg-emerald-500/10 px-3 py-1 rounded-lg mb-4 w-fit"><p className="text-[10px] font-black text-emerald-700 dark:text-emerald-500 uppercase italic">{(repas.type || "REPAS").replace('_', ' ')}</p></div>
-                            <div className="space-y-3 flex-1">
-                              {repas.portions?.map((port: any, pi: number) => (
-                                <div key={pi} className="flex justify-between items-start gap-4 border-b border-slate-50 dark:border-zinc-900/50 pb-2 last:border-none group">
-                                  <span className="text-slate-800 dark:text-zinc-200 font-bold italic text-sm leading-tight flex-1 text-left">{port.aliment?.nom}</span>
-                                  <BadgePoids poids={port.quantite || 0} />
-                                </div>
-                              ))}
-                            </div>
+                  {s.planning && <ChevronRight size={20} className="text-emerald-500 group-hover/item:translate-x-1 transition-all shrink-0" />}
+                </div>
+              ))}
+            </div>
+          ) : inspectingPlanning && (
+            <div className="space-y-20 pb-12">
+              {jours.map((jour, index) => {
+                const repasDuJour = (inspectingPlanning.repas || []).filter((r) => (new Date(r.dateConsom).getDay() === 0 ? 6 : new Date(r.dateConsom).getDay() - 1) === index)
+                  .sort((a, b) => {
+                    const scores: any = { [MomentRepas.PETIT_DEJEUNER]: 1, [MomentRepas.DEJEUNER]: 2, [MomentRepas.COLLATION]: 3, [MomentRepas.DINER]: 4 };
+                    return (scores[a.type] || 0) - (scores[b.type] || 0);
+                  });
+
+                if (repasDuJour.length === 0) return null;
+
+                const statsDuJour = repasDuJour.reduce((acc, r) => {
+                  r.portions.forEach(p => {
+                    const poids = p.quantite;
+                    acc.prot += ((p.aliment.prot || 0) * poids) / 100;
+                    acc.glu += ((p.aliment.glu || 0) * poids) / 100;
+                    acc.lip += ((p.aliment.lip || 0) * poids) / 100;
+                    acc.sucre += ((p.aliment.sucre || 0) * poids) / 100;
+                    acc.gras_sat += ((p.aliment.gras_sat || 0) * poids) / 100;
+                    acc.sel += ((p.aliment.sel || 0) * poids) / 100;
+                    acc.co2 += (p.aliment.co2 * poids) / 1000;
+                  });
+                  return acc;
+                }, { prot: 0, glu: 0, lip: 0, sucre: 0, gras_sat: 0, sel: 0, co2: 0 });
+
+                return (
+                  <section key={jour} className="space-y-8 text-left">
+                    <div className="flex items-center gap-4">
+                      <div className="p-3 bg-slate-900 text-white rounded-xl dark:bg-zinc-800"><Utensils size={20} /></div>
+                      <div><h2 className="text-3xl font-black uppercase italic dark:text-white leading-none">{jour}</h2><div className="h-1 w-12 bg-emerald-600 rounded-full mt-2" /></div>
+                    </div>
+
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                      <div className="p-6 bg-zinc-950 rounded-3xl text-white flex flex-col justify-center relative overflow-hidden">
+                        <div className="absolute top-0 right-0 p-4 opacity-10"><Flame size={40} className="text-emerald-400 fill-emerald-400" /></div>
+                        <div className="relative z-10">
+                          <span className="text-[9px] font-black uppercase tracking-widest text-emerald-400 opacity-70 mb-2 block">Total Journée</span>
+                          <p className="text-4xl font-black italic leading-none mb-2">
+                            {Math.round(statsDuJour.prot * 4 + statsDuJour.glu * 4 + statsDuJour.lip * 9)} <span className="text-xs opacity-40 uppercase">Kcal</span>
+                          </p>
+                          <div className="flex items-center gap-2 text-emerald-500 font-bold text-[9px] uppercase">
+                            <Leaf size={12} /> {statsDuJour.co2.toFixed(2)} KG CO2
                           </div>
-                        ))}
+                        </div>
                       </div>
-                    </section>
-                  );
-                })}
-              </div>
-            )}
-          </div>
-        </DialogContent>
-      </Dialog>
+                      <BilanNutritionnelCard stats={statsDuJour} besoins={besoins} />
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                      {repasDuJour.map((repas, idx) => {
+                        const repasFormate = {
+                          ...repas,
+                          template: (repas as any).nomTemplate || TemplateRepas.HOT,
+                          aliments: repas.portions.map((p: any) => ({ aliment: p.aliment, poids: p.quantite })),
+                          stats: {
+                            prot: repas.portions.reduce((acc: number, p: any) => acc + ((p.aliment.prot || 0) * p.quantite) / 100, 0),
+                            glu: repas.portions.reduce((acc: number, p: any) => acc + ((p.aliment.glu || 0) * p.quantite) / 100, 0),
+                            lip: repas.portions.reduce((acc: number, p: any) => acc + ((p.aliment.lip || 0) * p.quantite) / 100, 0),
+                          }
+                        };
+                        return (
+                          <CarteRepas
+                            key={idx}
+                            moment={repas.type as MomentRepas}
+                            repas={repasFormate as any}
+                            templateActuel={repasFormate.template}
+                            onChangeTemplate={() => {}} 
+                            estModifiable={false}      
+                          />
+                        );
+                      })}
+                    </div>
+                  </section>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      </DialogContent>
+    </Dialog>
     </div>
   );
 }
@@ -1477,3 +1558,90 @@ export function CarteRepas({
     </Card>
   );
 }
+
+
+export function BilanNutritionnelCard({ stats, besoins }: { stats: any, besoins: any }) {
+  return (
+    <Card className="lg:col-span-2 p-6 rounded-3xl bg-white dark:bg-zinc-900 border flex flex-col md:flex-row items-center gap-8 shadow-sm">
+      <div className="grid grid-cols-3 gap-6 w-full lg:w-2/3">
+        {[
+          { l: "PROTÉINES", a: stats.prot, c: besoins.proteines },
+          { l: "LIPIDES", a: stats.lip, c: besoins.lipides },
+          { l: "GLUCIDES", a: stats.glu, c: besoins.glucides }
+        ].map((m) => (
+          <div key={m.l} className="space-y-3">
+            <div className="flex justify-between items-end">
+              <span className="text-[8px] font-black text-slate-400 tracking-wider uppercase">{m.l}</span>
+              <span className="text-lg font-black italic dark:text-white">{Math.round(m.a)}g</span>
+            </div>
+            <Progress value={(m.a / m.c) * 100} className="h-1" />
+            <span className="text-[8px] font-bold text-slate-400 uppercase">Cible: {Math.round(m.c)}g</span>
+          </div>
+        ))}
+      </div>
+
+      <Separator orientation="vertical" className="hidden lg:block h-20 opacity-20" />
+
+      <div className="w-full lg:w-1/3 space-y-3 border-t lg:border-t-0 pt-4 lg:pt-0">
+        {[
+          { l: "Sucre", a: stats.sucre, c: besoins.limites.sucre },
+          { l: "Gras Sat.", a: stats.gras_sat, c: besoins.limites.gras_sat },
+          { l: "Sel", a: stats.sel, c: 5 }
+        ].map((lim) => (
+          <div key={lim.l} className="flex items-center gap-3">
+            <span className="text-[7px] font-black text-slate-400 w-12 uppercase">{lim.l}</span>
+            <div className="flex-1 h-1 bg-zinc-100 dark:bg-zinc-800 rounded-full overflow-hidden">
+              <div 
+                className={cn(
+                  "h-full transition-all duration-500", 
+                  lim.a > lim.c ? "bg-red-500" : "bg-emerald-500/50"
+                )} 
+                style={{ width: `${Math.min((lim.a / lim.c) * 100, 100)}%` }} 
+              />
+            </div>
+            <span className={cn("text-[9px] font-bold w-10 text-right", lim.a > lim.c ? "text-red-500" : "text-slate-500")}>
+              {lim.a.toFixed(1)}g
+            </span>
+          </div>
+        ))}
+      </div>
+    </Card>
+  );
+}
+
+export const alerteSuppression = (onConfirm: () => void, titre = "Supprimer cet élément ?") => {
+  toast.custom((t) => (
+    <div className="bg-white dark:bg-zinc-950 border border-slate-100 dark:border-zinc-800 p-6 rounded-[2rem] shadow-2xl w-[350px] space-y-6">
+      <div className="flex items-center gap-4">
+        <div className="p-3 bg-rose-50 dark:bg-rose-500/10 text-rose-500 rounded-2xl">
+          <AlertTriangle size={20} strokeWidth={2.5} />
+        </div>
+        <div className="text-left">
+          <p className="text-xs font-black uppercase italic leading-none">{titre}</p>
+          <p className="text-[10px] text-slate-400 font-bold uppercase mt-1">Action irréversible</p>
+        </div>
+      </div>
+
+      <div className="flex gap-2">
+        <button
+          onClick={() => {
+            onConfirm();
+            toast.dismiss(t);
+          }}
+          className="flex-1 py-3 bg-rose-500 hover:bg-rose-600 text-white text-[10px] font-black uppercase italic rounded-xl transition-all active:scale-95 shadow-lg shadow-rose-500/20"
+        >
+          Confirmer
+        </button>
+        <button
+          onClick={() => toast.dismiss(t)}
+          className="flex-1 py-3 bg-slate-100 dark:bg-zinc-800 text-slate-500 dark:text-zinc-400 text-[10px] font-black uppercase italic rounded-xl hover:bg-slate-200 dark:hover:bg-zinc-700 transition-all"
+        >
+          Annuler
+        </button>
+      </div>
+    </div>
+  ), {
+    duration: Infinity,
+    position: "top-center",
+  });
+};

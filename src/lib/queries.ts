@@ -139,8 +139,32 @@ export const getPlanningsUtilisateur = async (userId: number) => {
 
 // Supprimer un planning 
 export const supprimerPlanning = async (id: number) => {
-  return await db.planning.delete({
-    where: { id }
+  return await db.$transaction(async (tx) => {
+    await tx.post.deleteMany({
+      where: { planningId: id }
+    });
+
+    const semainesImpactees = await tx.calendrierPlanning.findMany({
+      where: { planningId: id },
+      select: { programmeId: true }
+    });
+    
+    const idsProgrammes = semainesImpactees.map(s => s.programmeId);
+
+    if (idsProgrammes.length > 0) {
+      await tx.post.deleteMany({
+        where: { programmeId: { in: idsProgrammes } }
+      });
+    }
+
+    await tx.calendrierPlanning.updateMany({
+      where: { planningId: id },
+      data: { planningId: null }
+    });
+
+    return await tx.planning.delete({
+      where: { id }
+    });
   });
 };
 

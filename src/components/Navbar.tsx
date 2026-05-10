@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { CHEMIN_LOGIN, CHEMIN_DASHBOARD, CHEMIN_ACCUEIL } from '../App'
 import { Bouton, LogoCo2K, NavBoutonGhost } from './componentsCommuns'
 import { UserCircle, LogOut, LayoutDashboard, Sun, Moon } from 'lucide-react'
@@ -15,23 +15,56 @@ import { Button } from "@/components/ui/button"
 
 export function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false)
+  const [estConnecte, setEstConnecte] = useState(false)
   const navigate = useNavigate()
+  const location = useLocation()
   const { theme, setTheme } = useTheme()
 
-  const token = localStorage.getItem("token")
-  const prenom = localStorage.getItem("user_prenom") || ""
-  const email = localStorage.getItem("user_email") || ""
+  const verifierToken = () => {
+    const token = localStorage.getItem("token");
+    if (!token) return false;
+
+    try {
+      const payload = JSON.parse(window.atob(token.split('.')[1]));
+      const maintenant = Math.floor(Date.now() / 1000);
+      
+      if (payload.exp && payload.exp < maintenant) {
+        localStorage.clear();
+        return false;
+      }
+      return true;
+    } catch (e) {
+      return false;
+    }
+  };
+
+  useEffect(() => {
+    setEstConnecte(verifierToken());
+  }, [location.pathname]);
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 15)
+    const syncAuth = () => setEstConnecte(verifierToken())
+
     window.addEventListener('scroll', handleScroll)
-    return () => window.removeEventListener('scroll', handleScroll)
+    window.addEventListener('storage', syncAuth)
+
+    return () => {
+      window.removeEventListener('scroll', handleScroll)
+      window.removeEventListener('storage', syncAuth)
+    }
   }, [])
 
   const handleLogout = () => {
     localStorage.clear()
+    setEstConnecte(false)
     window.location.href = CHEMIN_ACCUEIL
   }
+
+  const prenom = localStorage.getItem("user_prenom") || ""
+  const email = localStorage.getItem("user_email") || ""
+
+  const initiale = prenom.charAt(0).toUpperCase();
 
 return (
   <nav className={`fixed top-0 left-0 w-full h-16 flex items-center z-50 transition-all ${
@@ -52,16 +85,18 @@ return (
           {theme === "dark" ? <Sun size={20} /> : <Moon size={20} />}
         </button>
 
-        <NavBoutonGhost>Projet</NavBoutonGhost>
-
-        {token ? (
+        {estConnecte ? (
           <DropdownMenu modal={false}>
             <DropdownMenuTrigger className="outline-none">
               <div className="flex items-center gap-2 cursor-pointer">
                 <div className="hidden sm:block text-right">
                   <p className="text-xs font-bold text-black dark:text-white">{prenom}</p>
                 </div>
-                <UserCircle size={32} className="text-black dark:text-white" />
+                <div className="h-9 w-9 rounded-xl bg-emerald-700 flex items-center justify-center shadow-sm border border-emerald-800/20 transition-all duration-300 group-hover:bg-emerald-600 group-hover:shadow-emerald-500/20 group-hover:shadow-lg">
+                  <span className="text-xs font-black text-white tracking-widest">
+                    {initiale}
+                  </span>
+                </div>
               </div>
             </DropdownMenuTrigger>
 

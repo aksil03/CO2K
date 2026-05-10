@@ -243,7 +243,7 @@ model CalendrierPlanning {
   semaineDebut  DateTime 
   ordre         Int 
   planningId    Int?
-  planning      Planning?    @relation(fields: [planningId], references: [id], onDelete: Cascade)
+  planning      Planning?    @relation(fields: [planningId], references: [id], onDelete: SetNull)
   programmeId   Int
   programme     Programme   @relation(fields: [programmeId], references: [id], onDelete: Cascade)
 }

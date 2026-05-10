@@ -29,7 +29,7 @@ const valide = async (values: LoginData) => {
       window.dispatchEvent(new Event("storage"));
       
       toast.success("Connexion réussie", {
-        description: `Content de vous revoir, ${res.data.prenom} !`,
+        description: `Content de vous revoir, ${res.data.prenom}`,
       })
 
       navigate(CHEMIN_DASHBOARD(res.data.email));

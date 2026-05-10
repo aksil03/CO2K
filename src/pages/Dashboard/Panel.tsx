@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { Flame, LayoutGrid, ClipboardList, ChevronLeft, Check, Utensils } from 'lucide-react'
+import { Flame, LayoutGrid, ClipboardList, ChevronLeft, Check, Utensils, Leaf } from 'lucide-react'
 import { 
   CardProgrammeMaster, 
   CardPlanningMaster, 
@@ -7,7 +7,9 @@ import {
   CardSemaineTimeline,
   Bouton,
   Loading,
-  CarteRepas
+  CarteRepas,
+  BilanNutritionnelCard,
+  alerteSuppression
 } from '../../components/componentsCommuns' 
 import { 
   type PlanningComplet, 
@@ -21,49 +23,27 @@ import {
 } from '@/lib/types'
 import axios from 'axios'
 import { toast } from "sonner"
+import { CalculateurImpact } from '@/lib/planning/impact'
 
 export default function Panel({ user, tousLesAliments, onUpdate }: { user: UserWithRelations, tousLesAliments: Aliment[], onUpdate: () => void }) {
   const [programmes, setProgrammes] = useState<ProgrammeComplet[]>([]);
   const [plannings, setPlannings] = useState<PlanningComplet[]>([]);
-  const [loading, setLoading] = useState(true);
   const [selectedProg, setSelectedProg] = useState<ProgrammeComplet | null>(null);
   const [selectedPlan, setSelectedPlan] = useState<PlanningComplet | null>(null);
 
   const userId = user?.id;
 
   useEffect(() => {
-    if (!userId) {
-      setLoading(false);
-      return;
-    }
-
-    async function chargerDonnees() {
-      setLoading(true);
-      try {
-        const [resProg, resPlan] = await Promise.all([
-          axios.get<ProgrammeComplet[]>(`http://localhost:3000/api/programmes/${userId}`),
-          axios.get<PlanningComplet[]>(`http://localhost:3000/api/planning/liste?userId=${userId}`)
-        ]);
-
-        setProgrammes(resProg.data);
-        setPlannings(resPlan.data);
-      } catch (err) {
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    chargerDonnees();
-  }, [userId]);
+    if (user?.programmes) setProgrammes(user.programmes as unknown as ProgrammeComplet[]);
+    if (user?.plannings) setPlannings(user.plannings as unknown as PlanningComplet[]);
+  }, [user]);
 
   const creerProgramme = async (data: CreateProgrammeData) => {
     try {
-    const res = await axios.post<ProgrammeComplet>('http://localhost:3000/api/programmes/creer', {
+      await axios.post('http://localhost:3000/api/programmes/creer', {
         ...data, 
         auteurId: userId 
       });
-
-      setProgrammes([res.data, ...programmes]); 
       toast.success("Programme créé");
       onUpdate();
     } catch (err) {
@@ -72,14 +52,15 @@ export default function Panel({ user, tousLesAliments, onUpdate }: { user: UserW
   };
 
   const supprimerProgramme = async (id: number) => {
-    if (!confirm("Supprimer ce programme ?")) return;
-    try {
-      await axios.delete(`http://localhost:3000/api/programmes/${id}`);
-      setProgrammes(programmes.filter(p => p.id !== id));
-      toast.success("Programme supprimé");
-    } catch (err) {
-      toast.error("Erreur lors de la suppression");
-    }
+    alerteSuppression(async () => {
+      try {
+        await axios.delete(`http://localhost:3000/api/programmes/${id}`);
+        setProgrammes(programmes.filter(p => p.id !== id));
+        toast.success("Programme supprimé");
+      } catch (err) {
+        toast.error("Erreur lors de la suppression");
+      }
+    }, "Supprimer ce programme ?");
   };
 
   const assignerPlanning = async (semaineId: number, planningId: number) => {
@@ -93,16 +74,7 @@ export default function Panel({ user, tousLesAliments, onUpdate }: { user: UserW
         const nouvellesSemaines = selectedProg.semaines.map(s => (s as any).id === semaineId ? updated : s);
         setSelectedProg({ ...selectedProg, semaines: nouvellesSemaines } as any);
       }
-
-      setProgrammes(prev => prev.map(p => {
-        if (p.id === selectedProg?.id) {
-          return {
-            ...p,
-            semaines: p.semaines.map(s => (s as any).id === semaineId ? updated : s)
-          };
-        }
-        return p;
-      }));
+      onUpdate();
     } catch (err) {
       toast.error("Erreur d'assignation");
     }
@@ -129,23 +101,24 @@ export default function Panel({ user, tousLesAliments, onUpdate }: { user: UserW
   };
 
   const handleDeletePlanning = async (id: number) => {
-    if (!confirm("Supprimer ce modèle de planning ?")) return;
-    try {
-      await axios.delete(`http://localhost:3000/api/planning/${id}`);
-      setPlannings(prev => prev.filter(p => p.id !== id));
-      toast.success("Planning supprimé");
-    } catch (err) {
-      toast.error("Erreur de suppression");
-    }
+    alerteSuppression(async () => {
+      try {
+        await axios.delete(`http://localhost:3000/api/planning/${id}`);
+        setPlannings(prev => prev.filter(p => p.id !== id));
+        toast.success("Planning supprimé");
+        onUpdate();
+      } catch (err) {
+        toast.error("Erreur de suppression");
+      }
+    }, "Supprimer ce planning ? Il sera retiré de votre panel");
   };
 
-  if (loading) {
-    return <Loading message="Initialisation du Panel..." />;
-  }
 
   if (selectedPlan) {
     const jours = ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi", "Dimanche"];
     
+    const besoins = CalculateurImpact.calculerBesoinsNutritionnels(user);
+
     return (
       <div className="w-full space-y-12 pb-20 text-left">
         <button onClick={() => setSelectedPlan(null)} className="flex items-center gap-2 text-slate-400 font-black uppercase text-[10px]">
@@ -166,11 +139,46 @@ export default function Panel({ user, tousLesAliments, onUpdate }: { user: UserW
 
           if (repasDuJour.length === 0) return null;
 
+          const statsDuJour = repasDuJour.reduce((acc, r) => {
+            r.portions.forEach(p => {
+              const poids = p.quantite;
+              acc.prot += ((p.aliment.prot || 0) * poids) / 100;
+              acc.glu += ((p.aliment.glu || 0) * poids) / 100;
+              acc.lip += ((p.aliment.lip || 0) * poids) / 100;
+              acc.sucre += ((p.aliment.sucre || 0) * poids) / 100;
+              acc.gras_sat += ((p.aliment.gras_sat || 0) * poids) / 100;
+              acc.sel += ((p.aliment.sel || 0) * poids) / 100;
+              acc.co2 += (p.aliment.co2 * poids) / 1000;
+            });
+            return acc;
+          }, { prot: 0, glu: 0, lip: 0, sucre: 0, gras_sat: 0, sel: 0, co2: 0 });
+
           return (
             <section key={jour} className="space-y-6">
               <div className="flex items-center gap-4">
                 <Utensils size={20} />
                 <h2 className="text-3xl font-black uppercase italic">{jour}</h2>
+              </div>
+
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div className="p-6 bg-zinc-950 rounded-3xl text-white flex flex-col justify-center relative overflow-hidden">
+                  <div className="absolute top-0 right-0 p-4 opacity-10"><Flame size={40} className="text-emerald-400 fill-emerald-400" /></div>
+                  
+                  <div className="relative z-10">
+                    <span className="text-[9px] font-black uppercase tracking-widest text-emerald-400 opacity-70 mb-2 block">
+                      Total Journée
+                    </span>
+                    <p className="text-4xl font-black italic leading-none mb-2">
+                      {Math.round(statsDuJour.prot * 4 + statsDuJour.glu * 4 + statsDuJour.lip * 9)} <span className="text-xs opacity-40 uppercase">Kcal</span>
+                    </p>
+                    
+                    <div className="flex items-center gap-2 text-emerald-500 font-bold text-[9px] uppercase">
+                      <Leaf size={12} /> {statsDuJour.co2.toFixed(2)} KG CO2
+                    </div>
+                  </div>
+                </div>
+                
+                <BilanNutritionnelCard stats={statsDuJour} besoins={besoins} />
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -247,11 +255,20 @@ export default function Panel({ user, tousLesAliments, onUpdate }: { user: UserW
             <div className="h-1 w-12 bg-emerald-600 rounded-full mt-1" />
           </div>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {programmes.map((p) => (
-            <CardProgrammeMaster key={p.id} programme={p} onDelete={supprimerProgramme} onView={() => setSelectedProg(p)} onUpdate={modifierProgramme}/>
-          ))}
-        </div>
+
+        {programmes.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {programmes.map((p) => (
+              <CardProgrammeMaster key={p.id} programme={p} onDelete={supprimerProgramme} onView={() => setSelectedProg(p)} onUpdate={modifierProgramme}/>
+            ))}
+          </div>
+        ) : (
+          <div className="py-12 text-center border-2 border-dashed border-slate-100 dark:border-zinc-900 rounded-[2rem] w-full">
+            <p className="text-slate-400 font-black uppercase italic text-[10px] tracking-widest">
+              Aucun programme créé pour le moment
+            </p>
+          </div>
+        )}
       </section>
 
       <section className="space-y-8">
@@ -262,12 +279,27 @@ export default function Panel({ user, tousLesAliments, onUpdate }: { user: UserW
             <div className="h-1 w-12 bg-emerald-600 rounded-full mt-1" />
           </div>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {plannings.map((p) => (
-            <CardPlanningMaster key={p.id} planning={p} onDelete={() => handleDeletePlanning(p.id)} onView={() => setSelectedPlan(p)} onUpdate={modifierPlanningBase} />
-          ))}
-        </div>
+
+        {plannings.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {plannings.map((p) => (
+              <CardPlanningMaster key={p.id} planning={p} onDelete={() => handleDeletePlanning(p.id)} onView={() => setSelectedPlan(p)} onUpdate={modifierPlanningBase} />
+            ))}
+          </div>
+        ) : (
+          <div className="py-12 text-center border-2 border-dashed border-slate-100 dark:border-zinc-900 rounded-[2rem] w-full">
+            <p className="text-slate-400 font-black uppercase italic text-[10px] tracking-widest">
+              Aucun planning enregistré
+            </p>
+          </div>
+        )}
       </section>
+      {programmes.length === 0 && plannings.length === 0 && (
+        <div className="py-20 text-center bg-slate-50 dark:bg-zinc-900/30 rounded-[3rem] border border-slate-100 dark:border-zinc-800">
+          <p className="text-slate-500 font-black uppercase italic text-xs mb-2">Votre panel est vide</p>
+          <p className="text-slate-400 text-[10px] uppercase font-bold italic">Commencez par générer un planning ou créer un programme</p>
+        </div>
+      )}
     </div>
   );
 }

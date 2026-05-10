@@ -4,10 +4,10 @@ import { LayoutGrid, ClipboardList, ChevronLeft, Check, Plus } from "lucide-reac
 import type { UserWithRelations, PostComplet } from "@/lib/types";
 import { Loading, CardPost, Bouton } from '../../components/componentsCommuns';
 import { cn } from "@/lib/utils";
+import { toast } from 'sonner';
 
-export default function Communaute({ user }: { user: UserWithRelations | null }) {
-  const [feed, setFeed] = useState<PostComplet[]>([]);
-  const [loading, setLoading] = useState(true);
+export default function Communaute({ user, onUpdate, initialFeed }: { user: UserWithRelations | null, onUpdate: () => void, initialFeed: PostComplet[] }) {
+  const [feed, setFeed] = useState<PostComplet[]>(initialFeed);
   
   const [selectedAuthor, setSelectedAuthor] = useState<{id: number, nom: string, prenom: string} | null>(null);
   const [isFollowing, setIsFollowing] = useState(false);
@@ -15,27 +15,15 @@ export default function Communaute({ user }: { user: UserWithRelations | null })
   const [suivisIds, setSuivisIds] = useState<number[]>([]);
 
   useEffect(() => {
+    setFeed(initialFeed);
+  }, [initialFeed]);
+
+  useEffect(() => {
     if (user?.mesAbonnements) {
       setSuivisIds(user.mesAbonnements.map((f: any) => f.id_star));
     }
-  }, [user]);
+  }, [user?.mesAbonnements]);
 
-  useEffect(() => {
-    async function fetchFeed() {
-      if (!user?.id) return;
-      try {
-        setLoading(true);
-        const res = await axios.get<PostComplet[]>(`http://localhost:3000/api/communaute/feed`, {
-          params: { exclureId: user.id }
-        });
-        setFeed(res.data);
-      } catch (error) {
-      } finally {
-        setLoading(false);
-      }
-    }
-    fetchFeed();
-  }, [user?.id]);
 
   useEffect(() => {
     async function checkStatus() {
@@ -78,17 +66,20 @@ export default function Communaute({ user }: { user: UserWithRelations | null })
       });
       setIsFollowing(res.data.isFollowing);
 
+      onUpdate();
+
       if (res.data.isFollowing) {
         setSuivisIds(prev => [...prev, selectedAuthor.id]);
       } else {
         setSuivisIds(prev => prev.filter(id => id !== selectedAuthor.id));
       }
+
+      toast.success(res.data.isFollowing ? "Abonnement ajouté" : "Désabonné");
     } catch (error) {
+      toast.error("Erreur de synchronisation");
     }
   };
   
-
-  if (loading) return <Loading message="Initialisation du feed..." />;
   if (!user) return null;
 
   if (selectedAuthor) {
@@ -255,7 +246,7 @@ export default function Communaute({ user }: { user: UserWithRelations | null })
             ))}
           </div>
         ) : (
-          activeTab === 'abonnements' && <EmptyState message="Aucun programme publié par vos abonnements" />
+          <EmptyState message={activeTab === 'abonnements' ? "Aucun programme publié par vos abonnements" : "Aucun programme disponible pour le moment"} />
         )}
       </section>
 
@@ -280,13 +271,19 @@ export default function Communaute({ user }: { user: UserWithRelations | null })
           ))}
         </div>
         ) : (
-          activeTab === 'abonnements' && <EmptyState message="Aucun planning publié par vos abonnements" />
+          <EmptyState message={activeTab === 'abonnements' ? "Aucun planning publié par vos abonnements" : "Aucun planning disponible pour le moment"} />
         )}
       </section>
-      {activeTab === 'abonnements' && feedAffiche.length === 0 && (
+      {feedAffiche.length === 0 && (
         <div className="py-20 text-center bg-slate-50 dark:bg-zinc-900/30 rounded-[3rem] border border-slate-100 dark:border-zinc-800">
-          <p className="text-slate-500 font-black uppercase italic text-xs mb-2">Votre feed est vide</p>
-          <p className="text-slate-400 text-[10px] uppercase font-bold italic">Abonnez-vous pour voir leurs partages ici</p>
+          <p className="text-slate-500 font-black uppercase italic text-xs mb-2">
+            {activeTab === 'abonnements' ? "Votre feed est vide" : "La communauté est calme"}
+          </p>
+          <p className="text-slate-400 text-[10px] uppercase font-bold italic">
+            {activeTab === 'abonnements' 
+              ? "Abonnez-vous pour voir leurs partages ici" 
+              : "Revenez plus tard pour découvrir de nouveaux partages"}
+          </p>
         </div>
       )}
     </div>

@@ -8,7 +8,18 @@ import {
 
 import { SEUILS_SANTE, RATIOS_MOMENTS } from "../constants";
 
+const RATIOS_STRUCTURE = {
+  [TemplateRepas.PETIT_DEJ]: {
+    [BacAliment.LAIT]: { ref: BacAliment.CERE, maxRatio: 4, minRatio: 1.5 },
+    [BacAliment.OLEAGINEUX]: { minAbsolu: 15, maxAbsolu: 40 }
+  },
+  [TemplateRepas.HOT]: {
+    [BacAliment.LEG]: { ref: BacAliment.RIZ, minRatio: 0.5 }
+  }
+};
+
 export const ReglesRepas = {
+  ratios: RATIOS_STRUCTURE,
 
   estLigneAutorisee: (
     indexLigne: number, 
@@ -133,8 +144,10 @@ export const ReglesRepas = {
       return true;
   },
 
-  obtenirMargesAdaptatives: (bac: BacAliment, moment?: MomentRepas, besoins?: any) => {
-    const estMatin = moment === MomentRepas.PETIT_DEJEUNER || moment === MomentRepas.COLLATION;
+  
+
+obtenirMargesAdaptatives: (bac: BacAliment, moment: MomentRepas, besoins: any, alimentsDejaChoisis: any[] = []) => {
+    const estMatin = moment === MomentRepas.PETIT_DEJEUNER;
     const facteurEchelle = besoins ? besoins.calories / 2000 : 1;
 
     const scale = (min: number, max: number) => ({
@@ -142,38 +155,41 @@ export const ReglesRepas = {
         max: Math.round(max * Math.max(1, facteurEchelle * 1.5))
     });
 
-    if (bac === BacAliment.PROT_VOLAILLE || bac === BacAliment.PROT_BLANCHE_AUTRE) return scale(60, 300);
-    if (bac === BacAliment.PROT_VIANDE_ROUGE || bac === BacAliment.PROT_PORC) return scale(60, 220);
-    if (bac === BacAliment.PROT_P) return scale(60, 280);
-    if (bac === BacAliment.PROT_VEG) return estMatin ? scale(30, 150) : scale(60, 250);
+    if (bac === BacAliment.CERE) return scale(35, 55); 
 
-    const feculentsDenses: BacAliment[] = [
-        BacAliment.RIZ, 
-        BacAliment.PATE, 
-        BacAliment.NOUILLE, 
-        BacAliment.SEMOU, 
-        BacAliment.CERE_REPAS
-    ];
+    if (bac === BacAliment.LAIT) {
+        const cereale = alimentsDejaChoisis.find(a => a.aliment.bac === BacAliment.CERE);
+        if (cereale) {
+            const poidsCereales = cereale.poids;
+            return { 
+                min: Math.round(poidsCereales * 2), 
+                max: Math.round(poidsCereales * 3) 
+            };
+        }
+        return scale(100, 200);
+    }
 
-    if (feculentsDenses.includes(bac)) return scale(30, 250); 
+    if (bac === BacAliment.OLEAGINEUX || bac === BacAliment.BC) return { min: 15, max: 30 }; 
 
-    if (bac === BacAliment.GNOCCHI || bac === BacAliment.POTATO) return scale(60, 500); 
-    if (bac === BacAliment.PAIN) return scale(25, 200);
-    if (bac === BacAliment.GAL_RIZ) return scale(15, 100);
-    if (bac === BacAliment.WRAP) return scale(30, 200);
-    if (bac === BacAliment.LEG) return { min: Math.round(150 * Math.max(0.15, facteurEchelle)), max: 600 }; 
-    if (bac === BacAliment.LAITUE) return { min: 20, max: 250 }; 
-    if (bac === BacAliment.FRUIT_ENTIER || bac === BacAliment.FRUIT_PULPE) return scale(70, 300);
-    if (bac === BacAliment.LAIT) return scale(70, 400);
-    if (bac === BacAliment.CERE) return scale(25, 150);
-    if (bac === BacAliment.FROMAGE) return scale(10, 80); 
-    if (bac === BacAliment.HUILE) return scale(2, 40);
-    if (bac === BacAliment.VINAIGRETTE || bac === BacAliment.BC || bac === BacAliment.OLEAGINEUX) return scale(3, 80);
+    if (bac === BacAliment.PROT_VOLAILLE || bac === BacAliment.PROT_BLANCHE_AUTRE) return scale(100, 200);
+    if (bac === BacAliment.PROT_VIANDE_ROUGE || bac === BacAliment.PROT_PORC) return scale(80, 180);
+    if (bac === BacAliment.PROT_P) return scale(100, 220);
+    if (bac === BacAliment.PROT_VEG) return estMatin ? scale(30, 120) : scale(80, 200);
+
+    const feculentsDenses: BacAliment[] = [BacAliment.RIZ, BacAliment.PATE, BacAliment.NOUILLE, BacAliment.SEMOU, BacAliment.CERE_REPAS];
+    if (feculentsDenses.includes(bac)) return scale(40, 120); 
+
+    if (bac === BacAliment.GNOCCHI || bac === BacAliment.POTATO) return scale(100, 350); 
+    if (bac === BacAliment.PAIN) return scale(30, 100);
+    if (bac === BacAliment.GAL_RIZ) return scale(20, 60);
+    if (bac === BacAliment.WRAP) return scale(40, 150);
+    if (bac === BacAliment.LEG) return { min: 150, max: 400 }; 
+    if (bac === BacAliment.LAITUE) return { min: 30, max: 150 }; 
+    if (bac === BacAliment.FRUIT_ENTIER || bac === BacAliment.FRUIT_PULPE) return scale(80, 200);
+    if (bac === BacAliment.FROMAGE) return scale(20, 50); 
+    if (bac === BacAliment.HUILE) return scale(5, 20);
+    if (bac === BacAliment.VINAIGRETTE) return scale(10, 40);
     
-    const saucesChaudes: BacAliment[] = [BacAliment.S_HOT_RED, BacAliment.S_HOT_WHITE, BacAliment.S_HOT_ASIA];
-    if (saucesChaudes.includes(bac)) return scale(10, 100);
-    if (bac === BacAliment.S_COLD) return scale(5, 60);
-
-    return scale(30, 250);
+    return scale(50, 200);
   }
 };

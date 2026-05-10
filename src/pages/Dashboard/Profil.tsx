@@ -11,34 +11,23 @@ import type { UserWithRelations } from '@/lib/types';
 import { CalculateurImpact } from '@/lib/planning/impact';
 
 
-function Profil({ email }: { email: string }) {
+function Profil({ user: initialUser, onUpdate }: { user: UserWithRelations, onUpdate: () => void }) {
   const [user, setUser] = useState<UserWithRelations | null>(null);
-  const [isInitialLoading, setIsInitialLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
 
-  useEffect(() => {
-    setIsInitialLoading(true); 
-
-    axios.get<UserWithRelations>("http://localhost:3000/api/utilisateur?email=" + email)
-      .then((res) => {
-        setUser(res.data);
-      })
-      .catch((err) => {
-        toast.error("Impossible de charger le profil");
-      })
-      .finally(() => {
-        setIsInitialLoading(false);
-      });
-  }, [email]);
+  React.useEffect(() => {
+    setUser(initialUser);
+  }, [initialUser]);
 
   const handleSave = async () => {
     if (!user) return;
     setIsSaving(true);
     try {
       const dataToSave = ProfilFormSchema.parse(user);
-
-      await axios.put("http://localhost:3000/api/utilisateur/update/" + email, dataToSave);
+      await axios.put("http://localhost:3000/api/utilisateur/update/" + user.email, dataToSave);
+      
       toast.success("Profil mis à jour");
+      onUpdate();
     } catch (err) {
       toast.error("Erreur de sauvegarde");
     } finally {
@@ -51,9 +40,7 @@ function Profil({ email }: { email: string }) {
     return CalculateurImpact.calculerBesoinsNutritionnels(user);
   }, [user]);
 
-  if (isInitialLoading) return <Loading message="Synchronisation du profil..." />;
-
-  if (!user) return <div className="p-20 text-center font-black uppercase italic text-emerald-500 tracking-widest">Utilisateur introuvable</div>;
+  if (!user) return null;
 
   return (
     <div className="container mx-auto px-4 max-w-7xl -mt-16 space-y-6 pb-10 dark:text-white">

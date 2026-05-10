@@ -21,12 +21,14 @@ export const NutritionSolver = {
         panierInitial: PanierItem[], 
         cibles: { prot: number, lip: number, glu: number },
         moment: MomentRepas,
-        seuils: { gras_sat: number, sucre: number, sel: number } 
+        seuils: { gras_sat: number, sucre: number, sel: number },
+        besoins?: any
     ): PanierItem[] => {
+
         
         let result = panierInitial.map(item => ({
             ...item,
-            poids: ReglesRepas.obtenirMargesAdaptatives(item.aliment.bac, moment).min
+            poids: ReglesRepas.obtenirMargesAdaptatives(item.aliment.bac, moment, besoins, panierInitial).min
         }));
         
         const getBacStr = (p: PanierItem) => String(p.aliment.bac).toUpperCase().trim();
@@ -34,15 +36,15 @@ export const NutritionSolver = {
         // CONVERGENCE 
         for (let iter = 0; iter < 25; iter++) {
             
-        result.forEach(item => {
-            const b = getBacStr(item);
-            if (moment === MomentRepas.DEJEUNER || moment === MomentRepas.DINER) {
-                if (b === BacAliment.LEG || b === BacAliment.LAITUE) {
-                    const m = ReglesRepas.obtenirMargesAdaptatives(item.aliment.bac, moment);                
-                    item.poids = Math.max(50, m.min); 
+            result.forEach(item => {
+                const b = getBacStr(item);
+                if (moment === MomentRepas.DEJEUNER || moment === MomentRepas.DINER) {
+                    if (b === BacAliment.LEG || b === BacAliment.LAITUE) {
+                        const m = ReglesRepas.obtenirMargesAdaptatives(item.aliment.bac, moment, besoins, result);                
+                        item.poids = Math.max(50, m.min); 
+                    }
                 }
-            }
-        });
+            });
 
             const feculents = result.filter(p => [
                 BacAliment.RIZ, BacAliment.PATE, BacAliment.NOUILLE, BacAliment.SEMOU, 
@@ -52,7 +54,7 @@ export const NutritionSolver = {
             ].map(String).includes(getBacStr(p)));
 
             feculents.forEach(fec => {
-                const m = ReglesRepas.obtenirMargesAdaptatives(fec.aliment.bac, moment);
+                const m = ReglesRepas.obtenirMargesAdaptatives(fec.aliment.bac, moment, besoins, result);
                 const dejaLa = NutritionSolver.getSum(result.filter(x => x.aliment.id !== fec.aliment.id), 'glu');
                 const valeurMacro = Number(fec.aliment.glu) || 1;
                 
@@ -84,7 +86,7 @@ export const NutritionSolver = {
             });
 
             proteines.forEach(prot => {
-                const m = ReglesRepas.obtenirMargesAdaptatives(prot.aliment.bac, moment);
+                const m = ReglesRepas.obtenirMargesAdaptatives(prot.aliment.bac, moment, besoins, result);
                 const dejaLa = NutritionSolver.getSum(result.filter(x => x.aliment.id !== prot.aliment.id), 'prot');
                 const valeurMacro = Number(prot.aliment.prot) || 1;
                 
@@ -114,7 +116,7 @@ export const NutritionSolver = {
             ].map(String).includes(getBacStr(p)));
 
             sourcesGras.forEach(gras => {
-                const m = ReglesRepas.obtenirMargesAdaptatives(gras.aliment.bac, moment);
+                const m = ReglesRepas.obtenirMargesAdaptatives(gras.aliment.bac, moment, besoins, result);
                 const dejaLa = NutritionSolver.getSum(result.filter(x => x.aliment.id !== gras.aliment.id), 'lip');
                 const valeurMacro = Number(gras.aliment.lip) || 1;
                 

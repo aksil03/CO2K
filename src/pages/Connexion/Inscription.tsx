@@ -26,7 +26,7 @@ export default function Inscription() {
     try {
       await axios.post('http://localhost:3000/api/inscription', values)
       
-      toast.success("Compte créé avec succès 😁", {
+      toast.success("Compte créé avec succès", {
         description: `Bienvenue parmi nous, ${values.prenom} ! Vous pouvez vous connecter.`,
       })
       form.reset()

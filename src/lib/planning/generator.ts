@@ -88,11 +88,17 @@ export const PlanningLogic = {
             const panierInitial = PlanningLogic.piocherPanier(dispos, moment, template, regime, besoins);
             const ratioMoment = RATIOS_MOMENTS[moment];
 
-            const menuFinal = NutritionSolver.resoudreMenu(panierInitial, cibles, moment, {
-                gras_sat: besoins.limites.gras_sat * ratioMoment,
-                sucre: besoins.limites.sucre * ratioMoment,
-                sel: 5 * ratioMoment,
-            });
+            const menuFinal = NutritionSolver.resoudreMenu(
+                panierInitial, 
+                cibles, 
+                moment, 
+                {
+                    gras_sat: besoins.limites.gras_sat * ratioMoment,
+                    sucre: besoins.limites.sucre * ratioMoment,
+                    sel: 5 * ratioMoment,
+                },
+                besoins 
+            );
 
             const stats = {
                 prot: NutritionSolver.getSum(menuFinal, 'prot'),

@@ -7,7 +7,7 @@ import Profil from "./Dashboard/Profil"
 import { useParams } from 'react-router-dom'
 import Plannings from './Dashboard/Plannings'
 import Panel from './Dashboard/Panel'
-import { type UserWithRelations, type Aliment } from '@/lib/types'
+import { type UserWithRelations, type Aliment, type PostComplet } from '@/lib/types'
 import Mon_compte from './Dashboard/Mon_compte'
 import Communaute from './Dashboard/Communaute'
 import { cn } from "@/lib/utils"
@@ -60,32 +60,36 @@ function Dashboard() {
   
   const [user, setUser] = useState<UserWithRelations>(null);
   const [aliments, setAliments] = useState<Aliment[]>([]);
+  const [communauteFeed, setCommunauteFeed] = useState<PostComplet[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const refreshUser = async () => {
+  const refreshUserData = async () => {
     try {
-      const res = await axios.get<UserWithRelations>(`http://localhost:3000/api/utilisateur?email=${email}`);
-      setUser(res.data);
+      const [resUser, resFeed] = await Promise.all([
+        axios.get<UserWithRelations>(`http://localhost:3000/api/utilisateur?email=${email}`),
+        axios.get<PostComplet[]>(`http://localhost:3000/api/communaute/feed`)
+      ]);
+      setUser(resUser.data);
+      setCommunauteFeed(resFeed.data);
     } catch (error) {
     }
   };
 
-useEffect(() => {
+  useEffect(() => {
     async function initDashboard() {
       if (!email || email === ":email") return;
-
       try {
         setLoading(true); 
-        const [resUser, resAliments] = await Promise.all([
+        const [resUser, resAliments, resFeed] = await Promise.all([
           axios.get<UserWithRelations>(`http://localhost:3000/api/utilisateur?email=${email}`),
-          axios.get(`http://localhost:3000/api/aliments/all`)
+          axios.get(`http://localhost:3000/api/aliments/all`),
+          axios.get<PostComplet[]>(`http://localhost:3000/api/communaute/feed`)
         ]);
 
-        const alimentsDataGroupes = resAliments.data;
-        const alimentsPlats = Object.values(alimentsDataGroupes).flat() as Aliment[];
-
         setUser(resUser.data);
+        const alimentsPlats = Object.values(resAliments.data).flat() as Aliment[];
         setAliments(alimentsPlats);
+        setCommunauteFeed(resFeed.data);
 
       } catch (error) {
       } finally {
@@ -115,26 +119,18 @@ useEffect(() => {
         <Sidebar icon={Users} label="Explorer" active={page === "communaute"} onClick={() => setPage("communaute")} />
       </nav>
 
-      <div className="mt-10">
-      <Button 
-        variant="ghost" 
-        className="justify-start gap-4 text-red-500 dark:text-red-400 font-black italic uppercase text-xs hover:bg-red-50 dark:hover:bg-red-500/10 rounded-2xl py-8"
-      >
-        <LogOut size={20} /> <span>Quitter</span>
-      </Button>
-      </div>
     </aside>
 
       <main className="flex-1 ml-64 p-10 min-h-[calc(100vh-64px)] overflow-x-hidden">
-        {page === "profil" && <Profil email={email || ""}/>}
+        {page === "profil" && <Profil user={user} onUpdate={refreshUserData}/>}
         {page === "plannings" && (
-          <Plannings user={user} tousLesAliments={aliments} onUpdate={refreshUser}/>
+          <Plannings user={user} tousLesAliments={aliments} onUpdate={refreshUserData}/>
         )}
         {page === "panel" && user && (
-          <Panel user={user} tousLesAliments={aliments} onUpdate={refreshUser}/>
+          <Panel user={user} tousLesAliments={aliments} onUpdate={refreshUserData}/>
         )}
-        {page === "mon-profil" && user && <Mon_compte user={user} onUpdate={refreshUser}/> }
-        {page === "communaute" && user && <Communaute user={user} /> }
+        {page === "mon-profil" && user && <Mon_compte user={user} onUpdate={refreshUserData}/> }
+        {page === "communaute" && user && <Communaute user={user} onUpdate={refreshUserData} initialFeed={communauteFeed}/> }
       </main>
     </div>
   )
