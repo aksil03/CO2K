@@ -335,14 +335,12 @@ export function CardProgrammeMaster({
   const [isEditing, setIsEditing] = useState(false);
   const [tempName, setTempName] = useState(programme.nom);
   const [tempDesc, setTempDesc] = useState(programme.description || "");
-  const [isPublic, setIsPublic] = useState(programme.estPublic);
 
   const totalSemaines = programme.semaines?.length || 0;
   const semainesRemplies = programme.semaines?.filter((s: any) => s.planningId !== null).length || 0;
   const estComplet = totalSemaines === semainesRemplies;
 
   useEffect(() => {
-    setIsPublic(programme.estPublic);
     setTempName(programme.nom);
     setTempDesc(programme.description || "");
   }, [programme]);
@@ -351,13 +349,6 @@ export function CardProgrammeMaster({
     e.stopPropagation();
     onUpdate(programme.id, { nom: tempName, description: tempDesc });
     setIsEditing(false);
-  };
-
-  const togglePublic = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    const newStatus = !isPublic;
-    setIsPublic(newStatus);
-    onUpdate(programme.id, { estPublic: newStatus });
   };
 
   return (
@@ -380,17 +371,12 @@ export function CardProgrammeMaster({
               </button>
             </>
           ) : (
-            <>
-              <button onClick={togglePublic} className={cn(
-                "p-1.5 rounded-lg transition-all",
-                isPublic ? "text-emerald-500 hover:bg-white" : "text-slate-300 hover:text-slate-500"
-              )}>
-                {isPublic ? <Eye size={14} /> : <EyeOff size={14} />}
-              </button>
-              <button onClick={(e) => { e.stopPropagation(); setIsEditing(true); }} className="p-1.5 rounded-lg text-slate-300 hover:text-slate-500 transition-all">
+              <button 
+                onClick={(e) => { e.stopPropagation(); setIsEditing(true); }} 
+                className="p-1.5 rounded-lg text-slate-300 hover:text-slate-500 transition-all"
+              >
                 <Pencil size={14} />
               </button>
-            </>
           )}
         </div>
 
@@ -575,10 +561,8 @@ export function CardPlanningMaster({
   const [isEditing, setIsEditing] = useState(false);
   const [tempName, setTempName] = useState(planning.nom);
   const [tempDesc, setTempDesc] = useState(planning.description || ""); 
-  const [isPublic, setIsPublic] = useState(planning.estPublic);
 
   useEffect(() => {
-    setIsPublic(planning.estPublic);
     setTempName(planning.nom);
     setTempDesc(planning.description || "");
   }, [planning]);
@@ -591,9 +575,8 @@ export function CardPlanningMaster({
 
   const togglePublic = (e: React.MouseEvent) => {
     e.stopPropagation();
-    const newStatus = !isPublic;
-    setIsPublic(newStatus);
-    onUpdate(planning.id, { estPublic: newStatus });
+    onUpdate(planning.id, { nom: tempName, description: tempDesc });
+    setIsEditing(false);
   };
 
   return (
@@ -622,14 +605,9 @@ export function CardPlanningMaster({
                   </button>
                 </>
               ) : (
-                <>
-                  <button onClick={togglePublic} className={cn("p-1.5 rounded-lg transition-all", isPublic ? "text-emerald-500 hover:bg-white" : "text-slate-300 hover:text-slate-500")}>
-                    {isPublic ? <Eye size={14} /> : <EyeOff size={14} />}
-                  </button>
-                  <button onClick={(e) => { e.stopPropagation(); setIsEditing(true); }} className="p-1.5 rounded-lg text-slate-300 hover:text-slate-500 transition-all">
-                    <Pencil size={14} />
-                  </button>
-                </>
+                <button onClick={(e) => { e.stopPropagation(); setIsEditing(true); }} className="p-1.5 rounded-lg text-slate-300 hover:text-slate-500 transition-all">
+                  <Pencil size={14} />
+                </button>
               )}
             </div>
           </div>

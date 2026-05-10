@@ -19,9 +19,12 @@ export default function Connexion() {
 const valide = async (values: LoginData) => {
     try {
       const res = await axios.post('http://localhost:3000/api/connexion', values)
+
       localStorage.setItem("token", res.data.token); 
       localStorage.setItem("user_prenom", res.data.prenom); 
       localStorage.setItem("user_email", res.data.email);
+
+      axios.defaults.headers.common['Authorization'] = `Bearer ${res.data.token}`;
 
       window.dispatchEvent(new Event("storage"));
       
@@ -33,10 +36,10 @@ const valide = async (values: LoginData) => {
 
     } catch (err: any) {
       toast.error("Échec de la connexion", {
-        description: "Identifiants invalides ou compte inexistant.",
+        description: "Identifiants invalides.",
       })
     }
-  }
+}
 
 return (
     <FormTemplate 

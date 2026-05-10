@@ -7,11 +7,17 @@ import Insc from "./pages/Connexion/Inscription";
 import { Toaster } from "@/components/ui/sonner"
 import { ProtectedRoute } from "./middleware";
 import { ThemeProvider } from "./providers/theme-provider"
+import axios from 'axios';
 
 export const CHEMIN_ACCUEIL = "/";
 export const CHEMIN_LOGIN = "/login";
 export const CHEMIN_DASHBOARD = (email = ":email") => `/dashboard/${email}`;
 export const CHEMIN_INSCRIPTION = "/Inscription";
+
+const token = localStorage.getItem("token");
+if (token) {
+  axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+}
 
 function App() {
   return (

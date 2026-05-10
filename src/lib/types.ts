@@ -126,7 +126,6 @@ const _checkRepas: Omit<Prisma.RepasUncheckedCreateInput, 'portions'> = {} as z.
 export const SavePlanningSchema = z.object({
   nom: z.string().min(1),
   description: z.string().optional(),
-  estPublic: z.boolean().default(false),
   auteurId: z.number(),
   journal: z.array(JourneePlanningSchema), 
 });

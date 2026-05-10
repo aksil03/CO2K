@@ -29,7 +29,8 @@ export const getUtilisateurComplet = async (email: string) => {
         select: {
           mesAbonnes: true,
           mesAbonnements: true,
-          programmes: true 
+          programmes: true,
+          plannings: true
         }
       }
     }
@@ -161,7 +162,7 @@ export const majPlanning = async (repas: any[]) => {
 };
 
 // mise à jour légère des infos du planning
-export const majInfosPlanning = async (id: number, data: { nom?: string, estPublic?: boolean, description?: string }) => {
+export const majInfosPlanning = async (id: number, data: { nom?: string, description?: string }) => {
   return await db.planning.update({
     where: { id },
     data: data

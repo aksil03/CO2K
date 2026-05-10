@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import axios from 'axios';
 import { toast } from "sonner";
 import { 
@@ -8,7 +8,8 @@ import {
   TemplateRepas,
   type RepasGenere, 
   type JourneePlanning,
-  type BesoinsNutritionnels 
+  type BesoinsNutritionnels, 
+  BacAliment
 } from '@/lib/types';
 import { cn } from "@/lib/utils";
 import { CalculateurImpact } from '@/lib/planning/impact';
@@ -22,6 +23,7 @@ import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
 import { Loader2, Rocket, Zap, Leaf, Plus, Save, Copy, ClipboardCheck, LayoutGrid, ClipboardList } from "lucide-react";
 import { Loading, CarteRepas, MOMENTS_CONFIG, Bouton } from '@/components/componentsCommuns';
+import { ReglesRepas } from '@/lib/planning/rules';
 
 export default function Plannings({ user, tousLesAliments, onUpdate }: { user: UserWithRelations, tousLesAliments: Aliment[], onUpdate: () => void }) {
   const [journal, setJournal] = useState<JourneePlanning[]>([]);

@@ -1,5 +1,7 @@
 import express, { Request, Response } from 'express';
 import cors from 'cors';
+import jwt from 'jsonwebtoken';
+const JWT_SECRET = "MA_KEY_SECRETE";
 import { db } from './src/lib/db.ts';
 import { 
   getMail, getUtilisateurComplet, sauvegarderPlanning, majPlanning, getProgrammesUtilisateur,
@@ -16,6 +18,19 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+const authentifierToken = (req: any, res: any, next: any) => {
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1];
+
+  if (!token) return res.status(401).send("Token manquant");
+
+  jwt.verify(token, JWT_SECRET, (err: any, user: any) => {
+    if (err) return res.status(403).send("Session expirée ou token invalide");
+    req.user = user;
+    next();
+  });
+};
+
 // api qui verifie si l'utilisateur existe dans la bdd via sont mail unique
 app.post('/api/connexion', async (req, res) => {
   try {
@@ -23,12 +38,23 @@ app.post('/api/connexion', async (req, res) => {
     const user = await getMail(email);
 
     if (user && user.password === password) {
-      res.send(user); 
+      const token = jwt.sign(
+        { id: user.id, email: user.email },
+        JWT_SECRET,
+        { expiresIn: '2h' }
+      );
+
+      res.json({
+        token,
+        id: user.id,
+        prenom: user.prenom,
+        email: user.email
+      });
     } else {
       res.status(401).send("Email ou MDP incorrect");
     }
   } catch (error) {
-      res.status(500).send("Erreur serveur");
+    res.status(500).send("Erreur serveur");
   }
 });
 
@@ -45,7 +71,7 @@ app.post('/api/inscription', async (req, res) => {
 
 
 // get l'utilisateur avec ses relations
-app.get('/api/utilisateur', async (req, res) => {
+app.get('/api/utilisateur', authentifierToken, async (req, res) => {
   const email = req.query.email as string;
 
   try {
@@ -62,7 +88,7 @@ app.get('/api/utilisateur', async (req, res) => {
 });
 
 // maj profil
-app.put('/api/utilisateur/update/:email', async (req, res) => {
+app.put('/api/utilisateur/update/:email', authentifierToken, async (req, res) => {
   const email = req.params.email;
   try {
     const nouvellesDonnees = ProfilFormSchema.parse(req.body);
@@ -109,7 +135,7 @@ app.get('/api/aliments/all', async (req, res) => {
 });
 
 // sauvegarde un planning
-app.post('/api/planning/sauvegarder', async (req, res) => {
+app.post('/api/planning/sauvegarder', authentifierToken, async (req, res) => {
   try {
     const planningValide = SavePlanningSchema.parse(req.body);
     const planning = await sauvegarderPlanning(planningValide);
@@ -120,8 +146,8 @@ app.post('/api/planning/sauvegarder', async (req, res) => {
 });
 
 // Récupérer la liste de tous les plannings d'un utilisateur
-app.get('/api/planning/liste', async (req, res) => {
-  const userId = Number(req.query.userId);
+app.get('/api/planning/liste', authentifierToken, async (req, res) => {
+  const userId = (req as any).user.id;
 
   if (!userId) {
     return res.status(400).send("ID utilisateur manquant");
@@ -136,7 +162,7 @@ app.get('/api/planning/liste', async (req, res) => {
 });
 
 // Supprimer un planning 
-app.delete('/api/planning/:id', async (req, res) => {
+app.delete('/api/planning/:id', authentifierToken, async (req, res) => {
   const id = Number(req.params.id);
   try {
     await supprimerPlanning(id);
@@ -147,7 +173,7 @@ app.delete('/api/planning/:id', async (req, res) => {
 });
 
 // Mise à jour planning
-app.post('/api/planning/update', async (req, res) => {
+app.post('/api/planning/update', authentifierToken, async (req, res) => {
   const { repas } = req.body;
   try {
     const resultat = await majPlanning(repas);
@@ -158,7 +184,7 @@ app.post('/api/planning/update', async (req, res) => {
 });
 
 // Mise à jour des informations de base du planning 
-app.patch('/api/planning/:id', async (req, res) => {
+app.patch('/api/planning/:id', authentifierToken, async (req, res) => {
   const id = Number(req.params.id);
   try {
     const data = SavePlanningSchema.partial().parse(req.body); 
@@ -170,7 +196,7 @@ app.patch('/api/planning/:id', async (req, res) => {
 });
 
 // recupérer les programmes
-app.get('/api/programmes/:userId', async (req, res) => {
+app.get('/api/programmes/:userId', authentifierToken, async (req, res) => {
   const userId = Number(req.params.userId);
   try {
     const programmes = await getProgrammesUtilisateur(userId);
@@ -181,7 +207,7 @@ app.get('/api/programmes/:userId', async (req, res) => {
 });
 
 // creer programme
-app.post('/api/programmes/creer', async (req, res) => {
+app.post('/api/programmes/creer', authentifierToken, async (req, res) => {
   try {
     const validData = CreateProgrammeSchema.parse(req.body);
     const resultat = await creerProgrammeComplet(validData);
@@ -192,7 +218,7 @@ app.post('/api/programmes/creer', async (req, res) => {
 });
 
 // supp programme
-app.delete('/api/programmes/:id', async (req, res) => {
+app.delete('/api/programmes/:id', authentifierToken, async (req, res) => {
   const id = Number(req.params.id);
   try {
     await supprimerProgramme(id);
@@ -203,7 +229,7 @@ app.delete('/api/programmes/:id', async (req, res) => {
 });
 
 // Mettre a jour le planning d'une semaine dans un programme
-app.patch('/api/programmes/semaine/:id', async (req, res) => {
+app.patch('/api/programmes/semaine/:id', authentifierToken, async (req, res) => {
   const id = Number(req.params.id);
   
   try {
@@ -225,7 +251,7 @@ app.patch('/api/programmes/semaine/:id', async (req, res) => {
   }
 });
 
-app.patch('/api/programmes/:id', async (req, res) => {
+app.patch('/api/programmes/:id', authentifierToken, async (req, res) => {
   const id = Number(req.params.id);
   try {
     const data = req.body; 
@@ -237,7 +263,7 @@ app.patch('/api/programmes/:id', async (req, res) => {
 });
 
 // créer un post
-app.post('/api/posts/creer', async (req, res) => {
+app.post('/api/posts/creer', authentifierToken, async (req, res) => {
   try {
     const validData = CreatePostSchema.parse(req.body);
     const post = await creerPost(validData);
@@ -248,7 +274,7 @@ app.post('/api/posts/creer', async (req, res) => {
 });
 
 // récupère le feed
-app.get('/api/communaute/feed', async (req, res) => {
+app.get('/api/communaute/feed', authentifierToken, async (req, res) => {
   const queryId = req.query.exclureId;
   const exclureId = queryId ? Number(queryId) : undefined;
   try {
@@ -260,7 +286,7 @@ app.get('/api/communaute/feed', async (req, res) => {
 });
 
 
-app.get('/api/posts/utilisateur/:id', async (req, res) => {
+app.get('/api/posts/utilisateur/:id', authentifierToken, async (req, res) => {
   try {
     const userId = parseInt(req.params.id);
     const posts = await getPostsByUserId(userId); 
@@ -270,7 +296,7 @@ app.get('/api/posts/utilisateur/:id', async (req, res) => {
   }
 });
 
-app.post('/api/posts/:id/like', async (req, res) => {
+app.post('/api/posts/:id/like', authentifierToken, async (req, res) => {
   const postId = Number(req.params.id);
   const { userId } = req.body; 
   try {
@@ -281,7 +307,7 @@ app.post('/api/posts/:id/like', async (req, res) => {
   }
 });
 
-app.get('/api/follow/status', async (req, res) => {
+app.get('/api/follow/status', authentifierToken, async (req, res) => {
   const { abonneId, starId } = req.query;
   const follow = await db.follow.findUnique({
     where: { id_abonne_id_star: { id_abonne: Number(abonneId), id_star: Number(starId) } }
@@ -289,13 +315,13 @@ app.get('/api/follow/status', async (req, res) => {
   res.json({ isFollowing: !!follow });
 });
 
-app.post('/api/follow/toggle', async (req, res) => {
+app.post('/api/follow/toggle', authentifierToken, async (req, res) => {
   const { abonneId, starId } = req.body;
   const result = await toggleFollow(Number(abonneId), Number(starId));
   res.json({ isFollowing: result });
 });
 
-app.post('/api/posts/:id/commentaires', async (req, res) => {
+app.post('/api/posts/:id/commentaires', authentifierToken, async (req, res) => {
   const postId = Number(req.params.id);
   const { auteurId, texte, parentId } = req.body;
 

@@ -178,7 +178,6 @@ model Planning {
   id            Int         @id @default(autoincrement())
   nom           String      
   description   String?
-  estPublic     Boolean     @default(false)
   auteurId      Int
   auteur        Utilisateur @relation(fields: [auteurId], references: [id])
   repas         Repas[]     
@@ -232,7 +231,6 @@ model Programme {
   id            Int         @id @default(autoincrement())
   nom           String
   description   String?
-  estPublic     Boolean     @default(false)
   auteurId      Int
   auteur        Utilisateur @relation(fields: [auteurId], references: [id])
   semaines      CalendrierPlanning[]
