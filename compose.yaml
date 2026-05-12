@@ -28,7 +28,7 @@ services:
       args:
         - DATABASE_URL=${DATABASE_URL}
         - DIRECT_URL=${DIRECT_URL}
-    command: npx tsx server.ts
+    command: sh -c "npx prisma db push && npx tsx server.ts"
     ports:
       - 3000:3000
     environment:

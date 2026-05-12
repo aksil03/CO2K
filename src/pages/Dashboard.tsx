@@ -13,6 +13,8 @@ import Communaute from './Dashboard/Communaute'
 import { cn } from "@/lib/utils"
 import { Loading } from '../components/componentsCommuns'
 import axios from 'axios';
+import {Link} from 'react-router-dom';
+import { CHEMIN_ACCUEIL } from '@/App'
 
 interface SidebarProps {
   icon: React.ElementType; 
@@ -117,10 +119,13 @@ useEffect(() => {
 
       <div className="mt-10">
       <Button 
+        
         variant="ghost" 
         className="justify-start gap-4 text-red-500 dark:text-red-400 font-black italic uppercase text-xs hover:bg-red-50 dark:hover:bg-red-500/10 rounded-2xl py-8"
       >
+        <Link to={CHEMIN_ACCUEIL}>
         <LogOut size={20} /> <span>Quitter</span>
+        </Link>
       </Button>
       </div>
     </aside>

@@ -1,11 +1,13 @@
 {
   "compilerOptions": {
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
     "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
     "target": "ES2022",
     "useDefineForClassFields": true,
     "lib": ["ES2022", "DOM", "DOM.Iterable"],
     "module": "ESNext",
-    "types": ["vite/client", "jest", "node"],
+    "types": ["vite/client", "jest", "node", "supertest"],
     "skipLibCheck": true,
 
     "moduleResolution": "bundler",
@@ -23,9 +25,12 @@
     "noUncheckedSideEffectImports": true,
 
     "baseUrl": ".",
+    "ignoreDeprecations": "6.0",
     "paths": {
       "@/*": ["./src/*"]
     }
   },
-  "include": ["src"]
+  "include": ["src",
+    "test/**/*.ts", 
+]
 }

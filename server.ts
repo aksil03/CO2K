@@ -1,13 +1,13 @@
-import express, { Request, Response } from 'express';
+import express, { type Request, type Response } from 'express';
 import cors from 'cors';
-import { db } from './src/lib/db.ts';
+import { db } from './src/lib/db';
 import { 
   getMail, getUtilisateurComplet, sauvegarderPlanning, majPlanning, getProgrammesUtilisateur,
   ajouterUtilisateur, majProfil, majInfosPlanning, creerProgrammeComplet, majInfosProgramme,
   getAlimentsParBac, getAllAliments, getPlanningsUtilisateur, supprimerPlanning, supprimerProgramme,
   creerPost, getFeedCommunaute, getPostsByUserId, toggleLike, toggleFollow, ajouterCommentaire
-} from './src/lib/queries.ts';
-import { AlimentsGroupes, CreateProgrammeSchema, CreatePostSchema } from './src/lib/types';
+} from './src/lib/queries';
+import { type AlimentsGroupes, CreateProgrammeSchema, CreatePostSchema } from './src/lib/types';
 import { AssignerPlanningSchema } from './src/lib/types';
 import { InscriptionFormSchema, SavePlanningSchema, LoginFormSchema, ProfilFormSchema } from './src/lib/types';
 
@@ -57,6 +57,8 @@ app.get('/api/utilisateur', async (req, res) => {
       res.status(404).send("Utilisateur non trouvé");
     }
   } catch (erreur) {
+        console.log(`error profile: ${erreur}`)
+
     res.status(500).send("Erreur du serveur");
   }
 });
@@ -69,6 +71,7 @@ app.put('/api/utilisateur/update/:email', async (req, res) => {
     const misAjour = await majProfil(email, nouvellesDonnees);
     res.send(misAjour);
   } catch (erreur) {
+    console.log(`error profile: ${erreur}`)
     res.status(500).send("Erreur pendant la mise à jour");
   }
 });
@@ -184,7 +187,7 @@ app.get('/api/programmes/:userId', async (req, res) => {
 app.post('/api/programmes/creer', async (req, res) => {
   try {
     const validData = CreateProgrammeSchema.parse(req.body);
-    const resultat = await creerProgrammeComplet(validData);
+    const resultat = await creerProgrammeComplet(validData as any);
     res.json(resultat);
   } catch (error) {
     res.status(500).send("Erreur lors de la création du programme");
@@ -255,6 +258,7 @@ app.get('/api/communaute/feed', async (req, res) => {
     const feed = await getFeedCommunaute(exclureId);
     res.json(feed);
   } catch (error) {
+    console.log(`Erreur feed: ${error}`);
     res.status(500).send("Erreur lors de la récupération du feed");
   }
 });
@@ -314,6 +318,8 @@ app.post('/api/posts/:id/commentaires', async (req, res) => {
 app.listen(3000, () => {
   console.log("Serveur démarré sur le port 3000");
 });
+
+export { app };
 
 
 

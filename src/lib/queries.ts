@@ -1,8 +1,8 @@
-import { db } from './db.ts';
-import type { InscriptionData } from './types.ts'; 
+import { db } from './db';
+import type { InscriptionData } from './types'; 
 import type { ProfilData } from './types';
-import type { Aliment } from './types.ts';
-import type { SavePlanningData, JourneePlanning, RepasGenere, PanierItem, CreatePostData } from './types.ts';
+import type { Aliment } from './types';
+import type { SavePlanningData, JourneePlanning, RepasGenere, PanierItem, CreatePostData } from './types';
 
 // recupere l'utilisateur via sont mail
 export const getMail = async (email: string) => {
