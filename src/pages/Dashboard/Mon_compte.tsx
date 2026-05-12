@@ -11,11 +11,15 @@ export default function Mon_compte({ user, onUpdate }: { user: UserWithRelations
 
   const userId = user?.id;
 
-  useEffect(() => {
-    if ((user as any).posts) {
-      setMesPosts((user as any).posts);
+  const chargerDonnees = async () => {
+    if (!user?.id) return;
+    try {
+      const res = await axios.get(`http://localhost:3000/api/posts/utilisateur/${user.id}`);
+      setMesPosts(res.data);
+    } catch (error) {
+      console.error("Erreur chargement posts", error);
     }
-  }, [user]);
+  };
 
   const updatePostInList = (postId: number, newLikesCount: number, isLiked: boolean) => {
     setMesPosts((prev) => prev.map(post => {
@@ -34,11 +38,16 @@ export default function Mon_compte({ user, onUpdate }: { user: UserWithRelations
     }));
   };
 
+  useEffect(() => {
+    chargerDonnees();
+  }, [user?.id]);
+
   const handlePublishPost = async (postData: any) => {
     try {
       const res = await axios.post<PostComplet>("http://localhost:3000/api/posts/creer", postData);
       if (res.status === 201 || res.status === 200) {
         toast.success("Publication partagée");
+        await chargerDonnees();
         onUpdate();
       }
     } catch (error) {
@@ -69,11 +78,11 @@ export default function Mon_compte({ user, onUpdate }: { user: UserWithRelations
           <h1 className="text-6xl font-black uppercase italic leading-none">
             Posts <span className="text-emerald-700">{user?.prenom}</span>
           </h1>
-          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest italic">
+          <p id="total-posts-count" className="text-[10px] font-bold text-slate-400 uppercase tracking-widest italic">
             {mesPosts.length} Publications au total
           </p>
         </div>
-        <ModalCreerPost user={user} onPublier={handlePublishPost} />
+        <ModalCreerPost id="btn-ouvrir-modal-post" user={user} onPublier={handlePublishPost} />
       </div>
 
       <div className="flex flex-col w-full space-y-32">

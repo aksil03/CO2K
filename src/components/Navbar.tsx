@@ -87,7 +87,7 @@ return (
 
         {estConnecte ? (
           <DropdownMenu modal={false}>
-            <DropdownMenuTrigger className="outline-none">
+            <DropdownMenuTrigger id="menu-utilisateur" className="outline-none">
               <div className="flex items-center gap-2 cursor-pointer">
                 <div className="hidden sm:block text-right">
                   <p className="text-xs font-bold text-black dark:text-white">{prenom}</p>
@@ -108,7 +108,8 @@ return (
               
               <DropdownMenuSeparator />
               
-              <DropdownMenuItem 
+              <DropdownMenuItem
+                id="nav-dashboard" 
                 onClick={() => navigate(CHEMIN_DASHBOARD(email))} 
                 className="flex items-center gap-3 px-3 py-2 cursor-pointer dark:text-zinc-300"
               >

@@ -102,7 +102,6 @@ model Utilisateur {
   commentaires  Commentaire[]
   plannings     Planning[]
   programmes    Programme[]
-  badges        BadgeUtilisateur[]
   mesAbonnes     Follow[]          @relation("MesAbonnes")
   mesAbonnements Follow[]          @relation("MesAbonnements")
   createdAt     DateTime          @default(now())
@@ -119,8 +118,7 @@ model Follow {
 model Post {
   id            Int         @id @default(autoincrement())
   titre         String     
-  contenu       String     
-  imageUrl      String?     
+  contenu       String        
   createdAt     DateTime    @default(now())
   auteurId      Int
   auteur        Utilisateur @relation(fields: [auteurId], references: [id])
@@ -156,23 +154,7 @@ model Like {
   @@unique([postId, userId])
 }
 
-model Badge {
-  id          Int                @id @default(autoincrement())
-  nom         String             
-  description String
-  icone       String             
-  utilisateurs BadgeUtilisateur[]
-}
 
-model BadgeUtilisateur {
-  id            Int         @id @default(autoincrement())
-  obtenuLe      DateTime    @default(now())
-  utilisateurId Int
-  utilisateur   Utilisateur @relation(fields: [utilisateurId], references: [id])
-  badgeId       Int
-  badge         Badge       @relation(fields: [badgeId], references: [id])
-  @@unique([utilisateurId, badgeId])
-}
 
 model Planning {
   id            Int         @id @default(autoincrement())

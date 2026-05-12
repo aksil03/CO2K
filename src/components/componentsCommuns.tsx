@@ -78,12 +78,13 @@ export function Loading({ fullPage = true, message = "Chargement Master..." }: {
   );
 }
 
-export function Bouton({ children, onClick, type = "button", disabled = false, className }: any) {
+export function Bouton({ children, onClick, type = "button", disabled = false, className, ...props }: any) {
   return (
     <Button 
       type={type}
       onClick={onClick}
       disabled={disabled}
+      {...props}
       className={cn(
         "w-full h-12 bg-slate-800 text-slate-100 font-black italic uppercase text-[10px] tracking-[0.25em]",
         "rounded-xl transition-all duration-300 border-none shadow-none relative",
@@ -327,12 +328,14 @@ export function CardProgrammeMaster({
   programme, 
   onDelete, 
   onView,
-  onUpdate 
+  onUpdate,
+  id
 }: { 
   programme: any, 
   onDelete: (id: number) => void, 
   onView: (programme: any) => void,
-  onUpdate: (id: number, data: any) => void
+  onUpdate: (id: number, data: any) => void,
+  id?: string
 }) {
   const [isEditing, setIsEditing] = useState(false);
   const [tempName, setTempName] = useState(programme.nom);
@@ -451,6 +454,7 @@ export function CardProgrammeMaster({
               </Bouton>
               
               <Button 
+                id={id}
                 variant="ghost" 
                 size="icon" 
                 onClick={(e) => { e.stopPropagation(); onDelete(programme.id); }} 
@@ -553,12 +557,14 @@ export function CardPlanningMaster({
   planning, 
   onDelete, 
   onView, 
-  onUpdate 
+  onUpdate,
+  id
 }: {
   planning: PlanningComplet,
   onDelete: (id: number) => void,
   onView: (id: number) => void,
-  onUpdate: (id: number, data: any) => void
+  onUpdate: (id: number, data: any) => void,
+  id?: string
 }) {
   const [isEditing, setIsEditing] = useState(false);
   const [tempName, setTempName] = useState(planning.nom);
@@ -656,6 +662,7 @@ export function CardPlanningMaster({
               <>
               
                 <Bouton 
+                  id={id}
                   onClick={(e: any) => { e.stopPropagation(); onView(planning.id); }} 
                   className="flex-1 h-14"
                 >
@@ -797,10 +804,12 @@ export function ModalCreerProgramme({
 
 export function ModalCreerPost({ 
   user, 
-  onPublier 
+  onPublier,
+  id
 }: { 
   user: UserWithRelations, 
-  onPublier: (data: any) => void 
+  onPublier: (data: any) => void,
+  id?: string
 }) {
   const [open, setOpen] = useState(false);
   const [typeContent, setTypeContent] = useState<'programme' | 'planning'>('programme');
@@ -836,7 +845,7 @@ export function ModalCreerPost({
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger 
         render={
-          <Bouton className="w-auto px-8 h-14 rounded-2xl">
+          <Bouton id={id} className="w-auto px-8 h-14 rounded-2xl">
             <Plus className="mr-2" size={18} /> Créer un Post
           </Bouton>
         } 
@@ -848,7 +857,7 @@ export function ModalCreerPost({
       >
         <div className="absolute top-8 right-8 z-50">
            <DialogClose render={
-            <button className="p-2 rounded-full text-slate-300 hover:text-slate-900 transition-colors">
+            <button id="btn-close-modal-post" className="p-2 rounded-full text-slate-300 hover:text-slate-900 transition-colors">
               <X size={22} />
             </button>
           }/>
@@ -867,6 +876,7 @@ export function ModalCreerPost({
           <div className="w-full max-w-70 flex flex-col items-center space-y-7">
             <div className="flex w-full p-1 bg-slate-100 dark:bg-zinc-900 rounded-xl">
               <button 
+                id="tab-select-programme"
                 type="button"
                 onClick={() => handleSwitchType('programme')}
                 className={cn(
@@ -877,6 +887,7 @@ export function ModalCreerPost({
                 Programme
               </button>
               <button 
+                id="tab-select-planning"
                 type="button"
                 onClick={() => handleSwitchType('planning')}
                 className={cn(
@@ -915,6 +926,7 @@ export function ModalCreerPost({
             <div className="w-full space-y-2">
               <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] text-center w-full">Titre du post</p>
               <Input 
+                id="input-post-titre"
                 placeholder="Ex: MA ROUTINE FORCE" 
                 className="h-10 text-lg font-black uppercase italic border-emerald-500/50 bg-white dark:bg-zinc-900 text-slate-900 dark:text-white focus-visible:ring-emerald-500/30 w-full text-left shadow-inner"
                 value={formData.titre}
@@ -925,6 +937,7 @@ export function ModalCreerPost({
             <div className="w-full space-y-2">
               <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] text-center w-full">Description</p>
               <textarea 
+                id="input-post-contenu"
                 style={{ resize: 'none' }}
                 className="w-full h-24 text-xs text-slate-800 dark:text-zinc-200 bg-slate-50 dark:bg-zinc-900 rounded-2xl p-4 border border-slate-200 dark:border-zinc-800 italic outline-none focus:ring-2 focus:ring-emerald-500/20 text-left transition-all shadow-inner"
                 placeholder="Aujourd'hui je vous partage..."
@@ -934,6 +947,7 @@ export function ModalCreerPost({
             </div>
 
             <Bouton 
+              id="btn-valider-publication"
               onClick={handleSubmit} 
               disabled={!validation.success}
               className="w-full h-16 rounded-full"
@@ -1565,14 +1579,14 @@ export function BilanNutritionnelCard({ stats, besoins }: { stats: any, besoins:
     <Card className="lg:col-span-2 p-6 rounded-3xl bg-white dark:bg-zinc-900 border flex flex-col md:flex-row items-center gap-8 shadow-sm">
       <div className="grid grid-cols-3 gap-6 w-full lg:w-2/3">
         {[
-          { l: "PROTÉINES", a: stats.prot, c: besoins.proteines },
-          { l: "LIPIDES", a: stats.lip, c: besoins.lipides },
-          { l: "GLUCIDES", a: stats.glu, c: besoins.glucides }
+          { l: "PROTÉINES", a: stats.prot, c: besoins.proteines, id: "stats-prot" },
+          { l: "LIPIDES", a: stats.lip, c: besoins.lipides, id: "stats-lip" },
+          { l: "GLUCIDES", a: stats.glu, c: besoins.glucides, id: "stats-glu" }
         ].map((m) => (
           <div key={m.l} className="space-y-3">
             <div className="flex justify-between items-end">
               <span className="text-[8px] font-black text-slate-400 tracking-wider uppercase">{m.l}</span>
-              <span className="text-lg font-black italic dark:text-white">{Math.round(m.a)}g</span>
+              <span id={m.id} className="text-lg font-black italic dark:text-white">{Math.round(m.a)}g</span>
             </div>
             <Progress value={(m.a / m.c) * 100} className="h-1" />
             <span className="text-[8px] font-bold text-slate-400 uppercase">Cible: {Math.round(m.c)}g</span>

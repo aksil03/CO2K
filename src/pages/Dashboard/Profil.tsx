@@ -72,7 +72,7 @@ function Profil({ user: initialUser, onUpdate }: { user: UserWithRelations, onUp
               <div className="text-center md:text-left">
                 <label className="text-[10px] font-black uppercase text-slate-400 italic block mb-1">Apport énergétique quotidien</label>
                 <div className="flex items-baseline gap-2">
-                  <span className="text-6xl font-black italic text-slate-900 dark:text-white">
+                  <span data-testid="calories-display" className="text-6xl font-black italic text-slate-900 dark:text-white">
                     {besoins?.calories}
                   </span>
                   <div className="flex flex-col">

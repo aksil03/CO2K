@@ -120,7 +120,7 @@ export default function Plannings({ user, tousLesAliments, onUpdate }: { user: U
             <p className="text-slate-400 text-[10px] uppercase font-bold tracking-widest mt-2">Nutrition Intelligente</p>
           </div>
         </div>
-        <Bouton onClick={onGenerate} disabled={loading} className="w-auto px-8 h-12 rounded-xl text-[10px] uppercase font-black italic">
+        <Bouton id="btn-generer-ia" onClick={onGenerate} disabled={loading} className="w-auto px-8 h-12 rounded-xl text-[10px] uppercase font-black italic">
           {loading ? <Loader2 className="animate-spin mr-2" size={14} /> : <Plus className="mr-2" size={16} />}
           Générer la semaine
         </Bouton>
@@ -140,6 +140,7 @@ export default function Plannings({ user, tousLesAliments, onUpdate }: { user: U
           
           <div className="flex items-center gap-3">
             <Bouton 
+              id="btn-sauvegarder-planning"
               size="sm" 
               onClick={() => {}} 
               disabled={loading || !complet} 
@@ -148,11 +149,11 @@ export default function Plannings({ user, tousLesAliments, onUpdate }: { user: U
               {loading ? <Loader2 className="animate-spin mr-2" size={12} /> : <Save size={14} className="mr-2" />}
               Sauvegarder
             </Bouton>
-            <Button variant="outline" size="sm" className="rounded-lg font-bold uppercase text-[9px] h-10 px-4 border-zinc-200" onClick={() => setCopy(manuel[jour])}>
+            <Button id="btn-copier-planning" variant="outline" size="sm" className="rounded-lg font-bold uppercase text-[9px] h-10 px-4 border-zinc-200" onClick={() => setCopy(manuel[jour])}>
               <Copy size={12} className="mr-2" /> Copier
             </Button>
             {copy && (
-              <Button variant="outline" size="sm" className="rounded-lg font-bold uppercase text-[9px] h-10 px-4 bg-amber-50 border-amber-200 text-amber-700" onClick={() => setManuel(p => ({ ...p, [jour]: JSON.parse(JSON.stringify(copy)) }))}>
+              <Button id="btn-coller-planning" variant="outline" size="sm" className="rounded-lg font-bold uppercase text-[9px] h-10 px-4 bg-amber-50 border-amber-200 text-amber-700" onClick={() => setManuel(p => ({ ...p, [jour]: JSON.parse(JSON.stringify(copy)) }))}>
                 <ClipboardCheck size={12} className="mr-2" /> Coller
               </Button>
             )}
@@ -161,7 +162,7 @@ export default function Plannings({ user, tousLesAliments, onUpdate }: { user: U
 
         <div className="flex gap-2 p-1 bg-zinc-100 dark:bg-zinc-800 rounded-xl w-full sm:w-fit border dark:border-zinc-700 overflow-x-auto no-scrollbar">
           {[1, 2, 3, 4, 5, 6, 7].map((j) => (
-            <button key={j} onClick={() => setJour(j)} className={cn("flex-1 sm:flex-none px-4 sm:px-6 py-2 rounded-lg text-xs font-black transition-all uppercase", jour === j ? "bg-white dark:bg-zinc-700 shadow-sm text-zinc-950 dark:text-white" : "text-zinc-400 hover:text-zinc-600")}>
+            <button id={`btn-jour-${j}`} key={j} onClick={() => setJour(j)} className={cn("flex-1 sm:flex-none px-4 sm:px-6 py-2 rounded-lg text-xs font-black transition-all uppercase", jour === j ? "bg-white dark:bg-zinc-700 shadow-sm text-zinc-950 dark:text-white" : "text-zinc-400 hover:text-zinc-600")}>
               J0{j}
             </button>
           ))}
@@ -173,10 +174,10 @@ export default function Plannings({ user, tousLesAliments, onUpdate }: { user: U
             <div className="relative z-10 space-y-4">
               <span className="text-emerald-400 font-black text-[9px] tracking-widest uppercase opacity-70">Impact J0{jour}</span>
               <div className="flex items-baseline gap-2">
-                <p className="text-5xl font-black italic tracking-tighter leading-none">{Math.round(stats.prot * 4 + stats.glu * 4 + stats.lip * 9)}</p>
+                <p id="stats-kcal-valeur" className="text-5xl font-black italic tracking-tighter leading-none">{Math.round(stats.prot * 4 + stats.glu * 4 + stats.lip * 9)}</p>
                 <span className="text-xs opacity-40 font-black uppercase">Kcal</span>
               </div>
-              <div className="flex items-center gap-2 text-emerald-500 font-bold text-[9px] uppercase"><Leaf size={14} /> {stats.co2.toFixed(2)} KG CO2</div>
+              <div id="stats-co2-valeur" className="flex items-center gap-2 text-emerald-500 font-bold text-[9px] uppercase"><Leaf size={14} /> {stats.co2.toFixed(2)} KG CO2</div>
             </div>
           </Card>
           <BilanNutritionnelCard stats={stats} besoins={besoins} />
@@ -215,7 +216,7 @@ export default function Plannings({ user, tousLesAliments, onUpdate }: { user: U
             };
 
             return (
-              <div key={j.jour} className="space-y-8">
+              <div id={`journal-ia-jour-${j.jour}`} key={j.jour} className="space-y-8">
                 <div className="flex items-center gap-4 px-2">
                   <span className="text-6xl font-black tracking-tighter opacity-10 italic">0{j.jour}</span>
                   <div className="h-px flex-1 bg-zinc-200 dark:bg-zinc-800" />
@@ -228,7 +229,7 @@ export default function Plannings({ user, tousLesAliments, onUpdate }: { user: U
                     <div className="relative z-10 space-y-4">
                       <span className="text-emerald-400 font-black text-[9px] uppercase tracking-widest opacity-70">Bilan Journée</span>
                       <div className="flex items-baseline gap-2">
-                        <p className="text-4xl font-black italic tracking-tighter leading-none">
+                        <p id={`stats-ia-kcal-jour-${j.jour}`} className="text-4xl font-black italic tracking-tighter leading-none">
                           {Math.round(j.bilan.prot.actuel * 4 + j.bilan.glu.actuel * 4 + j.bilan.lip.actuel * 9)}
                         </p>
                         <span className="text-[10px] opacity-40 uppercase">Kcal</span>

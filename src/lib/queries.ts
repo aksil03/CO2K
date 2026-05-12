@@ -1,8 +1,8 @@
-import { db } from './db.ts';
-import type { InscriptionData } from './types.ts'; 
+import { db } from './db';
+import type { InscriptionData } from './types'; 
 import type { ProfilData } from './types';
-import type { Aliment } from './types.ts';
-import type { SavePlanningData, JourneePlanning, RepasGenere, PanierItem, CreatePostData } from './types.ts';
+import type { Aliment } from './types';
+import type { SavePlanningData, JourneePlanning, RepasGenere, PanierItem, CreatePostData } from './types';
 
 // recupere l'utilisateur via sont mail
 export const getMail = async (email: string) => {
@@ -17,9 +17,9 @@ export const getUtilisateurComplet = async (email: string) => {
     where: { email },
     include: {
       repas: true,
-      badges: { include: { badge: true } },
       plannings: true,
       mesAbonnements: true,
+      posts: true,
       programmes: { 
         include: {
           semaines: true
@@ -274,7 +274,6 @@ export const creerPost = async (data: CreatePostData) => {
     data: {
       titre: data.titre,
       contenu: data.contenu,
-      imageUrl: data.imageUrl,
       auteurId: data.auteurId,
       programmeId: data.programmeId ?? null,
       planningId: data.planningId ?? null,

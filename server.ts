@@ -276,10 +276,9 @@ app.post('/api/posts/creer', authentifierToken, async (req, res) => {
 
 // récupère le feed
 app.get('/api/communaute/feed', authentifierToken, async (req, res) => {
-  const queryId = req.query.exclureId;
-  const exclureId = queryId ? Number(queryId) : undefined;
+  const monId = (req as any).user.id;
   try {
-    const feed = await getFeedCommunaute(exclureId);
+    const feed = await getFeedCommunaute(monId);
     res.json(feed);
   } catch (error) {
     res.status(500).send("Erreur lors de la récupération du feed");

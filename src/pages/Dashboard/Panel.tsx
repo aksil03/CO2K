@@ -126,7 +126,7 @@ export default function Panel({ user, tousLesAliments, onUpdate }: { user: UserW
         </button>
 
         <div className="flex justify-between items-center mb-8">
-          <h1 className="text-5xl font-black uppercase italic leading-none">{selectedPlan.nom}</h1>
+          <h1 id="view-planning-title" className="text-5xl font-black uppercase italic leading-none">{selectedPlan.nom}</h1>
           <Bouton onClick={() => setSelectedPlan(null)} className="w-auto px-10 h-14 text-[10px]">Fermer</Bouton>
         </div>
 
@@ -168,11 +168,11 @@ export default function Panel({ user, tousLesAliments, onUpdate }: { user: UserW
                     <span className="text-[9px] font-black uppercase tracking-widest text-emerald-400 opacity-70 mb-2 block">
                       Total Journée
                     </span>
-                    <p className="text-4xl font-black italic leading-none mb-2">
+                    <p id="stats-kcal-valeur" className="text-4xl font-black italic leading-none mb-2">
                       {Math.round(statsDuJour.prot * 4 + statsDuJour.glu * 4 + statsDuJour.lip * 9)} <span className="text-xs opacity-40 uppercase">Kcal</span>
                     </p>
                     
-                    <div className="flex items-center gap-2 text-emerald-500 font-bold text-[9px] uppercase">
+                    <div id="stats-co2-valeur" className="flex items-center gap-2 text-emerald-500 font-bold text-[9px] uppercase">
                       <Leaf size={12} /> {statsDuJour.co2.toFixed(2)} KG CO2
                     </div>
                   </div>
@@ -259,7 +259,7 @@ export default function Panel({ user, tousLesAliments, onUpdate }: { user: UserW
         {programmes.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {programmes.map((p) => (
-              <CardProgrammeMaster key={p.id} programme={p} onDelete={supprimerProgramme} onView={() => setSelectedProg(p)} onUpdate={modifierProgramme}/>
+              <CardProgrammeMaster id={`btn-delete-prog-${p.id}`} key={p.id} programme={p} onDelete={supprimerProgramme} onView={() => setSelectedProg(p)} onUpdate={modifierProgramme}/>
             ))}
           </div>
         ) : (
@@ -283,7 +283,7 @@ export default function Panel({ user, tousLesAliments, onUpdate }: { user: UserW
         {plannings.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {plannings.map((p) => (
-              <CardPlanningMaster key={p.id} planning={p} onDelete={() => handleDeletePlanning(p.id)} onView={() => setSelectedPlan(p)} onUpdate={modifierPlanningBase} />
+              <CardPlanningMaster id={`btn-view-plan-${p.id}`} key={p.id} planning={p} onDelete={() => handleDeletePlanning(p.id)} onView={() => setSelectedPlan(p)} onUpdate={modifierPlanningBase} />
             ))}
           </div>
         ) : (
