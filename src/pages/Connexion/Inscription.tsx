@@ -113,8 +113,15 @@ export default function Inscription() {
                 <FormControl>
                   <Input 
                     type="number" 
+                    min={15}
+                    max={100}
                     className="bg-white border-slate-200 text-black w-full focus:border-black transition-all" 
-                    {...field} 
+                    {...field}
+                    onChange={(e) => {
+                        const val = Number(e.target.value);
+                        if (val > 100) return;
+                        field.onChange(val);
+                    }} 
                   />
                 </FormControl>
                 <FormMessage className="text-red-500 text-xs" />
@@ -130,8 +137,15 @@ export default function Inscription() {
                 <FormControl>
                   <Input 
                     type="number" 
+                    min={100}
+                    max={250}
                     className="bg-white border-slate-200 text-black w-full focus:border-black transition-all" 
                     {...field} 
+                    onChange={(e) => {
+                        const val = Number(e.target.value);
+                        if (val > 250) return;
+                        field.onChange(val);
+                    }}
                   />
                 </FormControl>
                 <FormMessage className="text-red-500 text-xs" />
@@ -148,8 +162,15 @@ export default function Inscription() {
                   <Input 
                     type="number" 
                     step="0.1"
+                    min={30}
+                    max={200}
                     className="bg-white border-slate-200 text-black w-full focus:border-black transition-all" 
                     {...field} 
+                    onChange={(e) => {
+                        const val = Number(e.target.value);
+                        if (val > 200) return;
+                        field.onChange(val);
+                    }}
                   />
                 </FormControl>
                 <FormMessage className="text-red-500 text-xs" />

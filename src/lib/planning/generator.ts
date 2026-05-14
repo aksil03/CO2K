@@ -8,71 +8,86 @@ import { REPARTITION_MACROS, MODELES_REPAS, RATIOS_MOMENTS } from "../constants"
 
 const shuffle = <T>(array: T[]): T[] => [...array].sort(() => Math.random() - 0.5);
 
+const suivisVide = { 
+    fromages: 0, 
+    lait: new Set(), 
+    oleagineux: new Set(), 
+    sauces: new Set(), 
+    viandesPoissons: new Set() 
+};
+
 export const PlanningLogic = {
-
-
-    piocherPanier: (aliments: Aliment[], moment: MomentRepas, template: TemplateRepas, regime: RegimeAlimentaire, besoins: any): PanierItem[] => {
+    piocherPanier: (aliments: Aliment[], moment: MomentRepas, template: TemplateRepas, regime: RegimeAlimentaire, besoins: any, suivis: any): PanierItem[] => {
         const modele = MODELES_REPAS[template];
         const panier: PanierItem[] = [];
-
-        const ratioMacro = REPARTITION_MACROS[moment]!;
-        const cibles = {
-            glu: besoins.glucides * ratioMacro.glu,
-            prot: besoins.proteines * ratioMacro.prot
-        };
+        const estBacProtStrict = (b: BacAliment) => String(b).startsWith("PROT_") && b !== BacAliment.PROT_VEG && b !== BacAliment.PROT_P;
+        const estBacFruit = (b: BacAliment) => b === BacAliment.FRUIT_ENTIER || b === BacAliment.FRUIT_PULPE;
+        const estBacSensible = (b: BacAliment) => 
+            estBacProtStrict(b) || estBacFruit(b) || 
+            ([BacAliment.HUILE, BacAliment.LAIT, BacAliment.OLEAGINEUX] as BacAliment[]).includes(b);
 
         modele.forEach((groupe, index) => {
             const { bacs, isOptional } = groupe;
-            
             const alimentsActuels = panier.map(p => p.aliment);
-            const categoriesActuelles = alimentsActuels.map(a => a.bac as BacAliment);
-
-            if (!ReglesRepas.estLigneAutorisee(index, template, alimentsActuels)) return;
             
-            const estOptionnel = isOptional ? isOptional(categoriesActuelles) : false;
-   
-            if (estOptionnel && Math.random() > 0.8) return; 
+            if (!ReglesRepas.estLigneAutorisee(index, template, alimentsActuels)) return;
+            if (isOptional && isOptional(alimentsActuels.map(a => a.bac as BacAliment)) && Math.random() > 0.8) return; 
 
             const bacsCompatibles = ReglesRepas.getBacsCompatibles(index, template, bacs, alimentsActuels, regime);
 
-            let options = aliments.filter(a => 
-                bacsCompatibles.includes(a.bac) && 
-                ReglesRepas.verifAcces(a, moment, regime, besoins)
-            );
+            let options = aliments.filter(a => {
+                if (!bacsCompatibles.includes(a.bac)) return false;
+                if (!ReglesRepas.verifAcces(a, moment, regime, besoins)) return false;
 
-            const estElementVital = bacs.some(b => 
-                [BacAliment.RIZ, BacAliment.PATE, BacAliment.PROT_VOLAILLE, BacAliment.PAIN].includes(b as any)
-            );
+                let cle = a.bac as string;
+                if (estBacProtStrict(a.bac)) cle = "VERROU_PROT_ANIMALE";
+                if (estBacFruit(a.bac)) cle = "VERROU_FRUITS";
 
-            if (options.length === 0 && estElementVital) {
-                options = aliments.filter(a => bacsCompatibles.includes(a.bac) && ReglesRepas.verifAcces(a, moment, regime));
-            }
+                if (estBacSensible(a.bac)) {
+                    const elus = suivis.verrouillage[cle] || new Set();
+                    if (elus.size >= 2 && !elus.has(a.id)) return false;
+                }
+                return true;
+            });
 
             if (options.length > 0) {
-                const estSourceProt = bacs.some(b => String(b).startsWith("PROT_") || b === BacAliment.LAIT);
+                const premier = options[0];
+                let cle = premier.bac as string;
+                if (estBacProtStrict(premier.bac)) cle = "VERROU_PROT_ANIMALE";
+                if (estBacFruit(premier.bac)) cle = "VERROU_FRUITS";
 
-                if (estSourceProt && cibles.prot > 25) {
-                    options.sort((a, b) => (Number(b.prot) || 0) - (Number(a.prot) || 0));
-                } 
-                else if (index === 0 && cibles.glu > 50) {
-                    options.sort((a, b) => (Number(b.glu) || 0) - (Number(a.glu) || 0));
-                }
-                else if (bacs.some(b => [BacAliment.HUILE, BacAliment.OLEAGINEUX].includes(b as any))) {
-                    options.sort((a, b) => (Number(b.lip) || 0) - (Number(a.lip) || 0));
+                if (estBacSensible(premier.bac)) {
+                    const elus = suivis.verrouillage[cle] || new Set();
+                    const optionsDejaElues = options.filter(o => elus.has(o.id));
+                    if (optionsDejaElues.length > 0) {
+                        options = optionsDejaElues;
+                    }
                 }
 
-                const pool = options.slice(0, 3);
-                panier.push({ aliment: shuffle(pool)[0], poids: 0 });
+                const bacChoisi = shuffle(Array.from(new Set(options.map(o => o.bac))))[0];
+                const el = shuffle(options.filter(a => a.bac === bacChoisi))[0];
+
+                if (el) {
+                    panier.push({ aliment: el, poids: 0 });
+                    if (estBacSensible(el.bac)) {
+                        let key = el.bac as string;
+                        if (estBacProtStrict(el.bac)) key = "VERROU_PROT_ANIMALE";
+                        if (estBacFruit(el.bac)) key = "VERROU_FRUITS";
+                        if (!suivis.verrouillage[key]) suivis.verrouillage[key] = new Set();
+                        suivis.verrouillage[key].add(el.id);
+                    }
+                }
             }
         });
         return panier;
     },
 
-   genererUnRepas: (dispos: Aliment[], moment: MomentRepas, regime: RegimeAlimentaire, besoins: any): RepasGenere => {
+    genererUnRepas: (dispos: Aliment[], moment: MomentRepas, regime: RegimeAlimentaire, besoins: any, suivis: any): RepasGenere => {
         let tentatives = 0;
         let meilleurEchec: RepasGenere | null = null;
         let scoreMeilleurEchec = -1;
-        
+        let verrousGagnants: Record<string, Set<number>> | null = null;
+
         const ratioMacro = REPARTITION_MACROS[moment]!;
         const cibles = {
             prot: besoins.proteines * ratioMacro.prot,
@@ -80,14 +95,24 @@ export const PlanningLogic = {
             glu: besoins.glucides * ratioMacro.glu,
         };
 
-        while (tentatives < 8) {
+        while (tentatives < 50) {
+            const verrouillageCopie: Record<string, Set<number>> = {};
+            for (const key in suivis.verrouillage) {
+                verrouillageCopie[key] = new Set(suivis.verrouillage[key]);
+            }
+
+            const suivisTemporaires = {
+                global: { ...suivis.global },
+                verrouillage: verrouillageCopie
+            };
+
             const template = (moment === MomentRepas.PETIT_DEJEUNER) ? TemplateRepas.PETIT_DEJ :
                              (moment === MomentRepas.COLLATION) ? TemplateRepas.COLLATION :
                              shuffle([TemplateRepas.HOT, TemplateRepas.SANDWICH, TemplateRepas.WRAP, TemplateRepas.SALADE])[0];
 
-            const panierInitial = PlanningLogic.piocherPanier(dispos, moment, template, regime, besoins);
+            const panierInitial = PlanningLogic.piocherPanier(dispos, moment, template, regime, besoins, suivisTemporaires);
+            
             const ratioMoment = RATIOS_MOMENTS[moment];
-
             const menuFinal = NutritionSolver.resoudreMenu(
                 panierInitial, 
                 cibles, 
@@ -95,7 +120,7 @@ export const PlanningLogic = {
                 {
                     gras_sat: besoins.limites.gras_sat * ratioMoment,
                     sucre: besoins.limites.sucre * ratioMoment,
-                    sel: 5 * ratioMoment,
+                    sel: besoins.limites.sel * ratioMoment,
                 },
                 besoins 
             );
@@ -110,63 +135,74 @@ export const PlanningLogic = {
                 co2: NutritionSolver.getSum(menuFinal, 'co2'),
             };
 
-            const repas: RepasGenere = { 
-                moment, 
-                template,
-                aliments: menuFinal, 
-                stats, 
-                cibles 
-            };
+            const repas: RepasGenere = { moment, template, aliments: menuFinal, stats, cibles };
 
-            if (stats.prot >= cibles.prot * 0.9 && 
-                stats.glu >= cibles.glu * 0.9 && stats.glu <= cibles.glu * 1.15 &&
-                stats.lip >= cibles.lip * 0.9) {
+            if (stats.prot >= cibles.prot * 0.96 && 
+                stats.glu >= cibles.glu * 0.96 && stats.glu <= cibles.glu * 1.05 &&
+                stats.lip >= cibles.lip * 0.96) {
+                
+                suivis.verrouillage = suivisTemporaires.verrouillage;
                 return repas;
             }
 
             const score = (stats.prot / cibles.prot) + (stats.lip / cibles.lip) + (stats.glu / cibles.glu);
             if (score > scoreMeilleurEchec) { 
                 scoreMeilleurEchec = score; 
-                meilleurEchec = repas; 
+                meilleurEchec = repas;
+                verrousGagnants = suivisTemporaires.verrouillage;
             }
 
             tentatives++;
         } 
 
+        if (verrousGagnants) suivis.verrouillage = verrousGagnants;
         return meilleurEchec!; 
     },
 
     genererSemaine: (tousLesAliments: Aliment[], besoins: any, profil: any): JourneePlanning[] => {
         const journal: JourneePlanning[] = [];
         const regime = profil?.regime || RegimeAlimentaire.STANDARD;
-        const idsUtilises = new Set<number>();
-        let repasPrecedents: Record<string, RepasGenere> = {};
+
+        const suivisHebdo = {
+            global: {} as Record<BacAliment, { utilisations: number, differents: Set<number> }>,
+            verrouillage: {} as Record<string, Set<number>>
+        };
+
+
+        let indicesACopier: number[] = [];
+        const joursPossibles = [1, 2, 3, 4, 5, 6];
+        const j1 = joursPossibles[Math.floor(Math.random() * joursPossibles.length)];
+        indicesACopier.push(j1);
+        const restants = joursPossibles.filter(j => j !== j1 && j !== j1 - 1 && j !== j1 + 1);
+        if (restants.length > 0) {
+            indicesACopier.push(restants[Math.floor(Math.random() * restants.length)]);
+        }
 
         for (let i = 0; i < 7; i++) {
-            const journeeRepas: RepasGenere[] = [];
-            const doitRenouveler = i % 2 === 0; 
+            let journeeRepas: RepasGenere[] = [];
 
-            [MomentRepas.PETIT_DEJEUNER, MomentRepas.DEJEUNER, MomentRepas.COLLATION, MomentRepas.DINER].forEach(moment => {
-                const estCuisinable = (moment === MomentRepas.DEJEUNER || moment === MomentRepas.DINER);
-                let repas: RepasGenere;
+            if (indicesACopier.includes(i) && journal[i - 1]) {
+                journeeRepas = JSON.parse(JSON.stringify(journal[i - 1].repas));
+            } else {
+                [MomentRepas.PETIT_DEJEUNER, MomentRepas.DEJEUNER, MomentRepas.COLLATION, MomentRepas.DINER].forEach(moment => {
+                    const repas = PlanningLogic.genererUnRepas(tousLesAliments, moment, regime, besoins, suivisHebdo);
 
-                if (!doitRenouveler && estCuisinable && repasPrecedents[moment]) {
-                    repas = repasPrecedents[moment];
-                } else {
-                    const dispos = tousLesAliments.filter(a => !idsUtilises.has(a.id));
-                    repas = PlanningLogic.genererUnRepas(dispos.length < 50 ? tousLesAliments : dispos, moment, regime, besoins);
-                    if (estCuisinable) repasPrecedents[moment] = repas;
-                }
-
-                journeeRepas.push(repas);
-                if (doitRenouveler) repas.aliments.forEach(item => idsUtilises.add(item.aliment.id));
-            });
+                    repas.aliments.forEach(item => {
+                        const b = item.aliment.bac as BacAliment;
+                        if (!suivisHebdo.global[b]) suivisHebdo.global[b] = { utilisations: 0, differents: new Set() };
+                        suivisHebdo.global[b].utilisations += 1;
+                        suivisHebdo.global[b].differents.add(item.aliment.id);
+                    });
+                    
+                    journeeRepas.push(repas);
+                });
+            }
 
             journal.push({ 
-                        jour: i + 1, 
-                        repas: journeeRepas, 
-                        bilan: PlanningLogic.calculerBilan(journeeRepas, besoins) 
-                    });
+                jour: i + 1, 
+                repas: journeeRepas, 
+                bilan: PlanningLogic.calculerBilan(journeeRepas, besoins) 
+            });
         }
         return journal;
     },
@@ -187,7 +223,12 @@ export const PlanningLogic = {
         };
     },
 
-    piochePetitDej: (aliments: Aliment[], regime: RegimeAlimentaire, besoins: any) => PlanningLogic.piocherPanier(aliments, MomentRepas.PETIT_DEJEUNER, TemplateRepas.PETIT_DEJ, regime, besoins),
-    piocheCollation: (aliments: Aliment[], regime: RegimeAlimentaire, besoins: any) => PlanningLogic.piocherPanier(aliments, MomentRepas.COLLATION, TemplateRepas.COLLATION, regime, besoins),
-    piocheRepasPrincipal: (aliments: Aliment[], moment: MomentRepas, regime: RegimeAlimentaire, besoins: any) => PlanningLogic.piocherPanier(aliments, moment, shuffle([TemplateRepas.HOT, TemplateRepas.SANDWICH, TemplateRepas.WRAP, TemplateRepas.SALADE])[0], regime, besoins)
+    piochePetitDej: (aliments: Aliment[], regime: RegimeAlimentaire, besoins: any) => 
+        PlanningLogic.piocherPanier(aliments, MomentRepas.PETIT_DEJEUNER, TemplateRepas.PETIT_DEJ, regime, besoins, { global: {}, verrouillage: {} }),
+
+    piocheCollation: (aliments: Aliment[], regime: RegimeAlimentaire, besoins: any) => 
+        PlanningLogic.piocherPanier(aliments, MomentRepas.COLLATION, TemplateRepas.COLLATION, regime, besoins, { global: {}, verrouillage: {} }),
+
+    piocheRepasPrincipal: (aliments: Aliment[], moment: MomentRepas, regime: RegimeAlimentaire, besoins: any) => 
+        PlanningLogic.piocherPanier(aliments, moment, shuffle([TemplateRepas.HOT, TemplateRepas.SANDWICH, TemplateRepas.WRAP, TemplateRepas.SALADE])[0], regime, besoins, { global: {}, verrouillage: {} })
 };

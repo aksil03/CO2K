@@ -3,6 +3,8 @@ import type { InscriptionData } from './types';
 import type { ProfilData } from './types';
 import type { Aliment } from './types';
 import type { SavePlanningData, JourneePlanning, RepasGenere, PanierItem, CreatePostData } from './types';
+import { heureRepas } from './constants-logic'
+import bcrypt from 'bcrypt';
 
 // recupere l'utilisateur via sont mail
 export const getMail = async (email: string) => {
@@ -16,15 +18,41 @@ export const getUtilisateurComplet = async (email: string) => {
   return await db.utilisateur.findUnique({
     where: { email },
     include: {
-      repas: true,
-      plannings: true,
-      mesAbonnements: true,
-      posts: true,
-      programmes: { 
+      plannings: {
         include: {
-          semaines: true
+          repas: {
+            include: {
+              portions: {
+                include: {
+                  aliment: true 
+                }
+              }
+            }
+          }
         }
       },
+      programmes: { 
+        include: {
+          semaines: {
+            include: {
+              planning: {
+                include: {
+                  repas: {
+                    include: {
+                      portions: {
+                        include: { aliment: true }
+                      }
+                    }
+                  }
+                }
+              } 
+            }
+          }
+        }
+      },
+      repas: true,
+      mesAbonnements: true,
+      posts: true,
       _count: {
         select: {
           mesAbonnes: true,
@@ -39,8 +67,14 @@ export const getUtilisateurComplet = async (email: string) => {
 
 // creer un user dans la bdd
 export const ajouterUtilisateur = async (userData: InscriptionData) => {
+  const comp = 15;
+  const hashedPassword = await bcrypt.hash(userData.password, comp);
+
   return await db.utilisateur.create({
-    data: userData
+    data: {
+      ...userData,
+      password: hashedPassword
+    }
   });
 };
 
@@ -76,40 +110,40 @@ export const getAllAliments = async (): Promise<Aliment[]> => {
 };
 
 // sauvegarde un planning
-export const sauvegarderPlanning = async (params: SavePlanningData) => {
-  const { auteurId, nom, journal } = params;
+export const sauvegarderPlanning = async (params: any) => {
+  const { auteurId, nom, repas } = params;
 
   return await db.planning.create({
     data: {
       nom: nom,
       auteurId: auteurId,
       repas: {
-        create: journal.flatMap((unJour: JourneePlanning, index: number) => {
-          const dateCible = new Date();
-          dateCible.setDate(dateCible.getDate() + index);
-
-          return unJour.repas.map((unRepas: RepasGenere) => ({
-            dateConsom: dateCible,
-            type: unRepas.moment,
-            nomTemplate: unRepas.template || "HOT",
-            utilisateurId: auteurId, 
-            portions: {
-              create: unRepas.aliments.map((al: PanierItem) => ({
-                quantite: al.poids,
-                alimentId: al.aliment.id,
-              }))
-            }
-          }));
-        })
+        create: repas.map((unRepas: any) => ({
+          dateConsom: (() => {
+            const d = new Date();
+            d.setDate(d.getDate() + (unRepas.numJour - 1));
+            const heure = heureRepas[unRepas.type as keyof typeof heureRepas] || 12;
+            d.setHours(heure, 0, 0, 0); 
+            return d;
+          })(),
+          type: unRepas.moment,
+          nomTemplate: unRepas.template || "HOT",
+          utilisateurId: auteurId,
+          numJour: unRepas.numJour || 1, 
+          portions: {
+            create: unRepas.aliments.map((al: any) => ({
+              quantite: al.poids,
+              alimentId: al.aliment.id,
+            }))
+          }
+        }))
       }
     },
     include: {
       repas: {
         include: {
           portions: {
-            include: {
-              aliment: true 
-            }
+            include: { aliment: true }
           }
         }
       }
@@ -301,6 +335,12 @@ export const getFeedCommunaute = async (userId?: number) => {
           prenom: true,
           nom: true,
           email: true,
+          poids: true,
+          taille: true,
+          age: true,
+          genre: true,
+          activite: true,
+          objectif: true
         }
       },
       likes: {
@@ -370,7 +410,17 @@ export const getPostsByUserId = async (userId: number) => {
     },
     include: {
       auteur: {
-        select: { prenom: true, nom: true, email: true }
+        select: { 
+          prenom: true, 
+          nom: true, 
+          email: true,
+          poids: true, 
+          taille: true,  
+          age: true,    
+          genre: true,  
+          activite: true,
+          objectif: true 
+        }
       },
       likes: {
         where: {
@@ -501,6 +551,16 @@ export const ajouterCommentaire = async (postId: number, auteurId: number, texte
           nom: true
         }
       }
+    }
+  });
+};
+
+// supp un commentaire
+export const supprimerCommentaire = async (id: number, auteurId: number) => {
+  return await db.commentaire.delete({
+    where: { 
+      id: id,
+      auteurId: auteurId 
     }
   });
 };

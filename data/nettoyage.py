@@ -171,7 +171,7 @@ def generer_sql(donnees):
     try:
         conn = DB.get()
         cur = conn.cursor()
-        cur.execute('DELETE FROM "Aliment"')
+        cur.execute('TRUNCATE TABLE "Aliment" RESTART IDENTITY CASCADE')
 
         lignes = []
         for bac, aliments in donnees.items():
@@ -186,8 +186,10 @@ def generer_sql(donnees):
         cur.executemany(sql, lignes)
         
         conn.commit()
+        print("aliments envoyés en bdd")
 
     except Exception as e:
+        print("erreur")
         conn.rollback() 
 
 def lancer_nettoyage():
@@ -201,6 +203,13 @@ def lancer_nettoyage():
     df_clean['ratio_temp'] = df_clean['sucre'] / df_clean['glu'].replace(0, np.nan)
     
     moyennes_ratio = df_clean.groupby('categorie')['ratio_temp'].mean().fillna(0.10)
+
+    df_clean['sucre_reel'] = df_clean['sucre']
+    
+    mask_sucre_manquant = (df_clean['sucre'] <= 0.0001) & (df_clean['glu'] > 0)
+    df_clean.loc[mask_sucre_manquant, 'sucre_reel'] = df_clean['glu'] * df_clean['categorie'].map(moyennes_ratio)
+
+
 
     # On définit les bacs avec les filtres de catégories ou de nom
     bacs_aliments = {
@@ -230,7 +239,7 @@ def lancer_nettoyage():
                  (df_clean['nom'].str.contains('poule', case=False, na=False))) |
                 (df_clean['nom'].str.contains(r'canard|oie|chapon|caille|pintade|coquelet|faisan', case=False, na=False))
             ) &
-            ~df_clean['nom'].str.contains(r'rillette|veau|lapin|génisse|agneau|Pâté|Terrine', case=False, na=False) &
+            ~df_clean['nom'].str.contains(r'rillette|veau|lapin|génisse|agneau|Pâté|Terrine|confit', case=False, na=False) &
             ~df_clean['nom'].str.contains('porc|lardon|bacon|Biscuit|Foie gras|Graisse|Huile|Lotte|Mousse|Oeuf|Pomme|Tomme|Saucisse', case=False, na=False)
         ],
 
@@ -246,9 +255,16 @@ def lancer_nettoyage():
         ],
 
         'PROT_VEG': df_clean[
-            (df_clean['sous_categorie'].str.contains('oeufs|œufs', case=False, na=False) & 
-             ~df_clean['nom'].str.contains('omelette|tortilla|poudre|jaune', case=False, na=False)) |
-            (df_clean['precision_categorie'].str.contains('substituts de produits carnés|substituts de charcuteries pour végétariens', case=False, na=False))
+            (
+                (df_clean['sous_categorie'].str.contains('oeufs|œufs', case=False, na=False) & 
+                ~df_clean['nom'].str.contains('omelette|tortilla|poudre|jaune|blanc d\'œuf séché', case=False, na=False)) |
+                (df_clean['sous_categorie'].str.contains('substituts de produits carnés|substituts de charcuteries pour végétariens', case=False, na=False)) |
+                (df_clean['precision_categorie'].str.contains('substituts de produits carnés|substituts de charcuteries pour végétariens', case=False, na=False)) |
+                (df_clean['nom'].str.contains('Tofu|Seitan|Tempeh', case=False, na=False)) |
+                
+                (df_clean['sous_categorie'].str.contains('légumineuses', case=False, na=False))
+            ) & 
+            (~df_clean['nom'].str.contains('Spécialité végétale type pâté', case=False, na=False))
         ],
 
         'S_HOT_WHITE': df_clean[
@@ -257,8 +273,13 @@ def lancer_nettoyage():
         ],
 
         'S_HOT_RED': df_clean[
-            (df_clean['precision_categorie'].str.contains('sauces chaudes', case=False, na=False)) &
-            (df_clean['nom'].str.contains(r'tomate|bolognaise|olives|rosso|arrabbiata', case=False, na=False))
+            (df_clean['precision_categorie'].str.contains('sauces chaudes', case=False, na=False)) & 
+
+            (~df_clean['nom'].str.contains(
+                r'crème|fromage|roquefort|béchamel|curry|indienne|chaude|vin|céleri|aigre|beurre'
+                r'poivre|morilles|aux cèpes|carbonara|hollandaise|pesto alla genovese', 
+                case=False, na=False
+            ))
         ],
 
         'S_HOT_ASIA': df_clean[
@@ -266,14 +287,14 @@ def lancer_nettoyage():
                 df_clean['precision_categorie'].str.contains(r'sauces chaudes|sauces condimentaires', case=False, na=False)
             ) &
             (
-                df_clean['nom'].str.contains(r'indienne|curry|tandoori|tikka|aigre douce|soja|thaï|nuoc mam|saté', case=False, na=False)
+                df_clean['nom'].str.contains(r'indienne|curry|tandoori|tikka|aigre douce|soja|thaï|saté', case=False, na=False)
             )
         ],
 
         'S_COLD': df_clean[
             (df_clean['precision_categorie'].str.contains('sauces condimentaires', case=False, na=False)) &
             ~df_clean['nom'].str.contains(
-                r'sauce froide|sauce crudités|sauce salade|sauce soja|sauce végétale|sauce vinaigrette', 
+                r'caviar|sirop|confit|nuoc-mam|nuoc mâm|vinaigrette|margarine|fondue|froide|salade|bolognaise|soja',
                 case=False, na=False
             )
         ],
@@ -308,12 +329,12 @@ def lancer_nettoyage():
         'CERE_REPAS': df_clean[
             (df_clean['precision_categorie'].str.contains('pâtes, riz et céréales crus', case=False, na=False)) & 
             (df_clean['nom'].str.contains(r'blé|boulgour|orge|quinoa|sarrasin|épeautre|millet|sorgho|frik', case=False, na=False)) &
-            (~df_clean['nom'].str.contains(r'avoine|riz|pâte|petit déjeuner', case=False, na=False))
+            (~df_clean['nom'].str.contains(r'avoine|riz|pâte|petit déjeuner|semoule|couscous|boulgour', case=False, na=False))
         ],
 
        'SEMOU': df_clean[
             (df_clean['nom'].str.contains(r'semoule|graine de couscous|polenta', case=False, na=False)) &
-            ~df_clean['nom'].str.contains(r'dessert|gâteau', case=False, na=False)
+            ~df_clean['nom'].str.contains(r'dessert|gâteau|cuisiné|taboulé|lait|frais|gnocchi', case=False, na=False)
         ],
 
        'POTATO': df_clean[
@@ -344,7 +365,10 @@ def lancer_nettoyage():
             ~df_clean['nom'].str.contains(r'poisson|poulet|volaille|instant|solub|boisson', case=False, na=False)
         ],
 
-        'FROMAGE': df_clean[df_clean['sous_categorie'].str.contains('fromages', case=False, na=False)],
+        'FROMAGE': df_clean[
+            df_clean['sous_categorie'].str.contains('fromages', case=False, na=False) & 
+            ~df_clean['nom'].str.contains(r'snack|mascarpone', case=False, na=False)
+        ],
 
         'FRUIT_ENTIER': df_clean[
             (df_clean['precision_categorie'].str.contains(r'fruits cru[e]?s?', case=False, na=False)) & 
@@ -362,7 +386,7 @@ def lancer_nettoyage():
                 (df_clean['sous_categorie'].str.contains('céréales de petit-déjeuner', case=False, na=False)) |
                 (df_clean['nom'].str.contains(r'\bavoine\b', case=False, na=False))
             ) &
-            (df_clean['sucre'] <= 7) & 
+            (df_clean['sucre_reel'] <= 10) & 
             ~df_clean['nom'].str.contains(
                 r'boisson|dessert|huile|saucisson|cresson|son|bouilli|miel|chocolat|fourré|glacé|sucre|caramel', 
                 case=False, na=False
@@ -396,9 +420,8 @@ def lancer_nettoyage():
 
         'HUILE': df_clean[
             (df_clean['sous_categorie'].str.contains(r'huiles et graisses végétales', case=False, na=False)) &
-            (df_clean['nom'].str.contains(
-                r"Huile de colza|Huile de noix|Huile d'olive vierge extra|Huile d'avocat|Huile de lin|Huile de noisette|Huile de sésame", case=False, na=False)) &
-            (~df_clean['nom'].str.contains(r"margarine|friture|palme|coco|cacao", case=False, na=False))
+            (df_clean['nom'].str.contains(r'^Huile', case=False, na=False)) & 
+            (~df_clean['nom'].str.contains(r"margarine|friture|palme|coco|cacao|fondue|assaisonnement|palmiste|coton|graisse de", case=False, na=False))
         ],
     }
 
@@ -412,9 +435,11 @@ def lancer_nettoyage():
         tableau_actuel['cle_base'] = tableau_actuel['nom'].str.replace(r', (cru[e]?s?|cuit[e]?s?|bouilli[e]?s?|rôti[e]?s?|poêlé[e]?s?).*', '', regex=True, case=False).str.strip()
         
         # Score de priorité on cherche cuit avec ou sans e
-        tableau_actuel['priorite'] = tableau_actuel['nom'].str.contains(r'cuit[e]?|bouilli[e]?|rôti[e]?|poêlé[e]?', case=False, na=False).astype(int)
+        tableau_actuel['priorite'] = tableau_actuel['nom'].str.contains(r'cuit[e]?|bouilli[e]?|rôti[e]?|poêlé[e]?|grillé[e]?|braisé[e]?|frit[e]?|sauté[e]?|vapeur', case=False, na=False).astype(int)
         
-        propres = tableau_actuel.sort_values(['cle_base', 'priorite']).drop_duplicates(subset=['cle_base'], keep='first')
+        propres = tableau_actuel[tableau_actuel['priorite'] == 0]
+
+        propres = propres.drop_duplicates(subset=['cle_base'], keep='first')
         
         # On trie ensuite par nom propre pour l'affichage final
         propres = propres.sort_values('nom_propre')
@@ -424,6 +449,9 @@ def lancer_nettoyage():
         for index, ligne in propres.iterrows():
 
             nom_nettoye = str(ligne['nom_propre']).lower()
+
+            if "cuit" in nom_nettoye:
+                continue
             
             est_snack = False
             est_plat = False
@@ -457,17 +485,37 @@ def lancer_nettoyage():
 
             if nom_du_bac.startswith('PROT'):
                 est_sandwich = True
+
+                est_legumineuse = 'légumineuses' in str(ligne['sous_categorie']).lower()
+                if not est_legumineuse:
+                    est_sandwich = True
+                else:
+                    est_sandwich = False
             
             if nom_du_bac == 'LEG':
-               if 'avocat' in nom_nettoye:
-                   est_snack = True
-               else:
-                   est_snack = False
-
-            if nom_du_bac == 'LEG':
-                mots_ok = ['avocat', 'poivron', 'champignon', 'aubergine', 'carotte', 'oignon', 'épinard', 'concombre', 'courgette', 'tomate', 'piment', 'radis', 'endive', 'échalote']
-                if any(m in nom_nettoye for m in mots_ok):
+                liste_noire_sandwich = [
+                    'plantain', 'salsifis', 'panais', 'artichaut', 
+                    'courge', 'citrouille', 'potiron', 'potimarron', 
+                    'bette', 'blette', 'cardon'
+                ]
+                
+                if any(m in nom_nettoye for m in liste_noire_sandwich):
+                    est_sandwich = False
+                else:
                     est_sandwich = True
+                
+                if 'avocat' in nom_nettoye:
+                    est_snack = True
+                else:
+                    est_snack = False
+
+            if nom_du_bac == 'S_HOT_RED':
+                sauces_sandwich_ok = ['pesto', 'poivre', 'béarnaise', 'basquaise']
+                
+                if any(m in nom_nettoye for m in sauces_sandwich_ok):
+                    est_sandwich = True
+                else:
+                    est_sandwich = False
 
             if nom_du_bac in bacs_sucres:
                 est_snack = True
@@ -570,10 +618,6 @@ def lancer_nettoyage():
             liste_pour_json.append(info_aliment)
 
         mon_dictionnaire_final[nom_du_bac] = liste_pour_json
-    
-    with open('database_co2k.json', 'w', encoding='utf-8') as f:
-        import json
-        json.dump(mon_dictionnaire_final, f, ensure_ascii=False, indent=4)
     
     generer_sql(mon_dictionnaire_final)
 

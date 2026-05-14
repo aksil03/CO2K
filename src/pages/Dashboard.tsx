@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { LayoutDashboard, Utensils, Dumbbell, LogOut, User, CalendarDays, Users, Share2 } from 'lucide-react'
 import { Button } from "@/components/ui/button"
-import Repas from "./Dashboard/Repas"
-import Sport from "./Dashboard/Sport"
 import Profil from "./Dashboard/Profil"
 import { useParams } from 'react-router-dom'
 import Plannings from './Dashboard/Plannings'

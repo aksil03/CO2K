@@ -21,11 +21,21 @@ function Profil({ user: initialUser, onUpdate }: { user: UserWithRelations, onUp
 
   const handleSave = async () => {
     if (!user) return;
+
+    if (user.age < 15 || user.age > 100) {
+      return toast.error("L'âge doit être compris entre 15 et 100 ans");
+    }
+    if (user.poids < 30 || user.poids > 200) {
+      return toast.error("Le poids doit être compris entre 30 et 200 kg");
+    }
+    if (user.taille < 100 || user.taille > 250) {
+      return toast.error("La taille doit être comprise entre 100 et 250 cm");
+    }
+
     setIsSaving(true);
     try {
       const dataToSave = ProfilFormSchema.parse(user);
       await axios.put("http://localhost:3000/api/utilisateur/update/" + user.email, dataToSave);
-      
       toast.success("Profil mis à jour");
       onUpdate();
     } catch (err) {
@@ -144,30 +154,51 @@ function Profil({ user: initialUser, onUpdate }: { user: UserWithRelations, onUp
               <label className="text-[10px] font-black uppercase text-slate-400 italic">Poids (kg)</label>
               <Input 
                 type="number" 
-                className="h-14 text-base font-medium border-slate-200 rounded-2xl w-full dark:bg-zinc-900 dark:border-zinc-800 dark:text-white" 
+                min="30"   
+                max="200"   
+                className="..." 
                 value={user.poids} 
-                onChange={(e) => setUser({...user, poids: Number(e.target.value)})} 
+                onChange={(e) => {
+                  const val = Number(e.target.value);
+                  if (val > 200) return; 
+                  setUser({...user, poids: val});
+                }} 
               />
+              <p className="text-[9px] text-slate-400">Entre 30 et 200kg</p>
             </div>
 
             <div className="space-y-2">
               <label className="text-[10px] font-black uppercase text-slate-400 italic">Taille (cm)</label>
               <Input 
                 type="number" 
-                className="h-14 text-base font-medium border-slate-200 rounded-2xl w-full dark:bg-zinc-900 dark:border-zinc-800 dark:text-white" 
+                min="100" 
+                max="250"   
+                className="..." 
                 value={user.taille} 
-                onChange={(e) => setUser({...user, taille: Number(e.target.value)})} 
+                onChange={(e) => {
+                  const val = Number(e.target.value);
+                  if (val > 250) return;
+                  setUser({...user, taille: val});
+                }}
               />
+              <p className="text-[9px] text-slate-400">Entre 100 et 250cm</p>
             </div>
 
             <div className="space-y-2">
               <label className="text-[10px] font-black uppercase text-slate-400 italic">Âge</label>
               <Input 
                 type="number" 
-                className="h-14 text-base font-medium border-slate-200 rounded-2xl w-full dark:bg-zinc-900 dark:border-zinc-800 dark:text-white" 
+                min="15"
+                max="100"   
+                className="..." 
                 value={user.age} 
-                onChange={(e) => setUser({...user, age: Number(e.target.value)})} 
+                onChange={(e) => {
+                  const val = Number(e.target.value);
+                  if (val > 100) return;
+                  setUser({...user, age: val});
+                }}
               />
+              <p className="text-[9px] text-slate-400">Entre 15 et 100 ans</p>
             </div>
 
             <div className="space-y-2">

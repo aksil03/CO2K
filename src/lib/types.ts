@@ -42,15 +42,15 @@ export const InscriptionFormSchema = z.object({
   prenom: z.string().min(1, "Requis"),
   email: z.string().email("Format invalide"),
   password: z.string().min(4, "4 caractères min"),
-  age: z.coerce.number().int().min(15),
-  taille: z.coerce.number().int().min(50),
-  poids: z.coerce.number().min(20),
+  age: z.coerce.number().int().min(15).max(100),   
+  taille: z.coerce.number().int().min(100).max(250), 
+  poids: z.coerce.number().min(30).max(200),
 });
 
 export const ProfilFormSchema = z.object({
-  poids: z.coerce.number().min(20),
-  taille: z.coerce.number().int().min(50),
-  age: z.coerce.number().int().min(15),
+  poids: z.coerce.number().min(30).max(200),
+  taille: z.coerce.number().int().min(100).max(250),
+  age: z.coerce.number().int().min(15).max(100),
   objectif: z.nativeEnum(ObjectifPhysique),
   activite: z.nativeEnum(NiveauActivite),
   genre: z.nativeEnum(Genre),
@@ -74,6 +74,7 @@ const _checkProfil: Prisma.UtilisateurUpdateInput = {} as ProfilData;
 export const RepasGenereSchema = z.object({
   moment: z.nativeEnum(MomentRepas),
   template: z.nativeEnum(TemplateRepas),
+  numJour: z.number().optional(),
   aliments: z.array(z.object({
     aliment: z.custom<Aliment>(),
     poids: z.number(),
@@ -127,11 +128,11 @@ export const SavePlanningSchema = z.object({
   nom: z.string().min(1),
   description: z.string().optional(),
   auteurId: z.number(),
-  journal: z.array(JourneePlanningSchema), 
+  repas: z.array(RepasGenereSchema), 
 });
 
 export type SavePlanningData = z.infer<typeof SavePlanningSchema>;
-const _checkSave: Prisma.PlanningUncheckedCreateInput = {} as Omit<SavePlanningData, 'journal'>;
+const _checkSave: Prisma.PlanningUncheckedCreateInput = {} as Omit<SavePlanningData, 'repas'>;
 
 
 export const AssignerPlanningSchema = z.object({
@@ -167,7 +168,6 @@ const _checkProg: Prisma.ProgrammeUncheckedCreateInput = {} as Omit<CreateProgra
 export const CreatePostSchema = z.object({
   titre: z.string().min(3, "Le titre doit comporter plus de 3 caractères"),
   contenu: z.string().min(10, "La description doit comporter plus de 10 caractères"),
-  imageUrl: z.string().url().optional().or(z.literal("")),
   auteurId: z.number(),
   programmeId: z.number().nullable().optional(),
   planningId: z.number().nullable().optional(),

@@ -981,6 +981,7 @@ export function CardPost({
   const [isLiked, setIsLiked] = useState(false);
   const [likesCount, setLikesCount] = useState(post._count?.likes || 0);
   const [replyTo, setReplyTo] = useState<{id: number, nom: string, commentId: number} | null>(null);
+  const [listeCommentaires, setListeCommentaires] = useState(post.commentaires || []);
   
   const isAuteur = user?.id === post.auteurId;
 
@@ -988,6 +989,10 @@ export function CardPost({
     setReplyTo({ id: auteurId, nom: auteurPrenom, commentId: commentId });
     setReponse(`@${auteurPrenom} `);
   };
+
+  useEffect(() => {
+    setListeCommentaires(post.commentaires || []);
+  }, [post.commentaires]);
 
   useEffect(() => {
     setIsLiked(post.likes && post.likes.length > 0);
@@ -1034,11 +1039,15 @@ export function CardPost({
         texte: reponse,
         parentId: replyTo ? replyTo.commentId : null
       });
-      
-      post.commentaires = [...(post.commentaires || []), res.data];
+
+      const nouveauCom = res.data;
+      const nouvelleListe = [...listeCommentaires, nouveauCom];
+      setListeCommentaires(nouvelleListe);
+
+      post.commentaires = nouvelleListe;
 
       if (post._count) {
-        post._count.commentaires = (post._count.commentaires || 0) + 1;
+        post._count.commentaires = nouvelleListe.length;
       }
       
       setReponse(""); 
@@ -1048,6 +1057,32 @@ export function CardPost({
       toast.error("Erreur lors de l'envoi");
     }
   };
+
+  const handleDeleteCommentaire = async (commentId: number) => {
+      alerteSuppression(async () => {
+      const sauvegardeAncienneListe = [...listeCommentaires];
+
+      const nouvelleListe = listeCommentaires.filter(
+        c => c.id !== commentId && c.parentId !== commentId
+      );
+      
+      setListeCommentaires(nouvelleListe);
+      try {
+        await axios.delete(`http://localhost:3000/api/commentaires/${commentId}`);
+        post.commentaires = nouvelleListe;
+        
+        if (post._count) {
+          post._count.commentaires = nouvelleListe.length;
+        }
+        toast.success("Commentaire supprimé");
+      } catch (err) {
+        setListeCommentaires(sauvegardeAncienneListe);
+        toast.error("Impossible de supprimer");
+      }
+    }, "Supprimer ce commentaire et ses réponses ?");
+  };
+
+
 
   const handleUserClick = (e: React.MouseEvent) => {
     e.stopPropagation(); 
@@ -1078,7 +1113,9 @@ export function CardPost({
     setViewOpen(true);
   };
 
-  const besoins = CalculateurImpact.calculerBesoinsNutritionnels(user);
+  const besoinsAffichage = post.auteur 
+    ? CalculateurImpact.calculerBesoinsNutritionnels(post.auteur as any) 
+    : CalculateurImpact.calculerBesoinsNutritionnels(user);
 
   return (
     <div className="h-full group">
@@ -1199,10 +1236,9 @@ export function CardPost({
                 </DialogHeader>
 
                 <div className="p-6 space-y-6 max-h-87.5 overflow-y-auto custom-scrollbar">
-                  {post.commentaires && post.commentaires.length > 0 ? (
-                    post.commentaires.filter(c => !c.parentId).map((parentCom) => (
+                  {listeCommentaires && listeCommentaires.length > 0 ? (
+                    listeCommentaires.filter((c) => !c.parentId).map((parentCom) => (
                       <div key={parentCom.id} className="space-y-4">
-
                         <div 
                           onClick={() => handleInitiateReply(parentCom.auteurId, parentCom.auteur.prenom, parentCom.id)}
                           className="group/com flex gap-3 p-4 bg-slate-50 dark:bg-zinc-900 rounded-2xl border border-slate-100 dark:border-zinc-800 cursor-pointer transition-all active:scale-95"
@@ -1220,6 +1256,14 @@ export function CardPost({
                                   Auteur
                                 </span>
                               )}
+                              {parentCom.auteurId === user?.id && (
+                                <button 
+                                  onClick={(e) => { e.stopPropagation(); handleDeleteCommentaire(parentCom.id); }}
+                                  className="text-slate-300 hover:text-red-500 transition-colors ml-1"
+                                >
+                                  <Trash2 size={10} />
+                                </button>
+                              )}
                               <span className="text-[7px] font-bold text-slate-400 uppercase opacity-0 group-hover/com:opacity-100 transition-opacity"> • Répondre </span>
                             </div>
                             <p className="text-xs text-slate-600 dark:text-zinc-300 leading-tight italic">{parentCom.texte}</p>
@@ -1227,7 +1271,7 @@ export function CardPost({
                         </div>
 
                         <div className="ml-10 space-y-3 border-l-2 border-slate-100 dark:border-zinc-900 pl-4">
-                          {post.commentaires
+                          {listeCommentaires
                             .filter(child => child.parentId === parentCom.id)
                             .map((reply) => (
                               <div 
@@ -1244,6 +1288,14 @@ export function CardPost({
                                     <span className="bg-emerald-500 text-white text-[6px] font-black px-1 py-0.5 rounded-full uppercase italic">
                                       Auteur
                                     </span>
+                                  )}
+                                  {reply.auteurId === user?.id && (
+                                    <button 
+                                      onClick={() => handleDeleteCommentaire(reply.id)}
+                                      className="text-slate-300 hover:text-red-500 transition-colors ml-1"
+                                    >
+                                      <Trash2 size={8} />
+                                    </button>
                                   )}
                                   </div>
                                   <p className="text-[10px] text-slate-500 dark:text-zinc-400 italic leading-tight">{reply.texte}</p>
@@ -1332,8 +1384,8 @@ export function CardPost({
             </div>
           ) : inspectingPlanning && (
             <div className="space-y-20 pb-12">
-              {jours.map((jour, index) => {
-                const repasDuJour = (inspectingPlanning.repas || []).filter((r) => (new Date(r.dateConsom).getDay() === 0 ? 6 : new Date(r.dateConsom).getDay() - 1) === index)
+              {[1, 2, 3, 4, 5, 6, 7].map((numeroJour) => {
+                const repasDuJour = (inspectingPlanning.repas || []).filter((r) => (r as any).numJour === numeroJour)
                   .sort((a, b) => {
                     const scores: any = { [MomentRepas.PETIT_DEJEUNER]: 1, [MomentRepas.DEJEUNER]: 2, [MomentRepas.COLLATION]: 3, [MomentRepas.DINER]: 4 };
                     return (scores[a.type] || 0) - (scores[b.type] || 0);
@@ -1350,16 +1402,22 @@ export function CardPost({
                     acc.sucre += ((p.aliment.sucre || 0) * poids) / 100;
                     acc.gras_sat += ((p.aliment.gras_sat || 0) * poids) / 100;
                     acc.sel += ((p.aliment.sel || 0) * poids) / 100;
-                    acc.co2 += (p.aliment.co2 * poids) / 1000;
+                    acc.co2 += (p.aliment.co2 * poids) / 100;
                   });
                   return acc;
                 }, { prot: 0, glu: 0, lip: 0, sucre: 0, gras_sat: 0, sel: 0, co2: 0 });
 
+                const caloriesFinales = Math.round(
+                  (Math.round(statsDuJour.prot) * 4) + 
+                  (Math.round(statsDuJour.glu) * 4) + 
+                  (Math.round(statsDuJour.lip) * 9)
+                );
+
                 return (
-                  <section key={jour} className="space-y-8 text-left">
+                  <section key={numeroJour} className="space-y-8 text-left">
                     <div className="flex items-center gap-4">
                       <div className="p-3 bg-slate-900 text-white rounded-xl dark:bg-zinc-800"><Utensils size={20} /></div>
-                      <div><h2 className="text-3xl font-black uppercase italic dark:text-white leading-none">{jour}</h2><div className="h-1 w-12 bg-emerald-600 rounded-full mt-2" /></div>
+                      <div><h2 className="text-3xl font-black uppercase italic dark:text-white leading-none">{jours[numeroJour - 1]}</h2><div className="h-1 w-12 bg-emerald-600 rounded-full mt-2" /></div>
                     </div>
 
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -1368,14 +1426,14 @@ export function CardPost({
                         <div className="relative z-10">
                           <span className="text-[9px] font-black uppercase tracking-widest text-emerald-400 opacity-70 mb-2 block">Total Journée</span>
                           <p className="text-4xl font-black italic leading-none mb-2">
-                            {Math.round(statsDuJour.prot * 4 + statsDuJour.glu * 4 + statsDuJour.lip * 9)} <span className="text-xs opacity-40 uppercase">Kcal</span>
+                            {caloriesFinales} <span className="text-xs opacity-40 uppercase">Kcal</span>
                           </p>
                           <div className="flex items-center gap-2 text-emerald-500 font-bold text-[9px] uppercase">
                             <Leaf size={12} /> {statsDuJour.co2.toFixed(2)} KG CO2
                           </div>
                         </div>
                       </div>
-                      <BilanNutritionnelCard stats={statsDuJour} besoins={besoins} />
+                      <BilanNutritionnelCard stats={statsDuJour} besoins={besoinsAffichage} />
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -1600,7 +1658,7 @@ export function BilanNutritionnelCard({ stats, besoins }: { stats: any, besoins:
         {[
           { l: "Sucre", a: stats.sucre, c: besoins.limites.sucre },
           { l: "Gras Sat.", a: stats.gras_sat, c: besoins.limites.gras_sat },
-          { l: "Sel", a: stats.sel, c: 5 }
+          { l: "Sel", a: stats.sel, c: besoins.limites.sel }
         ].map((lim) => (
           <div key={lim.l} className="flex items-center gap-3">
             <span className="text-[7px] font-black text-slate-400 w-12 uppercase">{lim.l}</span>

@@ -21,7 +21,7 @@ export const CalculateurImpact = {
       limites: {
         sucre: Math.round((calories * 0.10) / 4),    
         gras_sat: Math.round((calories * 0.10) / 9), 
-        sel: 5                                      
+        sel: Number((5 * (calories / 2000)).toFixed(1))                          
       }
     };
   }

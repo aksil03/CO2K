@@ -1,19 +1,23 @@
 import express, { Request, Response } from 'express';
 import cors from 'cors';
 import jwt from 'jsonwebtoken';
-const JWT_SECRET = "MA_KEY_SECRETE";
 import { db } from './src/lib/db.ts';
-import { 
+import bcrypt from 'bcrypt';
+
+import {
   getMail, getUtilisateurComplet, sauvegarderPlanning, majPlanning, getProgrammesUtilisateur,
   ajouterUtilisateur, majProfil, majInfosPlanning, creerProgrammeComplet, majInfosProgramme,
   getAlimentsParBac, getAllAliments, getPlanningsUtilisateur, supprimerPlanning, supprimerProgramme,
   creerPost, getFeedCommunaute, getPostsByUserId, toggleLike, toggleFollow, ajouterCommentaire,
-  supprimerPost
+  supprimerPost,
+  supprimerCommentaire
 } from './src/lib/queries.ts';
 import { AlimentsGroupes, CreateProgrammeSchema, CreatePostSchema } from './src/lib/types';
 import { AssignerPlanningSchema } from './src/lib/types';
 import { InscriptionFormSchema, SavePlanningSchema, LoginFormSchema, ProfilFormSchema } from './src/lib/types';
 
+const JWT_SECRET = process.env.JWT_SECRET;
+if (!JWT_SECRET) throw new Error("secret introuvable");
 const app = express();
 
 app.use(cors());
@@ -38,7 +42,13 @@ app.post('/api/connexion', async (req, res) => {
     const { email, password } = LoginFormSchema.parse(req.body);
     const user = await getMail(email);
 
-    if (user && user.password === password) {
+    if (!user) {
+      return res.status(401).send("Email ou MDP incorrect");
+    }
+
+    const passwordMatch = await bcrypt.compare(password, user.password);
+
+    if (passwordMatch) {
       const token = jwt.sign(
         { id: user.id, email: user.email },
         JWT_SECRET,
@@ -64,7 +74,7 @@ app.post('/api/inscription', async (req, res) => {
   try {
     const donneesValides = InscriptionFormSchema.parse(req.body);
     const user = await ajouterUtilisateur(donneesValides);
-    res.send(user); 
+    res.send(user);
   } catch (error) {
     res.status(500).send("Erreur serveur");
   }
@@ -79,7 +89,7 @@ app.get('/api/utilisateur', authentifierToken, async (req, res) => {
     const resultat = await getUtilisateurComplet(email);
     if (resultat !== null) {
       res.send(resultat);
-    } 
+    }
     else {
       res.status(404).send("Utilisateur non trouvé");
     }
@@ -106,8 +116,8 @@ app.get('/api/aliments', async (req, res) => {
 
   try {
     const resultats = await getAlimentsParBac(nomDuBac);
- 
-    res.json(resultats); 
+
+    res.json(resultats);
   } catch (error) {
     res.status(500).send("Erreur lors de la récupération des aliments");
   }
@@ -116,13 +126,13 @@ app.get('/api/aliments', async (req, res) => {
 // recupere le catalogue grouper par BAC
 app.get('/api/aliments/all', async (req, res) => {
   try {
-    const data = await getAllAliments(); 
-    
+    const data = await getAllAliments();
+
     const catalogue: AlimentsGroupes = {};
 
     data.forEach((aliment) => {
-      const nomBac = aliment.bac; 
-      
+      const nomBac = aliment.bac;
+
       if (!catalogue[nomBac]) {
         catalogue[nomBac] = [];
       }
@@ -140,7 +150,7 @@ app.post('/api/planning/sauvegarder', authentifierToken, async (req, res) => {
   try {
     const planningValide = SavePlanningSchema.parse(req.body);
     const planning = await sauvegarderPlanning(planningValide);
-    res.status(201).json(planning); 
+    res.status(201).json(planning);
   } catch (error) {
     res.status(500).send("Erreur lors de la sauvegarde");
   }
@@ -188,7 +198,7 @@ app.post('/api/planning/update', authentifierToken, async (req, res) => {
 app.patch('/api/planning/:id', authentifierToken, async (req, res) => {
   const id = Number(req.params.id);
   try {
-    const data = SavePlanningSchema.partial().parse(req.body); 
+    const data = SavePlanningSchema.partial().parse(req.body);
     const planningMisAJour = await majInfosPlanning(id, data);
     res.json(planningMisAJour);
   } catch (error) {
@@ -232,7 +242,7 @@ app.delete('/api/programmes/:id', authentifierToken, async (req, res) => {
 // Mettre a jour le planning d'une semaine dans un programme
 app.patch('/api/programmes/semaine/:id', authentifierToken, async (req, res) => {
   const id = Number(req.params.id);
-  
+
   try {
     const { planningId } = req.body;
     const pId = (planningId === 0 || planningId === null) ? null : Number(planningId);
@@ -255,7 +265,7 @@ app.patch('/api/programmes/semaine/:id', authentifierToken, async (req, res) => 
 app.patch('/api/programmes/:id', authentifierToken, async (req, res) => {
   const id = Number(req.params.id);
   try {
-    const data = req.body; 
+    const data = req.body;
     const programmeMisAJour = await majInfosProgramme(id, data);
     res.json(programmeMisAJour);
   } catch (error) {
@@ -289,7 +299,7 @@ app.get('/api/communaute/feed', authentifierToken, async (req, res) => {
 app.get('/api/posts/utilisateur/:id', authentifierToken, async (req, res) => {
   try {
     const userId = parseInt(req.params.id);
-    const posts = await getPostsByUserId(userId); 
+    const posts = await getPostsByUserId(userId);
     res.json(posts);
   } catch (error) {
     res.status(500).send("Erreur lors de la récupération de tes posts");
@@ -298,7 +308,7 @@ app.get('/api/posts/utilisateur/:id', authentifierToken, async (req, res) => {
 
 app.post('/api/posts/:id/like', authentifierToken, async (req, res) => {
   const postId = Number(req.params.id);
-  const { userId } = req.body; 
+  const { userId } = req.body;
   try {
     const totalLikes = await toggleLike(postId, userId);
     res.json({ likesCount: totalLikes });
@@ -347,6 +357,18 @@ app.delete('/api/posts/:id', authentifierToken, async (req: Request, res: Respon
     res.status(500).send("Erreur lors de la suppression du post");
   }
 });
+
+app.delete('/api/commentaires/:id', authentifierToken, async (req: any, res) => {
+  try {
+    const id = Number(req.params.id);
+    const auteurId = req.user.id;
+    await supprimerCommentaire(id, auteurId);
+    res.sendStatus(204);
+  } catch (error) {
+    res.status(500).send("Erreur lors de la suppression du commentaire");
+  }
+});
+
 
 app.listen(3000, () => {
   console.log("Serveur démarré sur le port 3000");

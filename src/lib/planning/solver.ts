@@ -28,19 +28,19 @@ export const NutritionSolver = {
         
         let result = panierInitial.map(item => ({
             ...item,
-            poids: ReglesRepas.obtenirMargesAdaptatives(item.aliment.bac, moment, besoins, panierInitial).min
+            poids: ReglesRepas.obtenirMargesAdaptatives(item.aliment, moment, besoins, panierInitial).min
         }));
         
         const getBacStr = (p: PanierItem) => String(p.aliment.bac).toUpperCase().trim();
 
         // CONVERGENCE 
-        for (let iter = 0; iter < 25; iter++) {
+        for (let iter = 0; iter < 50; iter++) {
             
             result.forEach(item => {
                 const b = getBacStr(item);
                 if (moment === MomentRepas.DEJEUNER || moment === MomentRepas.DINER) {
                     if (b === BacAliment.LEG || b === BacAliment.LAITUE) {
-                        const m = ReglesRepas.obtenirMargesAdaptatives(item.aliment.bac, moment, besoins, result);                
+                        const m = ReglesRepas.obtenirMargesAdaptatives(item.aliment, moment, besoins, result);             
                         item.poids = Math.max(50, m.min); 
                     }
                 }
@@ -54,13 +54,13 @@ export const NutritionSolver = {
             ].map(String).includes(getBacStr(p)));
 
             feculents.forEach(fec => {
-                const m = ReglesRepas.obtenirMargesAdaptatives(fec.aliment.bac, moment, besoins, result);
+                const m = ReglesRepas.obtenirMargesAdaptatives(fec.aliment, moment, besoins, result);
                 const dejaLa = NutritionSolver.getSum(result.filter(x => x.aliment.id !== fec.aliment.id), 'glu');
                 const valeurMacro = Number(fec.aliment.glu) || 1;
                 
                 let poidsG = ((cibles.glu - dejaLa) / valeurMacro) * 100;
 
-                const poidsMaxG = ((cibles.glu * 1.02 - dejaLa) / valeurMacro) * 100;
+                const poidsMaxG = ((cibles.glu * 1.10 - dejaLa) / valeurMacro) * 100;
                 poidsG = Math.min(poidsG, poidsMaxG);
 
                 const sel100g = Number(fec.aliment.sel) || 0;
@@ -73,7 +73,7 @@ export const NutritionSolver = {
                 const sat100g = Number(fec.aliment.gras_sat) || 0;
                 if (sat100g > 0.3) {
                     const dejaLaSat = NutritionSolver.getSum(result.filter(x => x.aliment.id !== fec.aliment.id), 'gras_sat');
-                    const restePossibleSat = Math.max(0, seuils.gras_sat - dejaLaSat);
+                    const restePossibleSat = Math.max(0, (seuils.gras_sat * 1.15) - dejaLaSat);
                     poidsG = Math.min(poidsG, (restePossibleSat / sat100g) * 100);
                 }
                 
@@ -86,7 +86,7 @@ export const NutritionSolver = {
             });
 
             proteines.forEach(prot => {
-                const m = ReglesRepas.obtenirMargesAdaptatives(prot.aliment.bac, moment, besoins, result);
+                const m = ReglesRepas.obtenirMargesAdaptatives(prot.aliment, moment, besoins, result);
                 const dejaLa = NutritionSolver.getSum(result.filter(x => x.aliment.id !== prot.aliment.id), 'prot');
                 const valeurMacro = Number(prot.aliment.prot) || 1;
                 
@@ -115,12 +115,16 @@ export const NutritionSolver = {
                 BacAliment.S_HOT_WHITE, BacAliment.VINAIGRETTE, BacAliment.S_COLD
             ].map(String).includes(getBacStr(p)));
 
-            sourcesGras.forEach(gras => {
-                const m = ReglesRepas.obtenirMargesAdaptatives(gras.aliment.bac, moment, besoins, result);
+           sourcesGras.forEach(gras => {
+                const m = ReglesRepas.obtenirMargesAdaptatives(gras.aliment, moment, besoins, result);
                 const dejaLa = NutritionSolver.getSum(result.filter(x => x.aliment.id !== gras.aliment.id), 'lip');
                 const valeurMacro = Number(gras.aliment.lip) || 1;
                 
                 let poidsFinalL = ((cibles.lip - dejaLa) / valeurMacro) * 100;
+
+                if (getBacStr(gras) === BacAliment.HUILE) {
+                    poidsFinalL = Math.max(poidsFinalL, ((cibles.lip - dejaLa) / valeurMacro) * 100);
+                }
 
                 const sel100g = Number(gras.aliment.sel) || 0;
                 if (sel100g > 0.1) {
@@ -129,9 +133,8 @@ export const NutritionSolver = {
                     poidsFinalL = Math.min(poidsFinalL, (restePossibleSel / sel100g) * 100);
                 }
 
-          
                 const sat100g = Number(gras.aliment.gras_sat) || 0;
-                if (sat100g > 0.5) { 
+                if (sat100g > 0.5 && getBacStr(gras) !== BacAliment.HUILE) { 
                     const dejaLaSat = NutritionSolver.getSum(result.filter(x => x.aliment.id !== gras.aliment.id), 'gras_sat');
                     const restePossibleSat = Math.max(0, seuils.gras_sat - dejaLaSat);
                     poidsFinalL = Math.min(poidsFinalL, (restePossibleSat / sat100g) * 100);

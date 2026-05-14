@@ -8,6 +8,153 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
+model Utilisateur {
+  id             Int               @id @default(autoincrement())
+  nom            String
+  prenom         String
+  email          String            @unique
+  password       String
+  age            Int
+  poids          Float
+  taille         Int
+  genre          Genre             @default(HOMME)
+  activite       NiveauActivite    @default(MODERE)
+  objectif       ObjectifPhysique  @default(MAINTIEN)
+  regime         RegimeAlimentaire @default(STANDARD)
+  commentaires   Commentaire[]
+  mesAbonnements Follow[]          @relation("MesAbonnements")
+  mesAbonnes     Follow[]          @relation("MesAbonnes")
+  likes          Like[]
+  plannings      Planning[]
+  posts          Post[]
+  programmes     Programme[]
+  repas          Repas[]
+}
+
+model Follow {
+  id_abonne Int
+  id_star   Int
+  abonne    Utilisateur @relation("MesAbonnements", fields: [id_abonne], references: [id])
+  star      Utilisateur @relation("MesAbonnes", fields: [id_star], references: [id])
+
+  @@id([id_abonne, id_star])
+}
+
+model Post {
+  id           Int           @id @default(autoincrement())
+  titre        String
+  contenu      String
+  createdAt    DateTime      @default(now())
+  auteurId     Int
+  repasId      Int?          @unique
+  planningId   Int?
+  programmeId  Int?
+  commentaires Commentaire[]
+  likes        Like[]
+  auteur       Utilisateur   @relation(fields: [auteurId], references: [id])
+  planning     Planning?     @relation(fields: [planningId], references: [id], onDelete: Cascade)
+  programme    Programme?    @relation(fields: [programmeId], references: [id], onDelete: Cascade)
+  repas        Repas?        @relation(fields: [repasId], references: [id], onDelete: Cascade)
+}
+
+model Commentaire {
+  id        Int           @id @default(autoincrement())
+  texte     String
+  createdAt DateTime      @default(now())
+  postId    Int
+  auteurId  Int
+  parentId  Int?
+  auteur    Utilisateur   @relation(fields: [auteurId], references: [id])
+  parent    Commentaire?  @relation("Reponses", fields: [parentId], references: [id], onDelete: Cascade)
+  reponses  Commentaire[] @relation("Reponses")
+  post      Post          @relation(fields: [postId], references: [id], onDelete: Cascade)
+}
+
+model Like {
+  id     Int         @id @default(autoincrement())
+  postId Int
+  userId Int
+  post   Post        @relation(fields: [postId], references: [id], onDelete: Cascade)
+  user   Utilisateur @relation(fields: [userId], references: [id])
+
+  @@unique([postId, userId])
+}
+
+model Planning {
+  id          Int                  @id @default(autoincrement())
+  nom         String
+  description String?
+  auteurId    Int
+  createdAt   DateTime             @default(now())
+  calendriers CalendrierPlanning[]
+  auteur      Utilisateur          @relation(fields: [auteurId], references: [id])
+  posts       Post[]
+  repas       Repas[]
+}
+
+model Repas {
+  id            Int           @id @default(autoincrement())
+  dateConsom    DateTime
+  numJour       Int           @default(1)
+  type          MomentRepas   @default(DEJEUNER)
+  nomTemplate   TemplateRepas
+  utilisateurId Int
+  planningId    Int?
+  portions      Portion[]
+  post          Post?
+  planning      Planning?     @relation(fields: [planningId], references: [id])
+  utilisateur   Utilisateur   @relation(fields: [utilisateurId], references: [id])
+}
+
+model Portion {
+  id        Int     @id @default(autoincrement())
+  quantite  Float
+  repasId   Int
+  alimentId Int
+  aliment   Aliment @relation(fields: [alimentId], references: [id])
+  repas     Repas   @relation(fields: [repasId], references: [id])
+}
+
+model Aliment {
+  id          Int        @id @default(autoincrement())
+  nom         String
+  bac         BacAliment
+  co2         Float
+  cal         Int
+  prot        Float?
+  lip         Float?
+  glu         Float?
+  sucre       Float?
+  sel         Float?
+  gras_sat    Float?
+  estSnack    Boolean    @default(false)
+  estPlat     Boolean    @default(false)
+  estSandwich Boolean    @default(false)
+  estVege     Boolean    @default(true)
+  portions    Portion[]
+}
+
+model Programme {
+  id          Int                  @id @default(autoincrement())
+  nom         String
+  description String?
+  auteurId    Int
+  createdAt   DateTime             @default(now())
+  semaines    CalendrierPlanning[]
+  posts       Post[]
+  auteur      Utilisateur          @relation(fields: [auteurId], references: [id])
+}
+
+model CalendrierPlanning {
+  id           Int       @id @default(autoincrement())
+  semaineDebut DateTime
+  ordre        Int
+  planningId   Int?
+  programmeId  Int
+  planning     Planning? @relation(fields: [planningId], references: [id])
+  programme    Programme @relation(fields: [programmeId], references: [id], onDelete: Cascade)
+}
+
 enum TemplateRepas {
   PETIT_DEJ
   HOT
@@ -81,151 +228,4 @@ enum RegimeAlimentaire {
   STANDARD
   SANS_PORC
   SANS_VIANDE
-}
-
-model Utilisateur {
-  id            Int               @id @default(autoincrement())
-  nom           String
-  prenom        String
-  email         String            @unique
-  password      String
-  age           Int
-  poids         Float
-  taille        Int
-  genre         Genre             @default(HOMME)
-  activite      NiveauActivite    @default(MODERE)
-  objectif      ObjectifPhysique  @default(MAINTIEN)
-  regime        RegimeAlimentaire @default(STANDARD)
-  repas         Repas[]
-  posts         Post[]
-  likes         Like[]
-  commentaires  Commentaire[]
-  plannings     Planning[]
-  programmes    Programme[]
-  mesAbonnes     Follow[]          @relation("MesAbonnes")
-  mesAbonnements Follow[]          @relation("MesAbonnements")
-  createdAt     DateTime          @default(now())
-}
-
-model Follow {
-  id_abonne      Int
-  abonne         Utilisateur @relation("MesAbonnements", fields: [id_abonne], references: [id])
-  id_star        Int
-  star           Utilisateur @relation("MesAbonnes", fields: [id_star], references: [id])
-  @@id([id_abonne, id_star])
-}
-
-model Post {
-  id            Int         @id @default(autoincrement())
-  titre         String     
-  contenu       String        
-  createdAt     DateTime    @default(now())
-  auteurId      Int
-  auteur        Utilisateur @relation(fields: [auteurId], references: [id])
-  repasId       Int?        @unique
-  repas         Repas?      @relation(fields: [repasId], references: [id], onDelete: Cascade)
-  planningId    Int?        
-  planning      Planning?   @relation(fields: [planningId], references: [id], onDelete: Cascade)
-  programmeId   Int?        
-  programme     Programme?  @relation(fields: [programmeId], references: [id], onDelete: Cascade)
-  likes         Like[]
-  commentaires  Commentaire[]
-}
-
-model Commentaire {
-  id        Int      @id @default(autoincrement())
-  texte     String
-  createdAt DateTime @default(now())
-  postId    Int
-  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
-  auteurId  Int
-  auteur    Utilisateur @relation(fields: [auteurId], references: [id])
-  parentId  Int? 
-  parent    Commentaire?  @relation("Reponses", fields: [parentId], references: [id], onDelete: Cascade)
-  reponses  Commentaire[] @relation("Reponses")
-}
-
-model Like {
-  id        Int         @id @default(autoincrement())
-  postId    Int
-  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
-  userId    Int
-  user      Utilisateur @relation(fields: [userId], references: [id])
-  @@unique([postId, userId])
-}
-
-
-
-model Planning {
-  id            Int         @id @default(autoincrement())
-  nom           String      
-  description   String?
-  auteurId      Int
-  auteur        Utilisateur @relation(fields: [auteurId], references: [id])
-  repas         Repas[]     
-  calendriers   CalendrierPlanning[]
-  posts         Post[]      
-  createdAt     DateTime             @default(now())
-}
-
-model Repas {
-  id            Int            @id @default(autoincrement())
-  dateConsom    DateTime       
-  type          MomentRepas    @default(DEJEUNER)         
-  nomTemplate   TemplateRepas 
-  utilisateurId Int
-  utilisateur   Utilisateur    @relation(fields: [utilisateurId], references: [id])
-  planningId    Int?           
-  planning      Planning?      @relation(fields: [planningId], references: [id])
-  portions      Portion[]
-  post          Post?          
-}
-
-model Portion {
-  id        Int     @id @default(autoincrement())
-  quantite  Float   
-  repasId   Int
-  repas     Repas   @relation(fields: [repasId], references: [id])
-  alimentId Int
-  aliment   Aliment @relation(fields: [alimentId], references: [id])
-}
-
-model Aliment {
-  id            Int            @id @default(autoincrement())
-  nom           String
-  bac           BacAliment    
-  co2           Float          
-  cal           Int            
-  prot          Float?         
-  lip           Float?
-  glu           Float?
-  sucre         Float?
-  sel           Float?
-  gras_sat      Float?
-  estSnack      Boolean        @default(false)
-  estPlat       Boolean        @default(false) 
-  estSandwich   Boolean        @default(false) 
-  estVege       Boolean        @default(true) 
-  portions      Portion[] 
-}
-
-model Programme {
-  id            Int         @id @default(autoincrement())
-  nom           String
-  description   String?
-  auteurId      Int
-  auteur        Utilisateur @relation(fields: [auteurId], references: [id])
-  semaines      CalendrierPlanning[]
-  posts         Post[]      
-  createdAt     DateTime    @default(now())
-}
-
-model CalendrierPlanning {
-  id            Int         @id @default(autoincrement())
-  semaineDebut  DateTime 
-  ordre         Int 
-  planningId    Int?
-  planning      Planning?    @relation(fields: [planningId], references: [id], onDelete: SetNull)
-  programmeId   Int
-  programme     Programme   @relation(fields: [programmeId], references: [id], onDelete: Cascade)
 }

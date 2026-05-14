@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
 import axios from 'axios';
 import { toast } from "sonner";
 import { 
@@ -27,9 +27,11 @@ import { ReglesRepas } from '@/lib/planning/rules';
 
 export default function Plannings({ user, tousLesAliments, onUpdate }: { user: UserWithRelations, tousLesAliments: Aliment[], onUpdate: () => void }) {
   const [journal, setJournal] = useState<JourneePlanning[]>([]);
+  const planningRef = useRef<HTMLDivElement>(null);
   const [loading, setLoading] = useState(false);
   const [jour, setJour] = useState(1);
   const [copy, setCopy] = useState<Partial<Record<MomentRepas, { aliment: Aliment, poids: number }[]>> | null>(null);
+  const [nomPlanning, setNomPlanning] = useState(`IA ${new Date().toLocaleDateString()}`);
   
   const [templates, setTemplates] = useState<Record<MomentRepas, TemplateRepas>>({
     [MomentRepas.PETIT_DEJEUNER]: TemplateRepas.PETIT_DEJ,
@@ -87,7 +89,7 @@ export default function Plannings({ user, tousLesAliments, onUpdate }: { user: U
     const limits = { 
       gras_sat: besoins!.limites.gras_sat * RATIOS_MOMENTS[moment], 
       sucre: besoins!.limites.sucre * RATIOS_MOMENTS[moment], 
-      sel: 5 * RATIOS_MOMENTS[moment] 
+      sel: besoins!.limites.sel * RATIOS_MOMENTS[moment]
     };
 
     const res = NutritionSolver.resoudreMenu([...filtered, { aliment: item, poids: 100 }], targets, moment, limits);
@@ -98,10 +100,31 @@ export default function Plannings({ user, tousLesAliments, onUpdate }: { user: U
     setLoading(true);
     try {
       const gen = PlanningLogic.genererSemaine(tousLesAliments, besoins!, user);
-      await axios.post("http://localhost:3000/api/planning/sauvegarder", { auteurId: user?.id, nom: `IA ${new Date().toLocaleDateString()}`, journal: gen, estPublic: false });
+
+      setJournal(gen);
+
+      const repasPourBDD = gen.flatMap((journee, index) => {
+        return journee.repas.map(repas => ({
+          ...repas,
+          numJour: index + 1
+        }));
+      });
+      
+      await axios.post("http://localhost:3000/api/planning/sauvegarder", { 
+        auteurId: user?.id, 
+        nom: nomPlanning, 
+        repas: repasPourBDD,
+        estPublic: false 
+      });
       setJournal(gen);
       toast.success("Planning généré");
       onUpdate();
+      setTimeout(() => {
+        planningRef.current?.scrollIntoView({ 
+          behavior: 'smooth', 
+          block: 'start' 
+        });
+      }, 100)
     } catch (err) { toast.error("Erreur"); } finally { setLoading(false); }
   };
 
@@ -191,7 +214,7 @@ export default function Plannings({ user, tousLesAliments, onUpdate }: { user: U
       </section>
 
       {journal.length > 0 && (
-        <section className="space-y-16 pt-24 border-t dark:border-zinc-800">
+        <section ref={planningRef} className="space-y-16 pt-24 border-t dark:border-zinc-800">
           <div className="flex items-center gap-4 text-left">
             <div className="p-2.5 bg-white border border-slate-100 dark:bg-zinc-900 dark:border-zinc-800 rounded-2xl shadow-sm"><ClipboardList size={22} /></div>
             <div>

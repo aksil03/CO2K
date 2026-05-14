@@ -95,6 +95,7 @@ export default function Panel({ user, tousLesAliments, onUpdate }: { user: UserW
       const res = await axios.patch<PlanningComplet>(`http://localhost:3000/api/planning/${id}`, data);
       setPlannings(prev => prev.map(p => p.id === id ? res.data : p));
       toast.success("Planning mis à jour");
+      onUpdate();
     } catch (err) {
       toast.error("Erreur de modification");
     }
@@ -115,9 +116,12 @@ export default function Panel({ user, tousLesAliments, onUpdate }: { user: UserW
 
 
   if (selectedPlan) {
-    const jours = ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi", "Dimanche"];
-    
+    const joursNoms = ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi", "Dimanche"];
     const besoins = CalculateurImpact.calculerBesoinsNutritionnels(user);
+
+    const repasTries = [...selectedPlan.repas].sort((a, b) => 
+      new Date(a.dateConsom).getTime() - new Date(b.dateConsom).getTime()
+    );
 
     return (
       <div className="w-full space-y-12 pb-20 text-left">
@@ -130,14 +134,18 @@ export default function Panel({ user, tousLesAliments, onUpdate }: { user: UserW
           <Bouton onClick={() => setSelectedPlan(null)} className="w-auto px-10 h-14 text-[10px]">Fermer</Bouton>
         </div>
 
-        {jours.map((jour, index) => {
-          const repasDuJour = selectedPlan.repas.filter(r => {
-             const date = new Date(r.dateConsom);
-             const dayIndex = date.getDay() === 0 ? 6 : date.getDay() - 1;
-             return dayIndex === index;
+      {[1, 2, 3, 4, 5, 6, 7].map((numeroDuJour) => {
+          const repasDuJour = selectedPlan.repas.filter(r => (r as any).numJour === numeroDuJour);
+
+          const repasAAfficher = repasDuJour.length > 0 ? repasDuJour : repasTries.filter(r => {
+             const d = new Date(r.dateConsom);
+             const dayId = d.getDay() === 0 ? 6 : d.getDay() - 1;
+             return dayId === numeroDuJour - 1;
           });
 
-          if (repasDuJour.length === 0) return null;
+          if (repasAAfficher.length === 0) return null;
+
+          const nomDuJour = joursNoms[numeroDuJour - 1];
 
           const statsDuJour = repasDuJour.reduce((acc, r) => {
             r.portions.forEach(p => {
@@ -148,16 +156,25 @@ export default function Panel({ user, tousLesAliments, onUpdate }: { user: UserW
               acc.sucre += ((p.aliment.sucre || 0) * poids) / 100;
               acc.gras_sat += ((p.aliment.gras_sat || 0) * poids) / 100;
               acc.sel += ((p.aliment.sel || 0) * poids) / 100;
-              acc.co2 += (p.aliment.co2 * poids) / 1000;
+              acc.co2 += ((p.aliment.co2 || 0) * poids) / 100;
             });
             return acc;
           }, { prot: 0, glu: 0, lip: 0, sucre: 0, gras_sat: 0, sel: 0, co2: 0 });
 
+          const caloriesFinales = Math.round(
+            (Math.round(statsDuJour.prot) * 4) + 
+            (Math.round(statsDuJour.glu) * 4) + 
+            (Math.round(statsDuJour.lip) * 9)
+          );
+
+          
+
+
           return (
-            <section key={jour} className="space-y-6">
+            <section key={numeroDuJour} className="space-y-6">
               <div className="flex items-center gap-4">
                 <Utensils size={20} />
-                <h2 className="text-3xl font-black uppercase italic">{jour}</h2>
+                <h2 className="text-3xl font-black uppercase italic">{nomDuJour}</h2>
               </div>
 
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -169,7 +186,7 @@ export default function Panel({ user, tousLesAliments, onUpdate }: { user: UserW
                       Total Journée
                     </span>
                     <p id="stats-kcal-valeur" className="text-4xl font-black italic leading-none mb-2">
-                      {Math.round(statsDuJour.prot * 4 + statsDuJour.glu * 4 + statsDuJour.lip * 9)} <span className="text-xs opacity-40 uppercase">Kcal</span>
+                      {caloriesFinales} <span className="text-xs opacity-40 uppercase">Kcal</span>
                     </p>
                     
                     <div id="stats-co2-valeur" className="flex items-center gap-2 text-emerald-500 font-bold text-[9px] uppercase">
