@@ -46,7 +46,6 @@ model Post {
   contenu      String
   createdAt    DateTime      @default(now())
   auteurId     Int
-  repasId      Int?          @unique
   planningId   Int?
   programmeId  Int?
   commentaires Commentaire[]
@@ -54,7 +53,6 @@ model Post {
   auteur       Utilisateur   @relation(fields: [auteurId], references: [id])
   planning     Planning?     @relation(fields: [planningId], references: [id], onDelete: Cascade)
   programme    Programme?    @relation(fields: [programmeId], references: [id], onDelete: Cascade)
-  repas        Repas?        @relation(fields: [repasId], references: [id], onDelete: Cascade)
 }
 
 model Commentaire {
@@ -101,7 +99,6 @@ model Repas {
   utilisateurId Int
   planningId    Int?
   portions      Portion[]
-  post          Post?
   planning      Planning?     @relation(fields: [planningId], references: [id])
   utilisateur   Utilisateur   @relation(fields: [utilisateurId], references: [id])
 }

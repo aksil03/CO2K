@@ -10,7 +10,6 @@ export const creerPost = async (data: CreatePostData) => {
             auteurId: data.auteurId,
             programmeId: data.programmeId ?? null,
             planningId: data.planningId ?? null,
-            repasId: data.repasId ?? null,
         },
         include: {
             auteur: true,

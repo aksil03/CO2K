@@ -4,42 +4,55 @@ import { db } from "../db";
 // sauvegarde un planning
 export const sauvegarderPlanning = async (params: any) => {
     const { auteurId, nom, repas } = params;
+    return await db.$transaction(async (tx) => {
 
-    return await db.planning.create({
-        data: {
-            nom: nom,
-            auteurId: auteurId,
-            repas: {
-                create: repas.map((unRepas: any) => ({
-                    dateConsom: (() => {
-                        const d = new Date();
-                        d.setDate(d.getDate() + (unRepas.numJour - 1));
-                        const heure = heureRepas[unRepas.type as keyof typeof heureRepas] || 12;
-                        d.setHours(heure, 0, 0, 0);
-                        return d;
-                    })(),
-                    type: unRepas.moment,
-                    nomTemplate: unRepas.template || "HOT",
-                    utilisateurId: auteurId,
-                    numJour: unRepas.numJour || 1,
-                    portions: {
-                        create: unRepas.aliments.map((al: any) => ({
-                            quantite: al.poids,
-                            alimentId: al.aliment.id,
-                        }))
-                    }
-                }))
+        const nouveauPlanning = await tx.planning.create({
+            data: {
+                nom: nom,
+                auteurId: auteurId,
             }
-        },
-        include: {
-            repas: {
-                include: {
-                    portions: {
-                        include: { aliment: true }
+        });
+
+        if (repas && repas.length > 0) {
+            for (const unRepas of repas) {
+                const d = new Date();
+                d.setDate(d.getDate() + ((unRepas.numJour || 1) - 1));
+                const heureKey = (unRepas.moment || unRepas.type) as keyof typeof heureRepas;
+                const heure = heureRepas[heureKey] || 12;
+                d.setHours(heure, 0, 0, 0);
+
+                await tx.repas.create({
+                    data: {
+                        dateConsom: d,
+                        type: unRepas.moment || unRepas.type || "DEJEUNER",
+                        nomTemplate: unRepas.template || "HOT",
+                        utilisateurId: auteurId,
+                        numJour: unRepas.numJour || 1,
+                        planningId: nouveauPlanning.id,
+
+                        portions: {
+                            create: (unRepas.aliments || []).map((al: any) => ({
+                                quantite: al.poids,
+                                alimentId: al.aliment.id,
+                            }))
+                        }
+                    }
+                });
+            }
+        }
+
+        return await tx.planning.findUnique({
+            where: { id: nouveauPlanning.id },
+            include: {
+                repas: {
+                    include: {
+                        portions: {
+                            include: { aliment: true }
+                        }
                     }
                 }
             }
-        }
+        });
     });
 };
 
