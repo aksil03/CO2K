@@ -13,7 +13,7 @@ describe('Test Page Communauté', () => {
       contenu: "Force et honneur",
       auteurId: 2,
       auteur: { id: 2, nom: "test", prenom: "testeur" },
-      programme: { id: 500, nom: "Old School Body" },
+      programme: { id: 500, nom: "Ca mange" },
       likes: [],
       commentaires: [],
       _count: { likes: 10, commentaires: 5 },
@@ -25,7 +25,7 @@ describe('Test Page Communauté', () => {
       contenu: "Des oeufs et de l'avoine",
       auteurId: 3,
       auteur: { id: 3, nom: "colmane", prenom: "ronnie" },
-      planning: { id: 600, nom: "Mass Diet" },
+      planning: { id: 600, nom: "Grosse Diet" },
       likes: [],
       commentaires: [],
       _count: { likes: 100, commentaires: 20 },
@@ -38,16 +38,19 @@ describe('Test Page Communauté', () => {
 
   beforeEach(() => {
     cy.clearLocalStorage()
+    cy.window().then((win) => win.sessionStorage.clear())
+
     cy.intercept('GET', '**/api/utilisateur*', { statusCode: 200, body: userTest }).as('getUser')
     cy.intercept('GET', '**/api/aliments/all', { statusCode: 200, body: {} }).as('getAliments')
     cy.intercept('GET', '**/api/communaute/feed', { statusCode: 200, body: feedMock }).as('getFeed')
 
     cy.visit(`http://localhost:5173/dashboard/${userTest.email}`, {
       onBeforeLoad(win) {
-        win.localStorage.setItem('token', fauxTokenValide)
-        win.localStorage.setItem('user_email', userTest.email)
+        win.sessionStorage.setItem('token', fauxTokenValide)
+        win.sessionStorage.setItem('user_email', userTest.email)
       }
     })
+
     cy.wait(['@getUser', '@getAliments', '@getFeed'])
     cy.contains('Explorer').should('be.visible').click({ force: true })
   })

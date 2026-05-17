@@ -3,56 +3,69 @@ describe('Test Page Panel', () => {
     id: 1,
     prenom: 'test',
     email: 'test@gmail.com',
+    poids: 75,
+    taille: 180,
+    age: 25,
+    genre: 'HOMME',
+    objectif: 'MAINTIEN',
+    activite: 'MODERE',
     programmes: [
       { id: 101, nom: 'Prise de Masse', semaines: [] }
     ],
     plannings: [
-      { 
-        id: 201, 
-        nom: 'Planning Semaine 1', 
+      {
+        id: 201,
+        nom: 'Planning Semaine 1',
         repas: [
           {
             id: 50,
+            numJour: 1,
             dateConsom: new Date().toISOString(),
             type: 'DEJEUNER',
             nomTemplate: 'HOT',
             portions: [
-              { 
+              {
                 id: 1,
-                quantite: 200, 
-                aliment: { nom: 'Poulet', prot: 25, glu: 0, lip: 3, co2: 5.5, cal: 150 } 
+                quantite: 200,
+                aliment: { nom: 'Poulet', prot: 25, glu: 0, lip: 3, co2: 5.5, cal: 150 }
               }
             ]
           }
-        ] 
+        ]
       }
     ]
   }
+
+
 
   const payload = btoa(JSON.stringify({ exp: Math.floor(Date.now() / 1000) + 3600, id: 1, email: userTest.email }));
   const fauxTokenValide = `header.${payload}.signature`;
 
   beforeEach(() => {
     cy.clearLocalStorage()
-    
+    cy.window().then((win) => win.sessionStorage.clear())
+
     cy.intercept('GET', '**/api/utilisateur*', { statusCode: 200, body: userTest }).as('getUser')
     cy.intercept('GET', '**/api/aliments/all', { statusCode: 200, body: {} }).as('getAliments')
     cy.intercept('GET', '**/api/communaute/feed', { statusCode: 200, body: [] }).as('getFeed')
 
     cy.visit(`http://localhost:5173/dashboard/${userTest.email}`, {
       onBeforeLoad(win) {
-        win.localStorage.setItem('token', fauxTokenValide)
-        win.localStorage.setItem('user_email', userTest.email)
+        win.sessionStorage.setItem('token', fauxTokenValide)
+        win.sessionStorage.setItem('user_email', userTest.email)
       }
     })
 
+
     cy.wait(['@getUser', '@getAliments', '@getFeed'])
-    
+    cy.wait(500)
+
     cy.contains('Panel').click()
     cy.get('h1', { timeout: 10000 }).should('contain', 'Panel')
   })
 
-  it('Affiche correctement la liste des programmes et des plannings', () => {
+
+  it('Affiche la liste des programmes et des plannings', () => {
     cy.contains('Programmes').should('be.visible')
     cy.contains('Prise de Masse').should('exist')
     cy.contains('Plannings').should('be.visible')
@@ -64,11 +77,12 @@ describe('Test Page Panel', () => {
     cy.get('#view-planning-title').should('contain', 'Planning Semaine 1')
     cy.get('#stats-prot').first().invoke('text').then((val) => {
       const num = parseInt(val)
-      expect(num).to.be.greaterThan(0)
+      // @ts-ignore
+      expect(num).to.be.greaterThan(0);
     })
   })
 
-  it('Supprime un programme après confirmation dans le toast', () => {
+  it('Supprime un programme apres confirmation dans le toast', () => {
     cy.intercept('DELETE', '**/api/programmes/101', { statusCode: 200 }).as('deleteRequest')
     cy.get('#btn-delete-prog-101').click({ force: true })
     cy.contains('button', 'Confirmer').should('be.visible').click()
@@ -78,9 +92,9 @@ describe('Test Page Panel', () => {
   })
 
   it('Affiche un message alerte quand le panel est vide', () => {
-    cy.intercept('GET', '**/api/utilisateur*', { 
-      statusCode: 200, 
-      body: { ...userTest, programmes: [], plannings: [] } 
+    cy.intercept('GET', '**/api/utilisateur*', {
+      statusCode: 200,
+      body: { ...userTest, programmes: [], plannings: [] }
     }).as('getEmptyUser')
     cy.reload()
     cy.wait('@getEmptyUser')

@@ -18,6 +18,7 @@ describe('Test Profil Utilisateur', () => {
 
   beforeEach(() => {
     cy.clearLocalStorage()
+    cy.window().then((win) => win.sessionStorage.clear())
 
     cy.intercept('GET', '**/api/utilisateur*', { statusCode: 200, body: userTest }).as('getUser')
     cy.intercept('GET', '**/api/aliments/all', { statusCode: 200, body: {} }).as('getAliments')
@@ -25,46 +26,33 @@ describe('Test Profil Utilisateur', () => {
 
     cy.visit(`http://localhost:5173/dashboard/${userTest.email}`, {
       onBeforeLoad(win) {
-        win.localStorage.setItem('token', fauxTokenValide)
-        win.localStorage.setItem('user_email', userTest.email)
+        win.sessionStorage.setItem('token', fauxTokenValide)
+        win.sessionStorage.setItem('user_email', userTest.email)
       }
     })
-    
+
     cy.wait(['@getUser', '@getAliments', '@getFeed'])
-    
-    // Utilisation de l'ID pour naviguer vers le profil
-    cy.get('#nav-profil').click()
+    cy.wait(500)
+
+    cy.contains('Profil').click()
   })
 
   it('Affiche les besoins nutritionnels et recalcule lors de la modification', () => {
-    // On vérifie que le prénom est là (on peut garder contains pour du texte dynamique)
     cy.contains(userTest.prenom).should('be.visible')
-    
-    // On récupère la valeur initiale via l'ID
-    cy.get('#display-calories').invoke('text').then((valInitiale) => {
-      
-      // On modifie le poids via l'ID de l'input
-      cy.get('#input-poids').clear().type('95')
-      
-      // On vérifie que l'affichage des calories a changé
-      cy.get('#display-calories').invoke('text').should((valFinale) => {
-        expect(valInitiale).to.not.equal(valFinale)
+    cy.get('[data-testid="calories-display"]').invoke('text').then((valInitiale) => {
+      cy.contains('label', 'Poids (kg)').parent().find('input').clear().type('95')
+      cy.get('[data-testid="calories-display"]').invoke('text').should((valFinale) => {
+        // @ts-ignore
+        expect(valInitiale).to.not.equal(valFinale);
       })
     })
   })
 
-  it('Sauvegarde les modifications avec succès', () => {
+  it('Sauvegarde les modifications', () => {
     cy.intercept('PUT', '**/api/utilisateur/update/*', { statusCode: 200 }).as('saveProfile')
-    
-    // Modification du poids
-    cy.get('#input-poids').clear().type('90')
-    
-    // Clic sur Sauvegarder via l'ID
-    cy.get('#btn-save-profil').click()
-    
+    cy.contains('label', 'Poids (kg)').parent().find('input').clear().type('90')
+    cy.contains('button', 'Sauvegarder les modifications').click()
     cy.wait('@saveProfile')
-    
-    // Le toast/message de succès peut rester en contains car c'est un message global
     cy.contains('Profil mis à jour').should('exist')
   })
 })

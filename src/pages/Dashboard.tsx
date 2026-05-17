@@ -9,24 +9,24 @@ import { type UserWithRelations, type Aliment, type PostComplet } from '@/lib/ty
 import Mon_compte from './Dashboard/Mon_compte'
 import Communaute from './Dashboard/Communaute'
 import { cn } from "@/lib/utils"
-import { Loading } from '../components/componentsCommuns'
-import axios from 'axios';
+import { Loading } from '@/components'
+import api from '@/lib/api'
 
 interface SidebarProps {
-  icon: React.ElementType; 
+  icon: React.ElementType;
   label: string;
   active: boolean;
   onClick: () => void;
 }
 
 const Sidebar = ({ icon: Icon, label, active, onClick }: SidebarProps) => (
-  <button 
+  <button
     onClick={onClick}
     className={cn(
       "group relative w-full flex items-center justify-start gap-4 px-6 py-7 transition-all duration-300 outline-none",
       "bg-transparent hover:bg-transparent active:bg-transparent",
-      active 
-        ? "text-slate-950 dark:text-zinc-50" 
+      active
+        ? "text-slate-950 dark:text-zinc-50"
         : "text-slate-500 dark:text-zinc-400 hover:text-slate-950 dark:hover:text-zinc-100"
     )}
   >
@@ -34,8 +34,8 @@ const Sidebar = ({ icon: Icon, label, active, onClick }: SidebarProps) => (
       "absolute left-0 w-1 bg-emerald-500 shadow-sm rounded-r-full transition-all duration-500",
       active ? "h-8 opacity-100" : "h-0 opacity-0 group-hover:h-5 group-hover:opacity-100"
     )} />
-    <Icon 
-      size={22} 
+    <Icon
+      size={22}
       strokeWidth={active ? 2.5 : 2}
       className={cn(
         "shrink-0 transition-transform duration-300",
@@ -53,9 +53,9 @@ const Sidebar = ({ icon: Icon, label, active, onClick }: SidebarProps) => (
 
 function Dashboard() {
   const [page, setPage] = useState("panel")
- 
+
   const { email } = useParams<{ email: string }>();
-  
+
   const [user, setUser] = useState<UserWithRelations>(null);
   const [aliments, setAliments] = useState<Aliment[]>([]);
   const [communauteFeed, setCommunauteFeed] = useState<PostComplet[]>([]);
@@ -64,8 +64,8 @@ function Dashboard() {
   const refreshUserData = async () => {
     try {
       const [resUser, resFeed] = await Promise.all([
-        axios.get<UserWithRelations>(`http://localhost:3000/api/utilisateur?email=${email}`),
-        axios.get<PostComplet[]>(`http://localhost:3000/api/communaute/feed`)
+        api.get<UserWithRelations>(`/api/utilisateur?email=${email}`),
+        api.get<PostComplet[]>(`/api/communaute/feed`)
       ]);
       setUser(resUser.data);
       setCommunauteFeed(resFeed.data);
@@ -77,11 +77,11 @@ function Dashboard() {
     async function initDashboard() {
       if (!email || email === ":email") return;
       try {
-        setLoading(true); 
+        setLoading(true);
         const [resUser, resAliments, resFeed] = await Promise.all([
-          axios.get<UserWithRelations>(`http://localhost:3000/api/utilisateur?email=${email}`),
-          axios.get(`http://localhost:3000/api/aliments/all`),
-          axios.get<PostComplet[]>(`http://localhost:3000/api/communaute/feed`)
+          api.get<UserWithRelations>(`/api/utilisateur?email=${email}`),
+          api.get(`/api/aliments/all`),
+          api.get<PostComplet[]>(`/api/communaute/feed`)
         ]);
 
         setUser(resUser.data);
@@ -101,34 +101,34 @@ function Dashboard() {
 
   return (
     <div className="flex h-screen overflow-hidden pt-16">
-    <aside className="w-64 fixed left-0 top-16 bottom-0 p-6 flex flex-col justify-between z-20 bg-transparent overflow-y-auto overflow-x-hidden">
-      <nav className="space-y-4">
-        <div className="px-4 mb-6">
-          <p className="text-[10px] font-black text-slate-400 dark:text-zinc-600 uppercase">Menu</p>
-        </div>
-        
-        <Sidebar icon={User} label="Profil" active={page === "profil"} onClick={() => setPage("profil")} />
-        <Sidebar icon={CalendarDays} label="Plannings" active={page === "plannings"} onClick={() => setPage("plannings")} />
-        <Sidebar icon={LayoutDashboard} label="Panel de Gestion" active={page === "panel"} onClick={() => setPage("panel")} />
-        <div className="px-4 mb-2 mt-8">
-          <p className="text-[10px] font-black text-slate-400 dark:text-zinc-600 uppercase">Communauté</p>
-        </div>
-        <Sidebar icon={Share2} label="Mon Profil" active={page === "mon-profil"} onClick={() => setPage("mon-profil")} />
-        <Sidebar icon={Users} label="Explorer" active={page === "communaute"} onClick={() => setPage("communaute")} />
-      </nav>
+      <aside className="w-64 fixed left-0 top-16 bottom-0 p-6 flex flex-col justify-between z-20 bg-transparent overflow-y-auto overflow-x-hidden">
+        <nav className="space-y-4">
+          <div className="px-4 mb-6">
+            <p className="text-[10px] font-black text-slate-400 dark:text-zinc-600 uppercase">Menu</p>
+          </div>
 
-    </aside>
+          <Sidebar icon={User} label="Profil" active={page === "profil"} onClick={() => setPage("profil")} />
+          <Sidebar icon={CalendarDays} label="Plannings" active={page === "plannings"} onClick={() => setPage("plannings")} />
+          <Sidebar icon={LayoutDashboard} label="Panel de Gestion" active={page === "panel"} onClick={() => setPage("panel")} />
+          <div className="px-4 mb-2 mt-8">
+            <p className="text-[10px] font-black text-slate-400 dark:text-zinc-600 uppercase">Communauté</p>
+          </div>
+          <Sidebar icon={Share2} label="Mon Profil" active={page === "mon-profil"} onClick={() => setPage("mon-profil")} />
+          <Sidebar icon={Users} label="Explorer" active={page === "communaute"} onClick={() => setPage("communaute")} />
+        </nav>
+
+      </aside>
 
       <main className="flex-1 ml-64 p-10 min-h-[calc(100vh-64px)] overflow-x-hidden">
-        {page === "profil" && <Profil user={user} onUpdate={refreshUserData}/>}
+        {page === "profil" && <Profil user={user} onUpdate={refreshUserData} />}
         {page === "plannings" && (
-          <Plannings user={user} tousLesAliments={aliments} onUpdate={refreshUserData}/>
+          <Plannings user={user} tousLesAliments={aliments} onUpdate={refreshUserData} />
         )}
         {page === "panel" && user && (
-          <Panel user={user} tousLesAliments={aliments} onUpdate={refreshUserData}/>
+          <Panel user={user} tousLesAliments={aliments} onUpdate={refreshUserData} />
         )}
-        {page === "mon-profil" && user && <Mon_compte user={user} onUpdate={refreshUserData}/> }
-        {page === "communaute" && user && <Communaute user={user} onUpdate={refreshUserData} initialFeed={communauteFeed}/> }
+        {page === "mon-profil" && user && <Mon_compte user={user} onUpdate={refreshUserData} />}
+        {page === "communaute" && user && <Communaute user={user} onUpdate={refreshUserData} initialFeed={communauteFeed} />}
       </main>
     </div>
   )

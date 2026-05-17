@@ -1,234 +1,199 @@
-import { 
-    BacAliment, MomentRepas, TemplateRepas, RegimeAlimentaire, 
-    type Aliment, type PanierItem, type RepasGenere, type BilanNutritionnel, type JourneePlanning
-} from "@/lib/types";
+import { BacAliment, MomentRepas, TemplateRepas, RegimeAlimentaire, type Aliment, type PanierItem, type RepasGenere, type JourneePlanning } from "@/lib/types";
 import { ReglesRepas } from "./rules";
-import { NutritionSolver } from "./solver";
-import { REPARTITION_MACROS, MODELES_REPAS, RATIOS_MOMENTS } from "../constants";
+import { RepasSolver } from "./solver";
+import { MODELES_REPAS } from "../constants-logic";
+import { CalculateurImpact } from "./impact";
 
-const shuffle = <T>(array: T[]): T[] => [...array].sort(() => Math.random() - 0.5);
+// shuffle
+const melanger = <T>(array: T[]): T[] => { return [...array].sort(() => Math.random() - 0.5); };
 
-const suivisVide = { 
-    fromages: 0, 
-    lait: new Set(), 
-    oleagineux: new Set(), 
-    sauces: new Set(), 
-    viandesPoissons: new Set() 
-};
-
-export const PlanningLogic = {
-    piocherPanier: (aliments: Aliment[], moment: MomentRepas, template: TemplateRepas, regime: RegimeAlimentaire, besoins: any, suivis: any): PanierItem[] => {
+const Cuisine = {
+    // aliment aleatoire
+    preparerPlateau: (aliments: Aliment[], moment: MomentRepas, template: TemplateRepas, regime: RegimeAlimentaire, besoins: any): Aliment[] => {
         const modele = MODELES_REPAS[template];
-        const panier: PanierItem[] = [];
-        const estBacProtStrict = (b: BacAliment) => String(b).startsWith("PROT_") && b !== BacAliment.PROT_VEG && b !== BacAliment.PROT_P;
-        const estBacFruit = (b: BacAliment) => b === BacAliment.FRUIT_ENTIER || b === BacAliment.FRUIT_PULPE;
-        const estBacSensible = (b: BacAliment) => 
-            estBacProtStrict(b) || estBacFruit(b) || 
-            ([BacAliment.HUILE, BacAliment.LAIT, BacAliment.OLEAGINEUX] as BacAliment[]).includes(b);
+        const plateau: Aliment[] = [];
 
         modele.forEach((groupe, index) => {
-            const { bacs, isOptional } = groupe;
-            const alimentsActuels = panier.map(p => p.aliment);
-            
-            if (!ReglesRepas.estLigneAutorisee(index, template, alimentsActuels)) return;
-            if (isOptional && isOptional(alimentsActuels.map(a => a.bac as BacAliment)) && Math.random() > 0.8) return; 
-
-            const bacsCompatibles = ReglesRepas.getBacsCompatibles(index, template, bacs, alimentsActuels, regime);
-
-            let options = aliments.filter(a => {
-                if (!bacsCompatibles.includes(a.bac)) return false;
-                if (!ReglesRepas.verifAcces(a, moment, regime, besoins)) return false;
-
-                let cle = a.bac as string;
-                if (estBacProtStrict(a.bac)) cle = "VERROU_PROT_ANIMALE";
-                if (estBacFruit(a.bac)) cle = "VERROU_FRUITS";
-
-                if (estBacSensible(a.bac)) {
-                    const elus = suivis.verrouillage[cle] || new Set();
-                    if (elus.size >= 2 && !elus.has(a.id)) return false;
+            if (!ReglesRepas.estLigneAutorisee(index, template, plateau, besoins)) return;
+            if (groupe.isOptional && groupe.isOptional(plateau.map(a => a.bac as BacAliment))) {
+                if (besoins && besoins.calories > 4000) {
+                } else if (Math.random() > 0.5) {
+                    return;
                 }
+            }
+            const bacsCompatibles = ReglesRepas.getBacsCompatibles(index, template, groupe.bacs, plateau, regime);
+            let options = aliments.filter(a => {
+                if (!bacsCompatibles.includes(a.bac as BacAliment)) return false;
+                if (!ReglesRepas.verifAcces(a, moment, regime, besoins)) return false;
                 return true;
             });
 
+            if (template === TemplateRepas.COLLATION && index === 0 && besoins && besoins.calories > 4000) {
+                const optionsDenses = options.filter(a => a.bac === BacAliment.PAIN || a.bac === BacAliment.CERE);
+                if (optionsDenses.length > 0) options = optionsDenses;
+            }
+
+            if (besoins && besoins.calories > 4000) {
+                const optionsMaigres = options.filter(a => {
+                    if (a.bac.startsWith("PROT_") || a.bac === "FROMAGE") {
+                        const lip = Number((a as any).lipides) || Number((a as any).lip) || 0;
+                        return lip <= 6;
+                    }
+                    return true;
+                });
+                if (optionsMaigres.length > 0) options = optionsMaigres;
+
+                const FECULENTS_LÉGERS: BacAliment[] = [BacAliment.POTATO, BacAliment.GNOCCHI];
+                const optionsGlucidesDenses = options.filter(a => {
+                    if (FECULENTS_LÉGERS.includes(a.bac as BacAliment)) {
+                        return false;
+                    }
+                    if (a.bac === BacAliment.RIZ || a.bac === BacAliment.PATE || a.bac === BacAliment.CERE || a.bac === BacAliment.SEMOU) {
+                        const glu = Number((a as any).glucides) || Number((a as any).glu) || 0;
+                        return glu >= 60;
+                    }
+                    return true;
+                });
+                if (optionsGlucidesDenses.length > 0) options = optionsGlucidesDenses;
+
+                const optionsLipidesPropres = options.filter(a => {
+                    if (a.bac === BacAliment.HUILE || a.bac === BacAliment.VINAIGRETTE || a.bac === BacAliment.OLEAGINEUX) {
+                        const grasSat = Number((a as any).gras_sat) || 0;
+                        const nomAliment = a.nom.toLowerCase();
+                        if (nomAliment.includes("coco") || nomAliment.includes("palme") || nomAliment.includes("beurre")) {
+                            return false;
+                        }
+                        return grasSat <= 15;
+                    }
+                    return true;
+                });
+                if (optionsLipidesPropres.length > 0) options = optionsLipidesPropres;
+            }
+
             if (options.length > 0) {
-                const premier = options[0];
-                let cle = premier.bac as string;
-                if (estBacProtStrict(premier.bac)) cle = "VERROU_PROT_ANIMALE";
-                if (estBacFruit(premier.bac)) cle = "VERROU_FRUITS";
-
-                if (estBacSensible(premier.bac)) {
-                    const elus = suivis.verrouillage[cle] || new Set();
-                    const optionsDejaElues = options.filter(o => elus.has(o.id));
-                    if (optionsDejaElues.length > 0) {
-                        options = optionsDejaElues;
-                    }
-                }
-
-                const bacChoisi = shuffle(Array.from(new Set(options.map(o => o.bac))))[0];
-                const el = shuffle(options.filter(a => a.bac === bacChoisi))[0];
-
-                if (el) {
-                    panier.push({ aliment: el, poids: 0 });
-                    if (estBacSensible(el.bac)) {
-                        let key = el.bac as string;
-                        if (estBacProtStrict(el.bac)) key = "VERROU_PROT_ANIMALE";
-                        if (estBacFruit(el.bac)) key = "VERROU_FRUITS";
-                        if (!suivis.verrouillage[key]) suivis.verrouillage[key] = new Set();
-                        suivis.verrouillage[key].add(el.id);
-                    }
-                }
+                plateau.push(melanger(options)[0]);
             }
         });
-        return panier;
+
+        return plateau;
     },
 
-    genererUnRepas: (dispos: Aliment[], moment: MomentRepas, regime: RegimeAlimentaire, besoins: any, suivis: any): RepasGenere => {
-        let tentatives = 0;
-        let meilleurEchec: RepasGenere | null = null;
-        let scoreMeilleurEchec = -1;
-        let verrousGagnants: Record<string, Set<number>> | null = null;
+    // envoie le plateau au solver 
+    peserEtCalculer: (alimentsChoisis: Aliment[], moment: MomentRepas, template_repas: TemplateRepas, besoins: any, numJour?: number): RepasGenere => {
+        return RepasSolver.resoudreRepas(template_repas, moment, alimentsChoisis, besoins, numJour);
+    }
+};
 
-        const ratioMacro = REPARTITION_MACROS[moment]!;
-        const cibles = {
-            prot: besoins.proteines * ratioMacro.prot,
-            lip: besoins.lipides * ratioMacro.lip,
-            glu: besoins.glucides * ratioMacro.glu,
-        };
+// petit dej
+const GenerateurMatin = {
+    creer: (aliments: Aliment[], regime: RegimeAlimentaire, besoins: any, numJour: number): RepasGenere => {
+        const moment = MomentRepas.PETIT_DEJEUNER;
+        const template = TemplateRepas.PETIT_DEJ;
 
-        while (tentatives < 50) {
-            const verrouillageCopie: Record<string, Set<number>> = {};
-            for (const key in suivis.verrouillage) {
-                verrouillageCopie[key] = new Set(suivis.verrouillage[key]);
-            }
+        const plateau = Cuisine.preparerPlateau(aliments, moment, template, regime, besoins);
+        return Cuisine.peserEtCalculer(plateau, moment, template, besoins, numJour);
+    }
+};
 
-            const suivisTemporaires = {
-                global: { ...suivis.global },
-                verrouillage: verrouillageCopie
-            };
+// collation
+const GenerateurPause = {
+    creer: (aliments: Aliment[], regime: RegimeAlimentaire, besoins: any, numJour: number): RepasGenere => {
+        const moment = MomentRepas.COLLATION;
+        const template = TemplateRepas.COLLATION;
 
-            const template = (moment === MomentRepas.PETIT_DEJEUNER) ? TemplateRepas.PETIT_DEJ :
-                             (moment === MomentRepas.COLLATION) ? TemplateRepas.COLLATION :
-                             shuffle([TemplateRepas.HOT, TemplateRepas.SANDWICH, TemplateRepas.WRAP, TemplateRepas.SALADE])[0];
+        const plateau = Cuisine.preparerPlateau(aliments, moment, template, regime, besoins);
+        return Cuisine.peserEtCalculer(plateau, moment, template, besoins, numJour);
+    }
+};
 
-            const panierInitial = PlanningLogic.piocherPanier(dispos, moment, template, regime, besoins, suivisTemporaires);
-            
-            const ratioMoment = RATIOS_MOMENTS[moment];
-            const menuFinal = NutritionSolver.resoudreMenu(
-                panierInitial, 
-                cibles, 
-                moment, 
-                {
-                    gras_sat: besoins.limites.gras_sat * ratioMoment,
-                    sucre: besoins.limites.sucre * ratioMoment,
-                    sel: besoins.limites.sel * ratioMoment,
-                },
-                besoins 
-            );
+// repas
+const GenerateurPlats = {
+    creer: (aliments: Aliment[], moment: MomentRepas, regime: RegimeAlimentaire, besoins: any, numJour: number, templateForce?: TemplateRepas): RepasGenere => {
+        let template = templateForce;
 
-            const stats = {
-                prot: NutritionSolver.getSum(menuFinal, 'prot'),
-                lip: NutritionSolver.getSum(menuFinal, 'lip'),
-                glu: NutritionSolver.getSum(menuFinal, 'glu'),
-                sucre: NutritionSolver.getSum(menuFinal, 'sucre'),
-                sel: NutritionSolver.getSum(menuFinal, 'sel'),     
-                gras_sat: NutritionSolver.getSum(menuFinal, 'gras_sat'),
-                co2: NutritionSolver.getSum(menuFinal, 'co2'),
-            };
+        if (!template) {
+            const choixPossibles = [TemplateRepas.HOT, TemplateRepas.SANDWICH, TemplateRepas.WRAP, TemplateRepas.SALADE];
+            template = melanger(choixPossibles)[0];
+        }
 
-            const repas: RepasGenere = { moment, template, aliments: menuFinal, stats, cibles };
+        const plateau = Cuisine.preparerPlateau(aliments, moment, template, regime, besoins);
+        return Cuisine.peserEtCalculer(plateau, moment, template, besoins, numJour);
+    }
+};
 
-            if (stats.prot >= cibles.prot * 0.96 && 
-                stats.glu >= cibles.glu * 0.96 && stats.glu <= cibles.glu * 1.05 &&
-                stats.lip >= cibles.lip * 0.96) {
-                
-                suivis.verrouillage = suivisTemporaires.verrouillage;
-                return repas;
-            }
-
-            const score = (stats.prot / cibles.prot) + (stats.lip / cibles.lip) + (stats.glu / cibles.glu);
-            if (score > scoreMeilleurEchec) { 
-                scoreMeilleurEchec = score; 
-                meilleurEchec = repas;
-                verrousGagnants = suivisTemporaires.verrouillage;
-            }
-
-            tentatives++;
-        } 
-
-        if (verrousGagnants) suivis.verrouillage = verrousGagnants;
-        return meilleurEchec!; 
-    },
+// planning
+export const PlanningLogic = {
 
     genererSemaine: (tousLesAliments: Aliment[], besoins: any, profil: any): JourneePlanning[] => {
         const journal: JourneePlanning[] = [];
         const regime = profil?.regime || RegimeAlimentaire.STANDARD;
+        const caloriesCibleJournee = besoins?.calories || 2000;
 
-        const suivisHebdo = {
-            global: {} as Record<BacAliment, { utilisations: number, differents: Set<number> }>,
-            verrouillage: {} as Record<string, Set<number>>
-        };
-
-
-        let indicesACopier: number[] = [];
-        const joursPossibles = [1, 2, 3, 4, 5, 6];
-        const j1 = joursPossibles[Math.floor(Math.random() * joursPossibles.length)];
-        indicesACopier.push(j1);
-        const restants = joursPossibles.filter(j => j !== j1 && j !== j1 - 1 && j !== j1 + 1);
-        if (restants.length > 0) {
-            indicesACopier.push(restants[Math.floor(Math.random() * restants.length)]);
-        }
-
-        for (let i = 0; i < 7; i++) {
+        // sur une semaine
+        for (let i = 0; i < 5; i++) {
+            const numJour = i + 1;
             let journeeRepas: RepasGenere[] = [];
 
-            if (indicesACopier.includes(i) && journal[i - 1]) {
-                journeeRepas = JSON.parse(JSON.stringify(journal[i - 1].repas));
-            } else {
-                [MomentRepas.PETIT_DEJEUNER, MomentRepas.DEJEUNER, MomentRepas.COLLATION, MomentRepas.DINER].forEach(moment => {
-                    const repas = PlanningLogic.genererUnRepas(tousLesAliments, moment, regime, besoins, suivisHebdo);
+            journeeRepas.push(GenerateurMatin.creer(tousLesAliments, regime, besoins, numJour));
 
-                    repas.aliments.forEach(item => {
-                        const b = item.aliment.bac as BacAliment;
-                        if (!suivisHebdo.global[b]) suivisHebdo.global[b] = { utilisations: 0, differents: new Set() };
-                        suivisHebdo.global[b].utilisations += 1;
-                        suivisHebdo.global[b].differents.add(item.aliment.id);
-                    });
-                    
-                    journeeRepas.push(repas);
-                });
+            const choixMidi = [TemplateRepas.HOT, TemplateRepas.SANDWICH, TemplateRepas.WRAP, TemplateRepas.SALADE];
+            const templateMidi = melanger(choixMidi)[0];
+            journeeRepas.push(GenerateurPlats.creer(tousLesAliments, MomentRepas.DEJEUNER, regime, besoins, numJour, templateMidi));
+
+            journeeRepas.push(GenerateurPause.creer(tousLesAliments, regime, besoins, numJour));
+
+            const choixSoir = [TemplateRepas.HOT, TemplateRepas.SANDWICH, TemplateRepas.WRAP, TemplateRepas.SALADE];
+            let templateSoir = melanger(choixSoir)[0];
+
+            if (besoins && besoins.calories > 4000 && templateMidi !== TemplateRepas.HOT) {
+                templateSoir = TemplateRepas.HOT;
             }
 
-            journal.push({ 
-                jour: i + 1, 
-                repas: journeeRepas, 
-                bilan: PlanningLogic.calculerBilan(journeeRepas, besoins) 
+            journeeRepas.push(GenerateurPlats.creer(tousLesAliments, MomentRepas.DINER, regime, besoins, numJour, templateSoir));
+
+            // sauvegarde 
+            journal.push({
+                jour: numJour,
+                repas: journeeRepas,
+                bilan: CalculateurImpact.calculerBilanJournee(journeeRepas, besoins)
             });
         }
+
+        // plus proche calorique
+        const deMeilleurAPire = [...journal].sort((a, b) => {
+            const caloriesA = ((a.bilan?.prot?.actuel || 0) * 4) + ((a.bilan?.glu?.actuel || 0) * 4) + ((a.bilan?.lip?.actuel || 0) * 9);
+            const caloriesB = ((b.bilan?.prot?.actuel || 0) * 4) + ((b.bilan?.glu?.actuel || 0) * 4) + ((b.bilan?.lip?.actuel || 0) * 9);
+
+            const ecartA = Math.abs(caloriesA - caloriesCibleJournee);
+            const ecartB = Math.abs(caloriesB - caloriesCibleJournee);
+            return ecartA - ecartB;
+        });
+
+        const top1 = deMeilleurAPire[0];
+        const top2 = deMeilleurAPire[1];
+
+        // clonage
+        const repasClone6 = top1.repas.map(repasOriginal => ({
+            ...JSON.parse(JSON.stringify(repasOriginal)),
+            numJour: 6
+        }));
+        journal.push({
+            jour: 6,
+            repas: repasClone6,
+            bilan: CalculateurImpact.calculerBilanJournee(repasClone6, besoins)
+        });
+
+        // colone
+        const repasClone7 = top2.repas.map(repasOriginal => ({
+            ...JSON.parse(JSON.stringify(repasOriginal)),
+            numJour: 7
+        }));
+        journal.push({
+            jour: 7,
+            repas: repasClone7,
+            bilan: CalculateurImpact.calculerBilanJournee(repasClone7, besoins)
+        });
+
         return journal;
-    },
-
-    calculerBilan: (repasDuJour: RepasGenere[], besoins: any): BilanNutritionnel => {
-        const totals = repasDuJour.reduce((acc, r) => ({
-            p: acc.p + r.stats.prot, 
-            l: acc.l + r.stats.lip, 
-            g: acc.g + r.stats.glu, 
-            c: acc.c + r.stats.co2
-        }), { p: 0, l: 0, g: 0, c: 0 });
-
-        return {
-            prot: { actuel: Math.round(totals.p), cible: besoins.proteines },
-            lip: { actuel: Math.round(totals.l), cible: besoins.lipides },
-            glu: { actuel: Math.round(totals.g), cible: besoins.glucides },
-            co2Total: totals.c
-        };
-    },
-
-    piochePetitDej: (aliments: Aliment[], regime: RegimeAlimentaire, besoins: any) => 
-        PlanningLogic.piocherPanier(aliments, MomentRepas.PETIT_DEJEUNER, TemplateRepas.PETIT_DEJ, regime, besoins, { global: {}, verrouillage: {} }),
-
-    piocheCollation: (aliments: Aliment[], regime: RegimeAlimentaire, besoins: any) => 
-        PlanningLogic.piocherPanier(aliments, MomentRepas.COLLATION, TemplateRepas.COLLATION, regime, besoins, { global: {}, verrouillage: {} }),
-
-    piocheRepasPrincipal: (aliments: Aliment[], moment: MomentRepas, regime: RegimeAlimentaire, besoins: any) => 
-        PlanningLogic.piocherPanier(aliments, moment, shuffle([TemplateRepas.HOT, TemplateRepas.SANDWICH, TemplateRepas.WRAP, TemplateRepas.SALADE])[0], regime, besoins, { global: {}, verrouillage: {} })
+    }
 };

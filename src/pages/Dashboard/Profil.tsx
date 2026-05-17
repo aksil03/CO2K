@@ -1,8 +1,8 @@
 import React, { useEffect, useState, useMemo } from 'react';
-import axios from 'axios';
+import api from '@/lib/api'
 import { toast } from "sonner";
 import { Card, CardContent } from "@/components/ui/card";
-import { Bouton, Loading } from '@/components/componentsCommuns';
+import { Bouton, Loading } from '@/components';
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Save, User, Target, Activity, Loader2 } from "lucide-react";
@@ -25,17 +25,17 @@ function Profil({ user: initialUser, onUpdate }: { user: UserWithRelations, onUp
     if (user.age < 15 || user.age > 100) {
       return toast.error("L'âge doit être compris entre 15 et 100 ans");
     }
-    if (user.poids < 30 || user.poids > 200) {
-      return toast.error("Le poids doit être compris entre 30 et 200 kg");
+    if (user.poids < 30 || user.poids > 120) {
+      return toast.error("Le poids doit être compris entre 30 et 120 kg");
     }
-    if (user.taille < 100 || user.taille > 250) {
-      return toast.error("La taille doit être comprise entre 100 et 250 cm");
+    if (user.taille < 100 || user.taille > 220) {
+      return toast.error("La taille doit être comprise entre 100 et 220 cm");
     }
 
     setIsSaving(true);
     try {
       const dataToSave = ProfilFormSchema.parse(user);
-      await axios.put("http://localhost:3000/api/utilisateur/update/" + user.email, dataToSave);
+      await api.put("/api/utilisateur/update/" + user.email, dataToSave);
       toast.success("Profil mis à jour");
       onUpdate();
     } catch (err) {
@@ -60,10 +60,10 @@ function Profil({ user: initialUser, onUpdate }: { user: UserWithRelations, onUp
           <User size={32} />
         </div>
         <div>
-            <h1 className="text-4xl font-black uppercase italic dark:text-white">
-              {user.prenom} <span className="text-emerald-700">{user.nom}</span>
-            </h1>
-            <p className="text-slate-400 dark:text-zinc-500 font-bold text-lg">{user.email}</p>
+          <h1 className="text-4xl font-black uppercase italic dark:text-white">
+            {user.prenom} <span className="text-emerald-700">{user.nom}</span>
+          </h1>
+          <p className="text-slate-400 dark:text-zinc-500 font-bold text-lg">{user.email}</p>
         </div>
       </div>
 
@@ -77,7 +77,7 @@ function Profil({ user: initialUser, onUpdate }: { user: UserWithRelations, onUp
 
         <CardContent className="px-10 py-12">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-            
+
             <div className="space-y-8 md:border-r md:border-slate-100 md:pr-12">
               <div className="text-center md:text-left">
                 <label className="text-[10px] font-black uppercase text-slate-400 italic block mb-1">Apport énergétique quotidien</label>
@@ -110,7 +110,7 @@ function Profil({ user: initialUser, onUpdate }: { user: UserWithRelations, onUp
 
             <div className="space-y-4">
               <label className="text-[10px] font-black uppercase text-slate-400 italic block mb-2">Seuils Max recommandés par jour</label>
-              
+
               <div className="flex justify-between items-center bg-white dark:bg-zinc-900 px-5 py-4 rounded-2xl border border-slate-100 dark:border-zinc-800 shadow-sm">
                 <div className="flex items-center gap-3">
                   <div className="w-2 h-2 rounded-full bg-rose-500" />
@@ -139,63 +139,63 @@ function Profil({ user: initialUser, onUpdate }: { user: UserWithRelations, onUp
           </div>
         </CardContent>
       </Card>
-    
-      
+
+
       <Card className="border border-slate-100 dark:border-zinc-800 shadow-lg bg-white dark:bg-zinc-950 rounded-3xl overflow-hidden">
         <div className="bg-slate-50 dark:bg-zinc-900/50 px-6 py-3 border-b dark:border-zinc-800 flex items-center justify-between font-black text-slate-500 dark:text-zinc-400 text-sm">
           <div className="flex items-center gap-3">
             <Activity size={20} className="text-emerald-700" /> MORPHOLOGIE
           </div>
         </div>
-        
+
         <CardContent className="px-10 py-12">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             <div className="space-y-2">
               <label className="text-[10px] font-black uppercase text-slate-400 italic">Poids (kg)</label>
-              <Input 
-                type="number" 
-                min="30"   
-                max="200"   
-                className="..." 
-                value={user.poids} 
+              <Input
+                type="number"
+                min="30"
+                max="120"
+                className="..."
+                value={user.poids}
                 onChange={(e) => {
                   const val = Number(e.target.value);
-                  if (val > 200) return; 
-                  setUser({...user, poids: val});
-                }} 
+                  if (val > 120) return;
+                  setUser({ ...user, poids: val });
+                }}
               />
-              <p className="text-[9px] text-slate-400">Entre 30 et 200kg</p>
+              <p className="text-[9px] text-slate-400">Entre 30 et 120kg</p>
             </div>
 
             <div className="space-y-2">
               <label className="text-[10px] font-black uppercase text-slate-400 italic">Taille (cm)</label>
-              <Input 
-                type="number" 
-                min="100" 
-                max="250"   
-                className="..." 
-                value={user.taille} 
+              <Input
+                type="number"
+                min="100"
+                max="220"
+                className="..."
+                value={user.taille}
                 onChange={(e) => {
                   const val = Number(e.target.value);
-                  if (val > 250) return;
-                  setUser({...user, taille: val});
+                  if (val > 220) return;
+                  setUser({ ...user, taille: val });
                 }}
               />
-              <p className="text-[9px] text-slate-400">Entre 100 et 250cm</p>
+              <p className="text-[9px] text-slate-400">Entre 100 et 220cm</p>
             </div>
 
             <div className="space-y-2">
               <label className="text-[10px] font-black uppercase text-slate-400 italic">Âge</label>
-              <Input 
-                type="number" 
+              <Input
+                type="number"
                 min="15"
-                max="100"   
-                className="..." 
-                value={user.age} 
+                max="100"
+                className="..."
+                value={user.age}
                 onChange={(e) => {
                   const val = Number(e.target.value);
                   if (val > 100) return;
-                  setUser({...user, age: val});
+                  setUser({ ...user, age: val });
                 }}
               />
               <p className="text-[9px] text-slate-400">Entre 15 et 100 ans</p>
@@ -203,7 +203,7 @@ function Profil({ user: initialUser, onUpdate }: { user: UserWithRelations, onUp
 
             <div className="space-y-2">
               <label className="text-[10px] font-black uppercase text-slate-400 italic">Genre</label>
-              <Select value={user.genre} onValueChange={(v) => setUser({...user, genre: v as Genre})}>
+              <Select value={user.genre} onValueChange={(v) => setUser({ ...user, genre: v as Genre })}>
                 <SelectTrigger className="h-14 text-base font-medium border-slate-200 rounded-2xl w-full dark:bg-zinc-900 dark:border-zinc-800 dark:text-white">
                   <SelectValue>{user.genre && formatEnum(user.genre)}</SelectValue>
                 </SelectTrigger>
@@ -231,7 +231,7 @@ function Profil({ user: initialUser, onUpdate }: { user: UserWithRelations, onUp
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
             <div className="space-y-2">
               <label className="text-[10px] font-black uppercase text-slate-400 italic">Objectif Physique</label>
-              <Select value={user.objectif} onValueChange={(v) => setUser({...user, objectif: v as ObjectifPhysique})}>
+              <Select value={user.objectif} onValueChange={(v) => setUser({ ...user, objectif: v as ObjectifPhysique })}>
                 <SelectTrigger className="h-14 text-base font-medium border-slate-200 rounded-2xl w-full dark:bg-zinc-900 dark:border-zinc-800 dark:text-white">
                   <SelectValue>{user.objectif && formatEnum(user.objectif)}</SelectValue>
                 </SelectTrigger>
@@ -247,7 +247,7 @@ function Profil({ user: initialUser, onUpdate }: { user: UserWithRelations, onUp
 
             <div className="space-y-2">
               <label className="text-[10px] font-black uppercase text-slate-400 italic">Niveau d'activité</label>
-              <Select value={user.activite} onValueChange={(v) => setUser({...user, activite: v as NiveauActivite})}>
+              <Select value={user.activite} onValueChange={(v) => setUser({ ...user, activite: v as NiveauActivite })}>
                 <SelectTrigger className="h-14 text-base font-medium border-slate-200 rounded-2xl w-full dark:bg-zinc-900 dark:border-zinc-800 dark:text-white">
                   <SelectValue>{user.activite && formatEnum(user.activite)}</SelectValue>
                 </SelectTrigger>
@@ -263,7 +263,7 @@ function Profil({ user: initialUser, onUpdate }: { user: UserWithRelations, onUp
 
             <div className="space-y-2">
               <label className="text-[10px] font-black uppercase text-slate-400 italic">Régime Alimentaire</label>
-              <Select value={user.regime} onValueChange={(v) => setUser({...user, regime: v as RegimeAlimentaire})}>
+              <Select value={user.regime} onValueChange={(v) => setUser({ ...user, regime: v as RegimeAlimentaire })}>
                 <SelectTrigger className="h-14 text-base font-medium border-slate-200 rounded-2xl w-full dark:bg-zinc-900 dark:border-zinc-800 dark:text-white">
                   <SelectValue>{user.regime && formatEnum(user.regime)}</SelectValue>
                 </SelectTrigger>
@@ -280,8 +280,8 @@ function Profil({ user: initialUser, onUpdate }: { user: UserWithRelations, onUp
         </CardContent>
       </Card>
 
-      <Bouton 
-        onClick={handleSave} 
+      <Bouton
+        onClick={handleSave}
         disabled={isSaving}
         className="h-16 rounded-2xl text-xs"
       >

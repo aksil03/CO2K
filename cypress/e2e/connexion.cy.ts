@@ -1,9 +1,11 @@
 describe('Test Connexion', () => {
-  
+
   beforeEach(() => {
     cy.clearLocalStorage()
-    cy.visit('http://localhost:5173/login') 
+    cy.window().then((win) => win.sessionStorage.clear())
+    cy.visit('http://localhost:5173/login')
   })
+
 
   it('Formulaire vide', () => {
     cy.get('button[type="submit"]').click()
@@ -13,7 +15,8 @@ describe('Test Connexion', () => {
     cy.url().should('include', '/login')
     // local storage
     cy.window().then((win) => {
-      expect(win.localStorage.getItem('token')).to.be.null
+      // @ts-ignore
+      expect(win.sessionStorage.getItem('token')).to.be.null;
     })
   })
 
@@ -31,19 +34,61 @@ describe('Test Connexion', () => {
     cy.contains('Échec de la connexion').should('be.visible')
     cy.url().should('include', '/login')
     cy.window().then((win) => {
-      expect(win.localStorage.getItem('token')).to.be.null
+      // @ts-ignore
+      expect(win.sessionStorage.getItem('token')).to.be.null;
     })
   })
 
   it('Connexion réussie', () => {
+    const payload = btoa(JSON.stringify({ exp: Math.floor(Date.now() / 1000) + 3600, id: 1, email: 'test@gmail.com' }));
+    const fauxTokenValide = `header.${payload}.signature`;
+
+    cy.intercept('POST', '**/api/connexion', {
+      statusCode: 200,
+      body: {
+        token: fauxTokenValide,
+        prenom: 'Test',
+        email: 'test@gmail.com'
+      }
+    }).as('loginSuccess')
+
+    cy.intercept('GET', '**/api/utilisateur*', {
+      statusCode: 200,
+      body: {
+        id: 1,
+        prenom: 'Test',
+        email: 'test@gmail.com',
+        poids: 75,
+        taille: 180,
+        age: 25,
+        genre: 'HOMME',
+        objectif: 'MAINTIEN',
+        activite: 'MODERE',
+        regime: 'STANDARD'
+      }
+    }).as('getUser')
+
+    cy.intercept('GET', '**/api/aliments/all', {
+      statusCode: 200,
+      body: {}
+    }).as('getAliments')
+
+    cy.intercept('GET', '**/api/communaute/feed', {
+      statusCode: 200,
+      body: []
+    }).as('getFeed')
+
     cy.get('input[name="email"]').type('test@gmail.com')
     cy.get('input[name="password"]').type('test')
     cy.get('button[type="submit"]').click()
+    cy.wait('@loginSuccess')
     cy.url().should('include', '/dashboard')
     cy.contains('Connexion réussie').should('be.visible')
     cy.window().then((win) => {
-      const token = win.localStorage.getItem('token')
-      expect(token).to.not.be.null
+      const token = win.sessionStorage.getItem('token')
+      // @ts-ignore
+      expect(token).to.not.be.null;
     })
   })
+
 })

@@ -131,7 +131,7 @@ def extraire_donnees():
                     donnees_finales.at[i, 'glu'] = 5.0
                     donnees_finales.at[i, 'prot'] = 1.5
 
-            # 3. Recalcul final de la calorie pour la cohérence
+            # recalcul final de la calorie pour la cohérence
             p_f = donnees_finales.at[i, 'prot'] if pd.notna(donnees_finales.at[i, 'prot']) else 0
             g_f = donnees_finales.at[i, 'glu'] if pd.notna(donnees_finales.at[i, 'glu']) else 0
             l_f = donnees_finales.at[i, 'lip'] if pd.notna(donnees_finales.at[i, 'lip']) else 0
@@ -354,7 +354,7 @@ def lancer_nettoyage():
             (df_clean['precision_categorie'].str.contains('légumes crus', case=False, na=False)) &
             ~df_clean['nom'].str.contains(r'laitue|mâche|scarole|roquette|sucrine|chicorée|batavia|iceberg|mesclun', case=False, na=False) &
             ~df_clean['nom'].str.contains(
-                r'oseille|persil|ciboulette|aneth|basilic|menthe|coriandre|thym|laurier|romarin|zeste|citronnelle|légumes|julienne|Petits pois et carottes|salade', 
+                r'oseille|persil|ciboulette|aneth|basilic|menthe|coriandre|thym|laurier|romarin|zeste|citronnelle|légumes|julienne|oignon|Petits pois et carottes|salade', 
                 case=False, na=False
             )
         ],
@@ -458,11 +458,11 @@ def lancer_nettoyage():
             est_sandwich = False
             est_vege = True
             
-            bacs_sucres = ['CERE', 'LAIT', 'FRUIT_ENTIER', 'FRUIT_PULPE', 'BC', 'OLEAGINEUX', 'GAL_RIZ']
+            bacs_sucres = ['CERE', 'LAIT', 'FRUIT_ENTIER', 'FRUIT_PULPE', 'BC', 'OLEAGINEUX', 'GAL_RIZ', 'FROMAGE']
             
             bacs_sales = [
                 'PROT_PORC', 'PROT_VIANDE_ROUGE', 'PROT_VOLAILLE', 'PROT_BLANCHE_AUTRE', 
-                'PROT_P', 'PROT_VEG', 
+                'PROT_P', 'PROT_VEG',  
                 'RIZ', 'PATE', 'NOUILLE', 'GNOCCHI', 'CERE_REPAS', 'SEMOU', 'POTATO', 
                 'WRAP', 'LEG', 'LAITUE', 
                 'S_HOT_WHITE', 'S_HOT_RED', 'S_HOT_ASIA', 'S_COLD', 'VINAIGRETTE', 'FROMAGE', 'HUILE'

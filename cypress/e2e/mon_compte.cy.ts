@@ -29,6 +29,8 @@ describe('Test Page Mon Compte', () => {
 
   beforeEach(() => {
     cy.clearLocalStorage()
+    cy.window().then((win) => win.sessionStorage.clear())
+
     cy.intercept('GET', '**/api/utilisateur*', { statusCode: 200, body: userTest }).as('getUser')
     cy.intercept('GET', '**/api/aliments/all', { statusCode: 200, body: {} }).as('getAliments')
     cy.intercept('GET', '**/api/communaute/feed', { statusCode: 200, body: [] }).as('getFeed')
@@ -36,17 +38,20 @@ describe('Test Page Mon Compte', () => {
 
     cy.visit(`http://localhost:5173/dashboard/${userTest.email}`, {
       onBeforeLoad(win) {
-        win.localStorage.setItem('token', fauxTokenValide)
-        win.localStorage.setItem('user_email', userTest.email)
+        win.sessionStorage.setItem('token', fauxTokenValide)
+        win.sessionStorage.setItem('user_email', userTest.email)
       }
     })
 
+
     cy.wait(['@getUser', '@getAliments', '@getFeed'])
+    cy.wait(500)
     cy.contains('Mon Profil').should('be.visible').click({ force: true })
     cy.wait('@getMesPosts')
   })
 
-  it('Affiche les publications personnelles avec le compteur à jour', () => {
+
+  it('Affiche les publications personnelles avec le compteur a jour', () => {
     cy.get('h1').should('contain', 'test')
     cy.get('#total-posts-count').should('contain', '1')
     cy.contains('Ancien Post Programme').should('exist')
@@ -59,8 +64,8 @@ describe('Test Page Mon Compte', () => {
       contenu: "Super description",
       auteurId: 1,
       auteur: { id: 1, nom: "test", prenom: "testeur" },
-      planning: { id: 201, nom: "Planning Sèche" },
-      programme: null,
+      planning: null,
+      programme: { id: 101, nom: "Programme Force" },
       commentaires: [],
       likes: [],
       _count: { likes: 0, commentaires: 0 },
@@ -70,19 +75,24 @@ describe('Test Page Mon Compte', () => {
     cy.intercept('POST', '**/api/posts/creer', { statusCode: 201, body: newPost }).as('createPost')
     cy.intercept('GET', '**/api/posts/utilisateur/1', { statusCode: 200, body: [...postsMock, newPost] }).as('getMesPostsRefresh')
     cy.get('#btn-ouvrir-modal-post').click({ force: true })
-    cy.get('#tab-select-planning').click({ force: true })
     cy.get('#input-post-titre').type('Ma nouvelle routine')
     cy.get('#input-post-contenu').type('Super description')
-    cy.get('button[role="combobox"]').click({ force: true })
-    cy.get('div[role="option"]').contains('Planning Sèche').click({ force: true })
-    cy.get('#btn-valider-publication').should('not.be.disabled').click({ force: true })
+    cy.get('button[role="combobox"]').click()
+    cy.get('[role="option"]').should('be.visible')
+    cy.get('[role="option"]').contains('span', 'Programme Force').trigger('pointerdown')
+    cy.get('[role="option"]').contains('span', 'Programme Force').click({ force: true })
+    cy.contains('[role="option"]', 'Programme Force').trigger('pointerdown')
+    cy.contains('[role="option"]', 'Programme Force').click({ force: true })
+    cy.get('button[role="combobox"]').should('contain', 'Programme Force')
+    cy.get('#btn-valider-publication').should('not.be.disabled').click()
     cy.wait('@createPost')
     cy.contains('Publication partagée').should('be.visible')
     cy.get('#total-posts-count').should('contain', '2')
     cy.contains('Ma nouvelle routine').scrollIntoView().should('be.visible')
   })
 
-  it('Supprime un post après confirmation dans le toast', () => {
+
+  it('Supprime un post apres confirmation dans le toast', () => {
     cy.intercept('DELETE', '**/api/posts/10', { statusCode: 204 }).as('deletePost')
     cy.intercept('GET', '**/api/posts/utilisateur/1', { statusCode: 200, body: [] }).as('getMesPostsEmpty')
     cy.get('button').find('svg.lucide-trash2').first().click({ force: true })
@@ -93,7 +103,7 @@ describe('Test Page Mon Compte', () => {
     cy.contains('Votre profil est vide').should('be.visible')
   })
 
-  it('Affiche état vide quand utilisateur a rien posté', () => {
+  it('Affiche éeat vide quand utilisateur a rien poste', () => {
     cy.intercept('GET', '**/api/posts/utilisateur/1', { statusCode: 200, body: [] }).as('getNoPosts')
     cy.contains('Profil').click({ force: true })
     cy.contains('Mon Profil').click({ force: true })

@@ -1,20 +1,20 @@
 import React, { useState, useEffect } from 'react'
-import axios from 'axios'
+import api from '@/lib/api'
 import { toast } from "sonner"
 import { LayoutGrid, ClipboardList } from "lucide-react"
-import type { UserWithRelations, PostComplet } from "@/lib/types"
-import { Loading, ModalCreerPost, CardPost } from '../../components/componentsCommuns'
+import type { UserWithRelations, PostComplet, CreatePostData } from "@/lib/types"
+import { Loading, ModalCreerPost, CardPost, EmptyState, SectionHeader } from '@/components'
 import { cn } from "@/lib/utils"
 
 export default function Mon_compte({ user, onUpdate }: { user: UserWithRelations, onUpdate: () => void }) {
-  const [mesPosts, setMesPosts] = useState<PostComplet[]>([]);
-
+  const [mesPosts, setMesPosts] = useState<PostComplet[]>(user?.posts || []);
+  const limitePostAtteinte = mesPosts.length >= 10;
   const userId = user?.id;
 
   const chargerDonnees = async () => {
     if (!user?.id) return;
     try {
-      const res = await axios.get(`http://localhost:3000/api/posts/utilisateur/${user.id}`);
+      const res = await api.get(`/api/posts/utilisateur/${user.id}`);
       setMesPosts(res.data);
     } catch (error) {
       console.error("Erreur chargement posts", error);
@@ -26,12 +26,12 @@ export default function Mon_compte({ user, onUpdate }: { user: UserWithRelations
       if (post.id === postId) {
         return {
           ...post,
-          _count: { 
-            ...post._count, 
+          _count: {
+            ...post._count,
             likes: newLikesCount,
             commentaires: post.commentaires?.length || post._count?.commentaires || 0
           },
-          likes: (isLiked ? [{ userId: user?.id, postId }] : []) as any 
+          likes: isLiked ? [{ id: 0, userId: user?.id || 0, postId }] : []
         };
       }
       return post;
@@ -42,9 +42,9 @@ export default function Mon_compte({ user, onUpdate }: { user: UserWithRelations
     chargerDonnees();
   }, [user?.id]);
 
-  const handlePublishPost = async (postData: any) => {
+  const handlePublishPost = async (postData: CreatePostData) => {
     try {
-      const res = await axios.post<PostComplet>("http://localhost:3000/api/posts/creer", postData);
+      const res = await api.post<PostComplet>("/api/posts/creer", postData);
       if (res.status === 201 || res.status === 200) {
         toast.success("Publication partagée");
         await chargerDonnees();
@@ -63,14 +63,6 @@ export default function Mon_compte({ user, onUpdate }: { user: UserWithRelations
   const postsProgrammes = mesPosts.filter(p => !!p.programme);
   const postsPlannings = mesPosts.filter(p => !!p.planning && !p.programme);
 
-  const EmptyState = ({ message }: { message: string }) => (
-    <div className="py-12 text-center border-2 border-dashed border-slate-100 dark:border-zinc-900 rounded-[2rem] w-full">
-      <p className="text-slate-400 font-black uppercase italic text-[10px] tracking-widest">
-        {message}
-      </p>
-    </div>
-  );
-
   return (
     <div className="w-full space-y-24 pb-20 text-left px-4 sm:px-10">
       <div className="flex justify-between items-end">
@@ -81,28 +73,24 @@ export default function Mon_compte({ user, onUpdate }: { user: UserWithRelations
           <p id="total-posts-count" className="text-[10px] font-bold text-slate-400 uppercase tracking-widest italic">
             {mesPosts.length} Publications au total
           </p>
+          {limitePostAtteinte && (
+            <p className="text-[10px] font-black text-rose-500 uppercase italic mt-2">
+              Limite de postes atteinte, Supprimez-en pour en créer un nouveau
+            </p>
+          )}
         </div>
-        <ModalCreerPost id="btn-ouvrir-modal-post" user={user} onPublier={handlePublishPost} />
+        <ModalCreerPost id="btn-ouvrir-modal-post" user={user} onPublier={handlePublishPost} disabled={limitePostAtteinte} />
       </div>
 
       <div className="flex flex-col w-full space-y-32">
-        
-        <section className="space-y-8">
-          <div className="flex items-center gap-4">
-            <div className="p-3 bg-slate-900 text-white rounded-xl shadow-lg">
-              <LayoutGrid size={22} />
-            </div>
-            <div>
-              <h2 className="text-2xl font-black uppercase italic">Programmes</h2>
-              <div className="h-1 w-12 bg-emerald-600 rounded-full mt-1" />
-            </div>
-          </div>
 
+        <section className="space-y-8">
+          <SectionHeader titre="Programmes" icon={<LayoutGrid size={22} />} variant="dark" />
           {postsProgrammes.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 w-full">
               {postsProgrammes.map(post => (
                 <div key={post.id} className="w-full">
-                  <CardPost post={post} user={user} onUpdate={updatePostInList} onDelete={handlePostDeletedLocalement}/>
+                  <CardPost post={post} user={user} onUpdate={updatePostInList} onDelete={handlePostDeletedLocalement} />
                 </div>
               ))}
             </div>
@@ -112,16 +100,7 @@ export default function Mon_compte({ user, onUpdate }: { user: UserWithRelations
         </section>
 
         <section className="space-y-8">
-          <div className="flex items-center gap-4">
-            <div className="p-3 bg-white border border-slate-100 dark:bg-zinc-900 dark:border-zinc-800 rounded-xl shadow-lg">
-              <ClipboardList size={22} />
-            </div>
-            <div>
-              <h2 className="text-2xl font-black uppercase italic">Plannings</h2>
-              <div className="h-1 w-12 bg-emerald-600 rounded-full mt-1" />
-            </div>
-          </div>
-
+          <SectionHeader titre="Plannings" icon={<ClipboardList size={22} />} variant="light" />
           {postsPlannings.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 w-full">
               {postsPlannings.map(post => (

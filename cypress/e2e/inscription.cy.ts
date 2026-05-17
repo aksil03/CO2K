@@ -1,9 +1,11 @@
 describe('Test Inscription', () => {
-  
+
   beforeEach(() => {
     cy.clearLocalStorage()
-    cy.visit('http://localhost:5173/inscription') 
+    cy.window().then((win) => win.sessionStorage.clear())
+    cy.visit('http://localhost:5173/inscription')
   })
+
 
   it('Formulaire vide', () => {
     cy.get('button[type="submit"]').click()
@@ -11,7 +13,7 @@ describe('Test Inscription', () => {
     cy.url().should('include', '/inscription')
   })
 
-  it('Email déjà utilisé', () => {
+  it('Email deja utilisé', () => {
     cy.intercept('POST', '**/api/inscription', {
       statusCode: 500,
       body: { message: 'error' }
@@ -19,7 +21,8 @@ describe('Test Inscription', () => {
     cy.get('input[name="nom"]').type('testeur')
     cy.get('input[name="prenom"]').type('Test')
     cy.get('input[name="email"]').type('deja@pris.fr')
-    cy.get('input[name="password"]').type('mdptest')
+
+    cy.get('input[name="password"]').type('mdptesteur')
     cy.get('button[type="submit"]').click()
     cy.wait('@inscriptionFail')
     cy.contains("Erreur d'inscription").should('be.visible')
@@ -34,7 +37,7 @@ describe('Test Inscription', () => {
     cy.get('input[name="nom"]').type('testeur')
     cy.get('input[name="prenom"]').type('Test')
     cy.get('input[name="email"]').type('test@virtuel.fr')
-    cy.get('input[name="password"]').type('mdptest')
+    cy.get('input[name="password"]').type('mdptesteur')
     cy.get('input[name="age"]').clear().type('25')
     cy.get('input[name="taille"]').clear().type('180')
     cy.get('input[name="poids"]').clear().type('75')

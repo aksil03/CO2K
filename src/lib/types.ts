@@ -1,6 +1,6 @@
 import { z } from "zod";
-import { 
-  Prisma, 
+import {
+  Prisma,
   ObjectifPhysique,
   NiveauActivite,
   Genre,
@@ -10,19 +10,21 @@ import {
   BacAliment
 } from "@prisma/client";
 import type { Aliment } from "@prisma/client";
-import { getUtilisateurComplet } from "./queries";
-import { getPlanningsUtilisateur } from "./queries";
-import { getProgrammesUtilisateur, getFeedCommunaute, getPostsByUserId } from "./queries";
-import { CalculateurImpact } from "./planning/impact";
+import { getUtilisateurComplet } from "./queries/utilisateur.queries";
+import { getPlanningsUtilisateur } from "./queries/planning.queries";
+import { getProgrammesUtilisateur } from "./queries/programmes.queries";
 
-export { 
-  MomentRepas, 
-  TemplateRepas, 
-  BacAliment, 
-  ObjectifPhysique, 
-  NiveauActivite, 
-  Genre, 
-  RegimeAlimentaire 
+import { CalculateurImpact } from "./planning/impact";
+import type { getPostsByUserId } from "./queries/communaute.queries";
+
+export {
+  MomentRepas,
+  TemplateRepas,
+  BacAliment,
+  ObjectifPhysique,
+  NiveauActivite,
+  Genre,
+  RegimeAlimentaire
 };
 export type { Aliment };
 
@@ -33,7 +35,7 @@ export type AlimentsGroupes = Partial<Record<BacAliment, Aliment[]>>;
 export type Periode = 'JOUR' | 'SEMAINE' | 'MOIS';
 
 
-export const formatEnum = (text: string) => 
+export const formatEnum = (text: string) =>
   text.toLowerCase().split("_").map(m => m.charAt(0).toUpperCase() + m.slice(1)).join(" ");
 
 
@@ -41,15 +43,16 @@ export const InscriptionFormSchema = z.object({
   nom: z.string().min(1, "Requis"),
   prenom: z.string().min(1, "Requis"),
   email: z.string().email("Format invalide"),
-  password: z.string().min(4, "4 caractères min"),
-  age: z.coerce.number().int().min(15).max(100),   
-  taille: z.coerce.number().int().min(100).max(250), 
-  poids: z.coerce.number().min(30).max(200),
+  password: z.string().min(8, "8 caractères min"),
+  age: z.number().int().min(15).max(100),
+  taille: z.number().int().min(100).max(220),
+  poids: z.number().min(30).max(120),
 });
 
+
 export const ProfilFormSchema = z.object({
-  poids: z.coerce.number().min(30).max(200),
-  taille: z.coerce.number().int().min(100).max(250),
+  poids: z.coerce.number().min(30).max(120),
+  taille: z.coerce.number().int().min(100).max(220),
   age: z.coerce.number().int().min(15).max(100),
   objectif: z.nativeEnum(ObjectifPhysique),
   activite: z.nativeEnum(NiveauActivite),
@@ -58,9 +61,10 @@ export const ProfilFormSchema = z.object({
 });
 
 export const LoginFormSchema = z.object({
-  email: z.string().email(),
-  password: z.string().min(1),
+  email: z.string().min(1, "Écrivez un email").email("Format d'email invalide"),
+  password: z.string().min(1, "Écrivez un mot de passe"),
 });
+
 
 export type InscriptionData = z.infer<typeof InscriptionFormSchema>;
 const _checkInscr: Prisma.UtilisateurCreateInput = {} as InscriptionData;
@@ -116,10 +120,11 @@ const _checkPortion: Prisma.PortionUncheckedCreateInput = {} as z.infer<typeof P
 // schema repas
 export const RepasSchema = z.object({
   dateConsom: z.coerce.date(),
+  numJour: z.number().optional(),
   type: z.nativeEnum(MomentRepas),
   nomTemplate: z.nativeEnum(TemplateRepas),
   utilisateurId: z.number(),
-  portions: z.array(PortionSchema), 
+  portions: z.array(PortionSchema),
 });
 const _checkRepas: Omit<Prisma.RepasUncheckedCreateInput, 'portions'> = {} as z.infer<typeof RepasSchema>;
 
@@ -128,7 +133,7 @@ export const SavePlanningSchema = z.object({
   nom: z.string().min(1),
   description: z.string().optional(),
   auteurId: z.number(),
-  repas: z.array(RepasGenereSchema), 
+  repas: z.array(RepasGenereSchema),
 });
 
 export type SavePlanningData = z.infer<typeof SavePlanningSchema>;
@@ -136,7 +141,7 @@ const _checkSave: Prisma.PlanningUncheckedCreateInput = {} as Omit<SavePlanningD
 
 
 export const AssignerPlanningSchema = z.object({
-  programmeId: z.coerce.number(),   
+  programmeId: z.coerce.number(),
   planningId: z.coerce.number(),
   semaineDebut: z.coerce.date(),
   ordre: z.coerce.number().default(1),
@@ -180,11 +185,14 @@ const _checkPost: Prisma.PostUncheckedCreateInput = {} as CreatePostData;
 
 export type BesoinsNutritionnels = NonNullable<ReturnType<typeof CalculateurImpact.calculerBesoinsNutritionnels>>;
 
+export type CommentaireComplet = PostComplet['commentaires'][number];
+
+export type SemaineProgramme = ProgrammeComplet['semaines'][number];
 
 // interface
-export interface PanierItem { 
-  aliment: Aliment; 
-  poids: number; 
+export interface PanierItem {
+  aliment: Aliment;
+  poids: number;
 }
 
 export interface Repartition {
