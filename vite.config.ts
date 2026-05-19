@@ -6,7 +6,8 @@ export default defineConfig({
   plugins: [react()],
   define: {
     "process.env": {},
-    "process": {},
+    "process.versions": { node: "22.6.0", modules: "120" },
+    "process": { env: {}, versions: { node: "22.6.0", modules: "120" } },
   },
   resolve: {
     alias: {
