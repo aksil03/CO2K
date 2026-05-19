@@ -18,7 +18,8 @@ app.post('/api/planning/sauvegarder', authentifierToken, async (req, res) => {
         const planning = await sauvegarderPlanning(planningValide);
         res.status(201).json(planning);
     } catch (error) {
-        res.status(500).send("Erreur lors de la sauvegarde");
+        console.error("Erreur lors de la sauvegarde du planning:", error);
+        res.status(500).send(error instanceof Error ? error.message : "Erreur lors de la sauvegarde");
     }
 });
 

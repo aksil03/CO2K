@@ -137,7 +137,14 @@ export default function Plannings({ user, tousLesAliments, onUpdate }: { user: U
           block: 'start'
         });
       }, 100)
-    } catch (err) { toast.error("Erreur"); } finally { setLoading(false); }
+    } catch (err: any) {
+      console.error("Erreur de génération:", err);
+      const msg = err.response?.data || "Erreur de connexion au serveur";
+      toast.error(`Erreur : ${msg}`);
+    } finally {
+      setLoading(false);
+    }
+
   };
 
   const onSaveManuel = async () => {
