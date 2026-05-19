@@ -10,11 +10,11 @@ import {
   BacAliment
 } from "@prisma/client";
 import type { Aliment } from "@prisma/client";
-import { getUtilisateurComplet } from "./queries/utilisateur.queries";
-import { getPlanningsUtilisateur } from "./queries/planning.queries";
-import { getProgrammesUtilisateur } from "./queries/programmes.queries";
+import type { getUtilisateurComplet } from "./queries/utilisateur.queries";
+import type { getPlanningsUtilisateur } from "./queries/planning.queries";
+import type { getProgrammesUtilisateur } from "./queries/programmes.queries";
 
-import { CalculateurImpact } from "./planning/impact";
+import type { CalculateurImpact } from "./planning/impact";
 import type { getPostsByUserId } from "./queries/communaute.queries";
 
 export {
