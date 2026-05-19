@@ -53,6 +53,8 @@ export const sauvegarderPlanning = async (params: any) => {
                 }
             }
         });
+    }, {
+        timeout: 60000
     });
 };
 
@@ -114,15 +116,17 @@ export const supprimerPlanning = async (id: number) => {
         return await tx.planning.delete({
             where: { id }
         });
+    }, {
+        timeout: 60000
     });
 };
 
 // Met à jour un planning 
 export const majPlanning = async (repas: any[]) => {
-    return await db.$transaction(
-        repas.flatMap((unRepas) =>
+    return await db.$transaction(async (tx) => {
+        const requetes = repas.flatMap((unRepas) =>
             unRepas.portions.map((portion: any) =>
-                db.portion.update({
+                tx.portion.update({
                     where: { id: portion.id },
                     data: {
                         quantite: portion.quantite,
@@ -130,8 +134,11 @@ export const majPlanning = async (repas: any[]) => {
                     },
                 })
             )
-        )
-    );
+        );
+        return await Promise.all(requetes);
+    }, {
+        timeout: 600000
+    });
 };
 
 // mise à jour légère des infos du planning
