@@ -1,6 +1,7 @@
 # CO2K - Planificateur de Repas & Éco-Score Carbone
 
 Le site est en ligne et accessible à l'adresse suivante : [co-2-k-wvzs.vercel.app](https://co-2-k-wvzs.vercel.app)  
+Concernant le rapport vous pouvez le trouver au sein de notre dépot
    
 CO2K est une application web conçue pour planifier ses repas au quotidien tout en gardant un œil sur son apport nutritionnel et sur l'impact environnemental (émissions de CO2) de chaque ingrédient. L'idée est de proposer un outil simple pour manger plus sainement tout en limitant son empreinte carbone
 
