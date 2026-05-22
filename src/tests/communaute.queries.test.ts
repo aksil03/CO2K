@@ -24,8 +24,7 @@ describe('Tests unitaires communaute', () => {
             contenu: 'Lightweight baby',
             auteurId: 1,
             programmeId: null,
-            planningId: 5,
-            repasId: null
+            planningId: 5
         };
 
         dbMock.post.create.mockResolvedValue({ id: 500, ...postInput });
@@ -37,8 +36,7 @@ describe('Tests unitaires communaute', () => {
                 contenu: postInput.contenu,
                 auteurId: postInput.auteurId,
                 programmeId: null,
-                planningId: 5,
-                repasId: null
+                planningId: 5
             },
             include: {
                 auteur: true,

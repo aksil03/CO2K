@@ -15,6 +15,7 @@ describe('Tests unitaires planning', () => {
 
     beforeEach(() => {
         jest.clearAllMocks();
+        dbMock.$transaction.mockImplementation(async (callback: any) => await callback(dbMock));
     });
 
     // test sauvegarderPlanning
@@ -37,23 +38,9 @@ describe('Tests unitaires planning', () => {
         dbMock.planning.create.mockResolvedValue({ id: 100, nom: params.nom });
         await queries.sauvegarderPlanning(params as any);
         expect(dbMock.planning.create).toHaveBeenCalledWith({
-            data: expect.objectContaining({
+            data: {
                 nom: 'Planning de Ronnie',
                 auteurId: 1,
-                repas: expect.objectContaining({
-                    create: expect.any(Array)
-                })
-            }),
-            include: {
-                repas: {
-                    include: {
-                        portions: {
-                            include: {
-                                aliment: true
-                            }
-                        }
-                    }
-                }
             }
         });
     });
@@ -118,7 +105,6 @@ describe('Tests unitaires planning', () => {
             }
         ];
 
-        dbMock.$transaction.mockResolvedValue([]);
         await queries.majPlanning(mockRepas);
         expect(dbMock.portion.update).toHaveBeenCalledWith(expect.objectContaining({
             where: { id: 1 },

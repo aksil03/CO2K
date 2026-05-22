@@ -9,6 +9,7 @@ import communauteRoutes from './src/routes/communaute.routes';
 
 
 const app = express();
+app.set('trust proxy', 1);
 
 const CORS = process.env.CORS;
 if (!CORS) throw new Error("CORS introuvable");
